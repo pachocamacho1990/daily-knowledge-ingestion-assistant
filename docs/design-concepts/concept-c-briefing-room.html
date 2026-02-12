@@ -1,0 +1,1019 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DKIA - Concept C: The Briefing Room</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
+
+  /* ========================================
+     DESIGN BRIEF: THE BRIEFING ROOM
+     ========================================
+     Metaphor: Intelligence analyst's workspace. Structured,
+               hierarchical, signal-over-noise. Every element
+               has a classification and priority level.
+
+     Adjectives: Precise, Structured, Authoritative
+
+     Principle: "Priority is visual" — the eye should
+                instantly distinguish critical from routine
+                without reading a single word.
+
+     Anti-references: NOT playful, NOT organic/rounded,
+                      NOT dark-mode gaming aesthetic.
+     ======================================== */
+
+  :root {
+    /* Base surface (clean, institutional) */
+    --bg-base: #f0f2f5;
+    --bg-surface: #ffffff;
+    --bg-elevated: #ffffff;
+    --bg-sidebar: #1b2838;
+    --bg-sidebar-hover: #243347;
+    --bg-sidebar-active: #2a3f5a;
+
+    /* Text */
+    --text-primary: #111827;
+    --text-secondary: #4b5563;
+    --text-tertiary: #9ca3af;
+    --text-inverse: #e5e7eb;
+    --text-inverse-muted: #9ca3af;
+
+    /* Priority bands */
+    --priority-critical: #dc2626;
+    --priority-critical-bg: #fef2f2;
+    --priority-critical-border: #fecaca;
+    --priority-high: #d97706;
+    --priority-high-bg: #fffbeb;
+    --priority-high-border: #fde68a;
+    --priority-medium: #2563eb;
+    --priority-medium-bg: #eff6ff;
+    --priority-medium-border: #bfdbfe;
+    --priority-low: #6b7280;
+    --priority-low-bg: #f9fafb;
+    --priority-low-border: #e5e7eb;
+
+    /* Status colors */
+    --status-active: #059669;
+    --status-pending: #d97706;
+    --status-processed: #2563eb;
+
+    /* Category markers */
+    --cat-ai: #7c3aed;
+    --cat-systems: #2563eb;
+    --cat-programming: #059669;
+    --cat-research: #dc2626;
+
+    /* Typography */
+    --font-main: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-mono: 'DM Mono', monospace;
+
+    /* Spacing */
+    --space-xs: 4px;
+    --space-sm: 8px;
+    --space-md: 16px;
+    --space-lg: 24px;
+    --space-xl: 32px;
+    --space-2xl: 48px;
+
+    /* Borders */
+    --border: 1px solid #e5e7eb;
+    --border-strong: 1px solid #d1d5db;
+    --radius-sm: 4px;
+    --radius-md: 6px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg-base);
+    color: var(--text-primary);
+    font-family: var(--font-main);
+    font-size: 14px;
+    line-height: 1.5;
+    min-height: 100vh;
+  }
+
+  /* ---- APP LAYOUT (sidebar + main) ---- */
+  .app-layout {
+    display: flex;
+    min-height: 100vh;
+  }
+
+  /* ---- SIDEBAR ---- */
+  .sidebar {
+    width: 240px;
+    background: var(--bg-sidebar);
+    color: var(--text-inverse);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+  }
+
+  .sidebar-brand {
+    padding: var(--space-lg);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+
+  .sidebar-brand-name {
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .sidebar-brand-sub {
+    font-size: 11px;
+    color: var(--text-inverse-muted);
+    margin-top: 2px;
+  }
+
+  .sidebar-nav {
+    padding: var(--space-md) var(--space-sm);
+    flex: 1;
+  }
+
+  .sidebar-section-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text-inverse-muted);
+    padding: var(--space-md) var(--space-sm) var(--space-xs);
+  }
+
+  .sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: 8px 12px;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-inverse);
+    text-decoration: none;
+    cursor: pointer;
+    transition: background 0.15s;
+    margin-bottom: 2px;
+  }
+
+  .sidebar-link:hover {
+    background: var(--bg-sidebar-hover);
+  }
+
+  .sidebar-link.active {
+    background: var(--bg-sidebar-active);
+  }
+
+  .sidebar-link svg {
+    width: 16px;
+    height: 16px;
+    opacity: 0.7;
+  }
+
+  .sidebar-link .badge {
+    margin-left: auto;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    padding: 1px 6px;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.12);
+  }
+
+  .sidebar-link .badge.alert {
+    background: var(--priority-critical);
+    color: white;
+  }
+
+  .sidebar-status {
+    padding: var(--space-md) var(--space-lg);
+    border-top: 1px solid rgba(255,255,255,0.08);
+    font-size: 11px;
+    color: var(--text-inverse-muted);
+  }
+
+  .sidebar-status-dot {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--status-active);
+    margin-right: 6px;
+  }
+
+  /* ---- MAIN CONTENT ---- */
+  .main-content {
+    flex: 1;
+    min-width: 0;
+  }
+
+  /* ---- TOP BAR ---- */
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-md) var(--space-xl);
+    background: var(--bg-surface);
+    border-bottom: var(--border);
+  }
+
+  .topbar-left {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+  }
+
+  .topbar-date {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-tertiary);
+  }
+
+  .topbar-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+
+  .topbar-actions {
+    display: flex;
+    gap: var(--space-sm);
+  }
+
+  .topbar-btn {
+    padding: 6px 14px;
+    font-family: var(--font-main);
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all 0.15s;
+    border: var(--border);
+    background: var(--bg-surface);
+    color: var(--text-secondary);
+  }
+
+  .topbar-btn:hover {
+    background: var(--bg-base);
+  }
+
+  .topbar-btn.primary {
+    background: var(--text-primary);
+    color: white;
+    border-color: var(--text-primary);
+  }
+
+  .topbar-btn.primary:hover {
+    background: #374151;
+  }
+
+  /* ---- STATUS STRIP ---- */
+  .status-strip {
+    display: flex;
+    gap: 1px;
+    background: var(--bg-base);
+    border-bottom: var(--border);
+  }
+
+  .status-cell {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: var(--space-sm) var(--space-md);
+    background: var(--bg-surface);
+    font-size: 12px;
+  }
+
+  .status-cell-number {
+    font-family: var(--font-mono);
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+
+  .status-cell-label {
+    color: var(--text-tertiary);
+    font-size: 11px;
+    line-height: 1.3;
+  }
+
+  .status-cell-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 2px;
+  }
+
+  /* ---- BRIEFING CONTENT ---- */
+  .briefing-content {
+    padding: var(--space-xl);
+  }
+
+  /* ---- AI ASSESSMENT ---- */
+  .assessment {
+    background: var(--bg-surface);
+    border: var(--border);
+    border-left: 3px solid var(--text-primary);
+    border-radius: var(--radius-md);
+    padding: var(--space-lg);
+    margin-bottom: var(--space-xl);
+  }
+
+  .assessment-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    margin-bottom: var(--space-sm);
+  }
+
+  .assessment-label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text-tertiary);
+  }
+
+  .assessment-timestamp {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-tertiary);
+    margin-left: auto;
+  }
+
+  .assessment-text {
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--text-primary);
+  }
+
+  .assessment-text strong {
+    font-weight: 600;
+  }
+
+  .assessment-actions {
+    display: flex;
+    gap: var(--space-sm);
+    margin-top: var(--space-md);
+    padding-top: var(--space-md);
+    border-top: var(--border);
+  }
+
+  .assessment-action {
+    padding: 5px 12px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 500;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    border: var(--border);
+    background: var(--bg-surface);
+    color: var(--text-secondary);
+    transition: all 0.15s;
+  }
+
+  .assessment-action:hover {
+    background: var(--bg-base);
+    color: var(--text-primary);
+  }
+
+  .assessment-action.primary {
+    background: var(--text-primary);
+    color: white;
+    border-color: var(--text-primary);
+  }
+
+  /* ---- SECTION HEADER ---- */
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-md);
+    margin-top: var(--space-xl);
+  }
+
+  .section-label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text-tertiary);
+  }
+
+  .section-count {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-tertiary);
+  }
+
+  /* ---- ITEM TABLE ---- */
+  .items-table {
+    width: 100%;
+    background: var(--bg-surface);
+    border: var(--border);
+    border-radius: var(--radius-md);
+    border-collapse: separate;
+    border-spacing: 0;
+    overflow: hidden;
+  }
+
+  .items-table thead {
+    background: var(--bg-base);
+  }
+
+  .items-table th {
+    padding: var(--space-sm) var(--space-md);
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text-tertiary);
+    text-align: left;
+    border-bottom: var(--border);
+  }
+
+  .items-table td {
+    padding: var(--space-md);
+    border-bottom: var(--border);
+    vertical-align: top;
+  }
+
+  .items-table tr:last-child td {
+    border-bottom: none;
+  }
+
+  .items-table tbody tr {
+    cursor: pointer;
+    transition: background 0.1s;
+  }
+
+  .items-table tbody tr:hover {
+    background: var(--bg-base);
+  }
+
+  /* Priority indicator */
+  .priority-bar {
+    width: 4px;
+    height: 100%;
+    min-height: 48px;
+    border-radius: 2px;
+  }
+
+  .priority-bar.critical { background: var(--priority-critical); }
+  .priority-bar.high { background: var(--priority-high); }
+  .priority-bar.medium { background: var(--priority-medium); }
+  .priority-bar.low { background: var(--priority-low); }
+
+  .priority-cell {
+    width: 12px;
+    padding-right: 0 !important;
+  }
+
+  .item-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+    line-height: 1.4;
+  }
+
+  .item-summary {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-top: 2px;
+    line-height: 1.5;
+  }
+
+  .item-source {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-tertiary);
+    white-space: nowrap;
+  }
+
+  .item-category {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    padding: 2px 6px;
+    border-radius: 2px;
+  }
+
+  .cat-ai { background: rgba(124, 58, 237, 0.1); color: var(--cat-ai); }
+  .cat-systems { background: rgba(37, 99, 235, 0.1); color: var(--cat-systems); }
+  .cat-programming { background: rgba(5, 150, 105, 0.1); color: var(--cat-programming); }
+  .cat-research { background: rgba(220, 38, 38, 0.1); color: var(--cat-research); }
+
+  .item-score {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  .score-high { color: var(--priority-critical); }
+  .score-medium { color: var(--priority-high); }
+  .score-low { color: var(--text-tertiary); }
+
+  .item-time {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-tertiary);
+    white-space: nowrap;
+  }
+
+  .item-reading {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-tertiary);
+    white-space: nowrap;
+  }
+
+  /* ---- CONNECTIONS PANEL ---- */
+  .connections-panel {
+    background: var(--bg-surface);
+    border: var(--border);
+    border-left: 3px solid var(--priority-medium);
+    border-radius: var(--radius-md);
+    padding: var(--space-lg);
+    margin-top: var(--space-xl);
+  }
+
+  .connection-row {
+    display: flex;
+    gap: var(--space-md);
+    padding: var(--space-md) 0;
+    border-bottom: var(--border);
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--text-secondary);
+  }
+
+  .connection-row:last-child { border-bottom: none; }
+
+  .connection-id {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-tertiary);
+    white-space: nowrap;
+    flex-shrink: 0;
+    padding-top: 2px;
+  }
+
+  .connection-row strong {
+    color: var(--text-primary);
+    font-weight: 600;
+  }
+
+  .connection-row a {
+    color: var(--priority-medium);
+    text-decoration: none;
+    font-weight: 500;
+    cursor: pointer;
+  }
+
+  /* ---- CHAT PANEL ---- */
+  .chat-panel {
+    background: var(--bg-surface);
+    border: var(--border);
+    border-radius: var(--radius-md);
+    margin-top: var(--space-xl);
+    overflow: hidden;
+  }
+
+  .chat-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-md) var(--space-lg);
+    background: var(--bg-base);
+    border-bottom: var(--border);
+  }
+
+  .chat-header-title {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text-tertiary);
+  }
+
+  .chat-header-status {
+    font-size: 11px;
+    color: var(--status-active);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .chat-header-status::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--status-active);
+  }
+
+  .chat-body {
+    padding: var(--space-lg);
+  }
+
+  .chat-suggestions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+    margin-bottom: var(--space-lg);
+  }
+
+  .chat-suggestion {
+    padding: 6px 12px;
+    background: var(--bg-base);
+    border: var(--border);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .chat-suggestion:hover {
+    background: var(--bg-surface);
+    border-color: var(--text-tertiary);
+    color: var(--text-primary);
+  }
+
+  .chat-input-row {
+    display: flex;
+    gap: var(--space-sm);
+  }
+
+  .chat-input {
+    flex: 1;
+    padding: 10px 14px;
+    border: var(--border-strong);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-main);
+    font-size: 13px;
+    color: var(--text-primary);
+    background: var(--bg-surface);
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  .chat-input::placeholder { color: var(--text-tertiary); }
+  .chat-input:focus { border-color: var(--text-secondary); }
+
+  .chat-send {
+    padding: 10px 20px;
+    background: var(--text-primary);
+    color: white;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .chat-send:hover { background: #374151; }
+</style>
+</head>
+<body>
+
+<div class="app-layout">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-brand-name">DKIA</div>
+      <div class="sidebar-brand-sub">Briefing System v0.1</div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="sidebar-section-label">Operations</div>
+      <a class="sidebar-link active">
+        <svg viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>
+        Daily Briefing
+        <span class="badge alert">12</span>
+      </a>
+      <a class="sidebar-link">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M2 3h12v1H2zM2 7h8v1H2zM2 11h10v1H2z"/></svg>
+        Full Archive
+        <span class="badge">47</span>
+      </a>
+      <a class="sidebar-link">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 1l2 4 4.5.7-3.3 3.1.8 4.5L8 11.2 3.8 13.3l.8-4.5L1.5 5.7 6 5z"/></svg>
+        Saved Items
+      </a>
+
+      <div class="sidebar-section-label" style="margin-top: 16px;">Intelligence</div>
+      <a class="sidebar-link">
+        <svg viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="8" r="3"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3 3l1.5 1.5M11.5 11.5L13 13M3 13l1.5-1.5M11.5 4.5L13 3" stroke="currentColor" stroke-width="1" fill="none"/></svg>
+        Chat / Query
+      </a>
+      <a class="sidebar-link">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M2 14V4l3-3h6l3 3v10H2zM5 1v3H2M8 6v5M6 9l2 2 2-2" fill="none" stroke="currentColor" stroke-width="1"/></svg>
+        Connections
+        <span class="badge">3</span>
+      </a>
+      <a class="sidebar-link">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M1 12l3-4 3 2 4-5 4 3" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
+        Trends
+      </a>
+
+      <div class="sidebar-section-label" style="margin-top: 16px;">System</div>
+      <a class="sidebar-link">
+        <svg viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="8" r="2" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2" stroke="currentColor" stroke-width="1.5"/></svg>
+        Sources
+      </a>
+      <a class="sidebar-link">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M6.5 1.5h3l.5 2 1.7 1-1.7 1 .2 2-1.7-1.2L8 7.5l-.5-1.2L5.8 7.5l.2-2-1.7-1L6 3.5z" fill="none" stroke="currentColor" stroke-width="1"/></svg>
+        Settings
+      </a>
+    </nav>
+
+    <div class="sidebar-status">
+      <span class="sidebar-status-dot"></span>
+      Ollama connected &middot; llama3.1:8b
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="main-content">
+
+    <!-- Top Bar -->
+    <div class="topbar">
+      <div class="topbar-left">
+        <div>
+          <div class="topbar-date">2026-02-11 &middot; 07:14 UTC-5</div>
+          <div class="topbar-title">Morning Briefing</div>
+        </div>
+      </div>
+      <div class="topbar-actions">
+        <button class="topbar-btn">Export</button>
+        <button class="topbar-btn">Regenerate</button>
+        <button class="topbar-btn primary">Collect Now</button>
+      </div>
+    </div>
+
+    <!-- Status Strip -->
+    <div class="status-strip">
+      <div class="status-cell">
+        <div class="status-cell-indicator" style="background: var(--status-processed)"></div>
+        <div>
+          <div class="status-cell-number">47</div>
+          <div class="status-cell-label">Items<br>Scanned</div>
+        </div>
+      </div>
+      <div class="status-cell">
+        <div class="status-cell-indicator" style="background: var(--priority-critical)"></div>
+        <div>
+          <div class="status-cell-number">5</div>
+          <div class="status-cell-label">High<br>Priority</div>
+        </div>
+      </div>
+      <div class="status-cell">
+        <div class="status-cell-indicator" style="background: var(--priority-high)"></div>
+        <div>
+          <div class="status-cell-number">7</div>
+          <div class="status-cell-label">Medium<br>Priority</div>
+        </div>
+      </div>
+      <div class="status-cell">
+        <div class="status-cell-indicator" style="background: var(--priority-medium)"></div>
+        <div>
+          <div class="status-cell-number">3</div>
+          <div class="status-cell-label">Connections<br>Detected</div>
+        </div>
+      </div>
+      <div class="status-cell">
+        <div class="status-cell-indicator" style="background: var(--status-active)"></div>
+        <div>
+          <div class="status-cell-number">~18m</div>
+          <div class="status-cell-label">Total<br>Reading</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Briefing Content -->
+    <div class="briefing-content">
+
+      <!-- AI Assessment -->
+      <div class="assessment">
+        <div class="assessment-header">
+          <div class="assessment-label">Situation Assessment</div>
+          <div class="assessment-timestamp">Generated 06:45 UTC-5</div>
+        </div>
+        <div class="assessment-text">
+          Primary development: <strong>retrieval-augmented generation</strong> research showing significant advancement. A new paper proposes dynamic context windows (relevance 0.94) that directly addresses scaling concerns raised in yesterday's practitioner discussion on HN. Secondary signal: <strong>Rust adoption in ML infrastructure</strong> continues across independent sources. Recommend prioritizing items #1 and #2, then reviewing the cross-source connections.
+        </div>
+        <div class="assessment-actions">
+          <button class="assessment-action primary">Review priority items</button>
+          <button class="assessment-action">View connections</button>
+          <button class="assessment-action">Adjust focus areas</button>
+        </div>
+      </div>
+
+      <!-- High Priority Table -->
+      <div class="section-header">
+        <div class="section-label">Priority Items</div>
+        <div class="section-count">5 items</div>
+      </div>
+
+      <table class="items-table">
+        <thead>
+          <tr>
+            <th class="priority-cell"></th>
+            <th>Item</th>
+            <th>Source</th>
+            <th>Category</th>
+            <th>Score</th>
+            <th>Age</th>
+            <th>Read</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="priority-cell"><div class="priority-bar critical"></div></td>
+            <td>
+              <div class="item-title">Dynamic Context Windows for Retrieval-Augmented Generation</div>
+              <div class="item-summary">Adaptive context window sizing, 23% improvement on multi-hop reasoning, 40% token reduction.</div>
+            </td>
+            <td><span class="item-source">arXiv</span></td>
+            <td><span class="item-category cat-ai">AI/ML</span></td>
+            <td><span class="item-score score-high">0.94</span></td>
+            <td><span class="item-time">6h</span></td>
+            <td><span class="item-reading">4m</span></td>
+          </tr>
+          <tr>
+            <td class="priority-cell"><div class="priority-bar critical"></div></td>
+            <td>
+              <div class="item-title">Why We Rewrote Our ML Pipeline in Rust (And What We Learned)</div>
+              <div class="item-summary">6-month Python-to-Rust migration, 10x throughput, honest trade-off analysis.</div>
+            </td>
+            <td><span class="item-source">HN</span></td>
+            <td><span class="item-category cat-systems">Systems</span></td>
+            <td><span class="item-score score-high">0.91</span></td>
+            <td><span class="item-time">9h</span></td>
+            <td><span class="item-reading">6m</span></td>
+          </tr>
+          <tr>
+            <td class="priority-cell"><div class="priority-bar high"></div></td>
+            <td>
+              <div class="item-title">SQLite as a Vector Database: A Practical Guide with sqlite-vec</div>
+              <div class="item-summary">sqlite-vec walkthrough. Benchmarks vs Chroma/FAISS. Viable under 1M vectors.</div>
+            </td>
+            <td><span class="item-source">RSS</span></td>
+            <td><span class="item-category cat-programming">Prog</span></td>
+            <td><span class="item-score score-high">0.89</span></td>
+            <td><span class="item-time">11h</span></td>
+            <td><span class="item-reading">5m</span></td>
+          </tr>
+          <tr>
+            <td class="priority-cell"><div class="priority-bar high"></div></td>
+            <td>
+              <div class="item-title">Scaling Laws for Sparse MoE on Consumer Hardware</div>
+              <div class="item-summary">47B MoE on Apple Silicon 32GB via quantization-aware routing. Local LLM deployment implications.</div>
+            </td>
+            <td><span class="item-source">arXiv</span></td>
+            <td><span class="item-category cat-research">Research</span></td>
+            <td><span class="item-score score-medium">0.87</span></td>
+            <td><span class="item-time">8h</span></td>
+            <td><span class="item-reading">3m</span></td>
+          </tr>
+          <tr>
+            <td class="priority-cell"><div class="priority-bar medium"></div></td>
+            <td>
+              <div class="item-title">Show HN: Open-Source Notion Alternative with Local-First Sync</div>
+              <div class="item-summary">CRDT-based, E2E encrypted, Rust + React. 2.3k stars already.</div>
+            </td>
+            <td><span class="item-source">HN</span></td>
+            <td><span class="item-category cat-programming">Prog</span></td>
+            <td><span class="item-score score-medium">0.85</span></td>
+            <td><span class="item-time">5h</span></td>
+            <td><span class="item-reading">2m</span></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Connections -->
+      <div class="connections-panel" style="margin-top: var(--space-xl);">
+        <div class="section-header" style="margin-top: 0;">
+          <div class="section-label">Cross-Source Connections</div>
+          <div class="section-count">3 detected</div>
+        </div>
+
+        <div class="connection-row">
+          <span class="connection-id">CONN-01</span>
+          <div>
+            <strong>Dynamic Context Windows</strong> (arXiv) directly addresses the scaling problem in yesterday's <a>HN thread on RAG limitations</a>. Authors cite the same benchmarks.
+          </div>
+        </div>
+        <div class="connection-row">
+          <span class="connection-id">CONN-02</span>
+          <div>
+            <strong>Rust ML Pipeline</strong> (HN) and <strong>MoE Consumer Hardware</strong> (arXiv) both signal: <a>performance-critical ML shifting to systems languages</a> for local deployment.
+          </div>
+        </div>
+        <div class="connection-row">
+          <span class="connection-id">CONN-03</span>
+          <div>
+            <strong>sqlite-vec guide</strong> (RSS) validates your <a>DKIA project architecture</a> for vector storage. Directly applicable reference implementation.
+          </div>
+        </div>
+      </div>
+
+      <!-- Lower Priority Table -->
+      <div class="section-header">
+        <div class="section-label">Standard Items</div>
+        <div class="section-count">7 items</div>
+      </div>
+
+      <table class="items-table">
+        <thead>
+          <tr>
+            <th class="priority-cell"></th>
+            <th>Item</th>
+            <th>Source</th>
+            <th>Category</th>
+            <th>Score</th>
+            <th>Age</th>
+            <th>Read</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="priority-cell"><div class="priority-bar medium"></div></td>
+            <td>
+              <div class="item-title">The Case Against Fine-Tuning: When RAG Is All You Need</div>
+              <div class="item-summary">90% of enterprise use cases better served by RAG. Cost analysis and decision framework.</div>
+            </td>
+            <td><span class="item-source">RSS</span></td>
+            <td><span class="item-category cat-ai">AI/ML</span></td>
+            <td><span class="item-score score-medium">0.72</span></td>
+            <td><span class="item-time">14h</span></td>
+            <td><span class="item-reading">7m</span></td>
+          </tr>
+          <tr>
+            <td class="priority-cell"><div class="priority-bar medium"></div></td>
+            <td>
+              <div class="item-title">PostgreSQL 18 Beta: JSON Subscripting and Async I/O</div>
+              <div class="item-summary">Native JSON path subscripting, async I/O, improved partitioning performance.</div>
+            </td>
+            <td><span class="item-source">HN</span></td>
+            <td><span class="item-category cat-systems">Systems</span></td>
+            <td><span class="item-score score-medium">0.68</span></td>
+            <td><span class="item-time">12h</span></td>
+            <td><span class="item-reading">3m</span></td>
+          </tr>
+          <tr>
+            <td class="priority-cell"><div class="priority-bar low"></div></td>
+            <td>
+              <div class="item-title">A Survey of Prompt Compression Techniques for Long-Context Models</div>
+              <div class="item-summary">34 methods surveyed. Token pruning, soft prompts, hybrid approaches.</div>
+            </td>
+            <td><span class="item-source">arXiv</span></td>
+            <td><span class="item-category cat-research">Research</span></td>
+            <td><span class="item-score score-low">0.61</span></td>
+            <td><span class="item-time">10h</span></td>
+            <td><span class="item-reading">8m</span></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Chat Panel -->
+      <div class="chat-panel">
+        <div class="chat-header">
+          <div class="chat-header-title">Intelligence Query</div>
+          <div class="chat-header-status">Agent Online</div>
+        </div>
+        <div class="chat-body">
+          <div class="chat-suggestions">
+            <span class="chat-suggestion">Prioritize my reading order</span>
+            <span class="chat-suggestion">Detail the RAG paper findings</span>
+            <span class="chat-suggestion">How does MoE affect my project?</span>
+            <span class="chat-suggestion">Weekly trend analysis</span>
+          </div>
+          <div class="chat-input-row">
+            <input class="chat-input" placeholder="Query the briefing system..." />
+            <button class="chat-send">QUERY</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

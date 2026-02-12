@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DKIA - Concept A: The Observatory</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  /* ========================================
+     DESIGN BRIEF: THE OBSERVATORY
+     ========================================
+     Metaphor: You are an astronomer scanning the information universe.
+               Content appears as clusters in a dark cosmos.
+
+     Adjectives: Contemplative, Intelligent, Expansive
+
+     Principle: "Signal in the silence" — important information
+                glows against a quiet dark canvas.
+
+     Anti-references: NOT a gaming dashboard, NOT neon cyberpunk,
+                      NOT cluttered with widgets.
+     ======================================== */
+
+  :root {
+    /* Background layers (deep space) */
+    --bg-void: #0a0e1a;
+    --bg-surface: #111827;
+    --bg-card: #1a2236;
+    --bg-card-hover: #1f2a42;
+
+    /* Text (starlight) */
+    --text-primary: #e8eaf0;
+    --text-secondary: #8892a8;
+    --text-muted: #4a5568;
+
+    /* Accent: Amber (warm star glow) */
+    --accent-amber: #f5a623;
+    --accent-amber-dim: rgba(245, 166, 35, 0.15);
+    --accent-amber-glow: rgba(245, 166, 35, 0.08);
+
+    /* Signal colors */
+    --signal-high: #f5a623;
+    --signal-medium: #6b8acd;
+    --signal-low: #4a5568;
+    --signal-connection: rgba(107, 138, 205, 0.3);
+
+    /* Category colors (nebula tones) */
+    --cat-ai: #7c6df0;
+    --cat-systems: #3b9bf5;
+    --cat-programming: #2dd4a8;
+    --cat-research: #f07c6d;
+
+    /* Typography */
+    --font-main: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+
+    /* Spacing */
+    --space-xs: 4px;
+    --space-sm: 8px;
+    --space-md: 16px;
+    --space-lg: 24px;
+    --space-xl: 40px;
+    --space-2xl: 64px;
+
+    /* Borders */
+    --border-subtle: 1px solid rgba(255, 255, 255, 0.06);
+    --radius-sm: 6px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg-void);
+    color: var(--text-primary);
+    font-family: var(--font-main);
+    font-size: 14px;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* Subtle star-field background effect */
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background:
+      radial-gradient(1px 1px at 20% 30%, rgba(255,255,255,0.1), transparent),
+      radial-gradient(1px 1px at 40% 70%, rgba(255,255,255,0.05), transparent),
+      radial-gradient(1px 1px at 60% 20%, rgba(255,255,255,0.08), transparent),
+      radial-gradient(1px 1px at 80% 60%, rgba(255,255,255,0.04), transparent),
+      radial-gradient(1.5px 1.5px at 10% 80%, rgba(245,166,35,0.1), transparent),
+      radial-gradient(1.5px 1.5px at 90% 40%, rgba(107,138,205,0.1), transparent);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .app { position: relative; z-index: 1; }
+
+  /* ---- NAVIGATION ---- */
+  .nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-md) var(--space-xl);
+    border-bottom: var(--border-subtle);
+    backdrop-filter: blur(20px);
+    background: rgba(10, 14, 26, 0.8);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .nav-brand {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+  }
+
+  .nav-brand svg { width: 24px; height: 24px; }
+
+  .nav-brand span {
+    font-weight: 600;
+    font-size: 15px;
+    letter-spacing: 0.5px;
+    color: var(--text-primary);
+  }
+
+  .nav-links {
+    display: flex;
+    gap: var(--space-lg);
+  }
+
+  .nav-link {
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+    transition: color 0.2s;
+    cursor: pointer;
+  }
+
+  .nav-link:hover, .nav-link.active {
+    color: var(--accent-amber);
+  }
+
+  .nav-link.active {
+    position: relative;
+  }
+
+  .nav-link.active::after {
+    content: '';
+    position: absolute;
+    bottom: -18px;
+    left: 0; right: 0;
+    height: 1px;
+    background: var(--accent-amber);
+  }
+
+  /* ---- MAIN LAYOUT ---- */
+  .main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: var(--space-xl);
+  }
+
+  /* ---- GREETING HEADER ---- */
+  .greeting {
+    margin-bottom: var(--space-2xl);
+  }
+
+  .greeting-time {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: var(--space-sm);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .greeting-title {
+    font-size: 28px;
+    font-weight: 300;
+    color: var(--text-primary);
+    margin-bottom: var(--space-sm);
+  }
+
+  .greeting-title strong {
+    font-weight: 600;
+    color: var(--accent-amber);
+  }
+
+  .greeting-stats {
+    display: flex;
+    gap: var(--space-lg);
+    margin-top: var(--space-md);
+  }
+
+  .stat {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-xs);
+  }
+
+  .stat-number {
+    font-family: var(--font-mono);
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .stat-label {
+    font-size: 12px;
+    color: var(--text-secondary);
+    letter-spacing: 0.3px;
+  }
+
+  .stat-divider {
+    width: 1px;
+    height: 20px;
+    background: var(--text-muted);
+    opacity: 0.3;
+    align-self: center;
+  }
+
+  /* ---- AI INSIGHT BOX ---- */
+  .ai-insight {
+    background: var(--accent-amber-glow);
+    border: 1px solid var(--accent-amber-dim);
+    border-radius: var(--radius-md);
+    padding: var(--space-lg);
+    margin-bottom: var(--space-xl);
+    position: relative;
+  }
+
+  .ai-insight::before {
+    content: '';
+    position: absolute;
+    top: -1px; left: 40px;
+    width: 60px; height: 1px;
+    background: var(--accent-amber);
+  }
+
+  .ai-insight-label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--accent-amber);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: var(--space-sm);
+  }
+
+  .ai-insight-text {
+    color: var(--text-primary);
+    font-size: 15px;
+    line-height: 1.7;
+  }
+
+  .ai-insight-actions {
+    display: flex;
+    gap: var(--space-sm);
+    margin-top: var(--space-md);
+  }
+
+  .ai-action {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+  }
+
+  .ai-action.primary {
+    background: var(--accent-amber);
+    color: var(--bg-void);
+  }
+
+  .ai-action.primary:hover {
+    background: #fbb543;
+  }
+
+  .ai-action.secondary {
+    background: transparent;
+    border: 1px solid rgba(245, 166, 35, 0.3);
+    color: var(--accent-amber);
+  }
+
+  .ai-action.secondary:hover {
+    background: var(--accent-amber-dim);
+  }
+
+  /* ---- SECTION HEADERS ---- */
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-lg);
+    margin-top: var(--space-xl);
+  }
+
+  .section-title {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+  }
+
+  .section-count {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  /* ---- CONTENT CARDS ---- */
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: var(--space-md);
+  }
+
+  .card {
+    background: var(--bg-card);
+    border: var(--border-subtle);
+    border-radius: var(--radius-md);
+    padding: var(--space-lg);
+    transition: all 0.25s ease;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card:hover {
+    background: var(--bg-card-hover);
+    border-color: rgba(255, 255, 255, 0.1);
+    transform: translateY(-2px);
+  }
+
+  .card-relevance {
+    position: absolute;
+    top: 0; left: 0;
+    width: 3px;
+    height: 100%;
+  }
+
+  .card-relevance.high { background: var(--signal-high); }
+  .card-relevance.medium { background: var(--signal-medium); }
+  .card-relevance.low { background: var(--signal-low); }
+
+  .card-meta {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    margin-bottom: var(--space-sm);
+  }
+
+  .card-source {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+
+  .card-dot {
+    width: 3px; height: 3px;
+    border-radius: 50%;
+    background: var(--text-muted);
+  }
+
+  .card-time {
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+
+  .card-category {
+    font-size: 11px;
+    font-weight: 500;
+    padding: 2px 8px;
+    border-radius: 10px;
+    margin-left: auto;
+  }
+
+  .cat-ai { background: rgba(124, 109, 240, 0.15); color: var(--cat-ai); }
+  .cat-systems { background: rgba(59, 155, 245, 0.15); color: var(--cat-systems); }
+  .cat-programming { background: rgba(45, 212, 168, 0.15); color: var(--cat-programming); }
+  .cat-research { background: rgba(240, 124, 109, 0.15); color: var(--cat-research); }
+
+  .card-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: var(--space-sm);
+    line-height: 1.4;
+  }
+
+  .card-summary {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin-bottom: var(--space-md);
+  }
+
+  .card-footer {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+  }
+
+  .card-reading {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+
+  .card-score {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--accent-amber);
+    margin-left: auto;
+  }
+
+  /* ---- CONNECTIONS (Cross-source insights) ---- */
+  .connections {
+    margin-top: var(--space-xl);
+    padding: var(--space-lg);
+    background: var(--bg-surface);
+    border: var(--border-subtle);
+    border-radius: var(--radius-md);
+  }
+
+  .connection-item {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-md);
+    padding: var(--space-md) 0;
+    border-bottom: var(--border-subtle);
+  }
+
+  .connection-item:last-child { border-bottom: none; }
+
+  .connection-line {
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .connection-text {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+  }
+
+  .connection-text strong {
+    color: var(--text-primary);
+    font-weight: 500;
+  }
+
+  .connection-text .link {
+    color: var(--accent-amber);
+    cursor: pointer;
+    text-decoration: none;
+  }
+
+  /* ---- CHAT TEASER ---- */
+  .chat-teaser {
+    margin-top: var(--space-xl);
+    background: var(--bg-surface);
+    border: var(--border-subtle);
+    border-radius: var(--radius-lg);
+    padding: var(--space-lg);
+  }
+
+  .chat-teaser-label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: var(--space-md);
+  }
+
+  .chat-suggestions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+  }
+
+  .chat-suggestion {
+    padding: 8px 16px;
+    background: var(--bg-card);
+    border: var(--border-subtle);
+    border-radius: 20px;
+    font-size: 13px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .chat-suggestion:hover {
+    background: var(--bg-card-hover);
+    color: var(--text-primary);
+    border-color: rgba(245, 166, 35, 0.2);
+  }
+
+  .chat-input-row {
+    display: flex;
+    gap: var(--space-sm);
+    margin-top: var(--space-md);
+  }
+
+  .chat-input {
+    flex: 1;
+    background: var(--bg-card);
+    border: var(--border-subtle);
+    border-radius: var(--radius-sm);
+    padding: 10px 16px;
+    color: var(--text-primary);
+    font-family: var(--font-main);
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .chat-input::placeholder { color: var(--text-muted); }
+  .chat-input:focus { border-color: rgba(245, 166, 35, 0.3); }
+
+  .chat-send {
+    background: var(--accent-amber);
+    border: none;
+    border-radius: var(--radius-sm);
+    padding: 10px 20px;
+    color: var(--bg-void);
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .chat-send:hover { background: #fbb543; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- Navigation -->
+  <nav class="nav">
+    <div class="nav-brand">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <circle cx="12" cy="12" r="3" fill="#f5a623" stroke="none"/>
+        <circle cx="12" cy="12" r="8" stroke="#f5a623" opacity="0.3"/>
+        <circle cx="12" cy="12" r="11" stroke="#f5a623" opacity="0.1"/>
+      </svg>
+      <span>OBSERVATORY</span>
+    </div>
+    <div class="nav-links">
+      <a class="nav-link active">Briefing</a>
+      <a class="nav-link">Chat</a>
+      <a class="nav-link">Sources</a>
+      <a class="nav-link">Settings</a>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="main">
+
+    <!-- Greeting -->
+    <div class="greeting">
+      <div class="greeting-time">Wednesday, February 11 2026 &middot; 07:14 AM</div>
+      <h1 class="greeting-title">Good morning. <strong>12 signals</strong> detected overnight.</h1>
+      <div class="greeting-stats">
+        <div class="stat">
+          <span class="stat-number">47</span>
+          <span class="stat-label">items scanned</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat">
+          <span class="stat-number">12</span>
+          <span class="stat-label">high relevance</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat">
+          <span class="stat-number">3</span>
+          <span class="stat-label">connections found</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat">
+          <span class="stat-number">~18 min</span>
+          <span class="stat-label">total reading</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- AI Insight -->
+    <div class="ai-insight">
+      <div class="ai-insight-label">Observatory Analysis</div>
+      <div class="ai-insight-text">
+        Today's strongest signal is in <strong>retrieval-augmented generation</strong> &mdash; a new arXiv paper proposes dynamic context windows that directly relates to the HN discussion on RAG scaling issues you tracked yesterday. There's also notable activity around Rust adoption in ML infrastructure across two independent sources.
+      </div>
+      <div class="ai-insight-actions">
+        <button class="ai-action primary">Explore RAG cluster</button>
+        <button class="ai-action secondary">Show all signals</button>
+        <button class="ai-action secondary">Adjust focus</button>
+      </div>
+    </div>
+
+    <!-- High Relevance Section -->
+    <div class="section-header">
+      <div class="section-title">High Relevance</div>
+      <div class="section-count">5 items</div>
+    </div>
+
+    <div class="cards-grid">
+      <div class="card">
+        <div class="card-relevance high"></div>
+        <div class="card-meta">
+          <span class="card-source">arXiv</span>
+          <span class="card-dot"></span>
+          <span class="card-time">6h ago</span>
+          <span class="card-category cat-ai">AI/ML</span>
+        </div>
+        <div class="card-title">Dynamic Context Windows for Retrieval-Augmented Generation</div>
+        <div class="card-summary">Proposes adaptive context window sizing based on query complexity. Achieves 23% improvement on multi-hop reasoning benchmarks while reducing token usage by 40%. Tested on three domain-specific datasets.</div>
+        <div class="card-footer">
+          <span class="card-reading">4 min read</span>
+          <span class="card-score">0.94</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-relevance high"></div>
+        <div class="card-meta">
+          <span class="card-source">Hacker News</span>
+          <span class="card-dot"></span>
+          <span class="card-time">9h ago</span>
+          <span class="card-category cat-systems">Systems</span>
+        </div>
+        <div class="card-title">Why We Rewrote Our ML Pipeline in Rust (And What We Learned)</div>
+        <div class="card-summary">Engineering team at a mid-size startup shares their 6-month journey replacing Python data pipelines with Rust. 10x throughput improvement. Candid about the learning curve and where Python still wins.</div>
+        <div class="card-footer">
+          <span class="card-reading">6 min read</span>
+          <span class="card-score">0.91</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-relevance high"></div>
+        <div class="card-meta">
+          <span class="card-source">RSS &middot; Simon Willison</span>
+          <span class="card-dot"></span>
+          <span class="card-time">11h ago</span>
+          <span class="card-category cat-programming">Programming</span>
+        </div>
+        <div class="card-title">SQLite as a Vector Database: A Practical Guide with sqlite-vec</div>
+        <div class="card-summary">Comprehensive walkthrough of using sqlite-vec for embedding storage and similarity search. Benchmarks against Chroma and FAISS. Concludes SQLite is viable for datasets under 1M vectors.</div>
+        <div class="card-footer">
+          <span class="card-reading">5 min read</span>
+          <span class="card-score">0.89</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-relevance high"></div>
+        <div class="card-meta">
+          <span class="card-source">arXiv</span>
+          <span class="card-dot"></span>
+          <span class="card-time">8h ago</span>
+          <span class="card-category cat-research">Research</span>
+        </div>
+        <div class="card-title">Scaling Laws for Sparse Mixture-of-Experts on Consumer Hardware</div>
+        <div class="card-summary">Demonstrates that 47B parameter MoE models can run efficiently on Apple Silicon with 32GB RAM using novel quantization-aware routing. Implications for local LLM deployment.</div>
+        <div class="card-footer">
+          <span class="card-reading">3 min read</span>
+          <span class="card-score">0.87</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-relevance high"></div>
+        <div class="card-meta">
+          <span class="card-source">Hacker News</span>
+          <span class="card-dot"></span>
+          <span class="card-time">5h ago</span>
+          <span class="card-category cat-programming">Programming</span>
+        </div>
+        <div class="card-title">Show HN: Open-source alternative to Notion with local-first sync</div>
+        <div class="card-summary">New CRDT-based note-taking app with real-time collaboration, offline support, and end-to-end encryption. Built with Rust backend and React frontend. Already 2.3k stars on GitHub.</div>
+        <div class="card-footer">
+          <span class="card-reading">2 min read</span>
+          <span class="card-score">0.85</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Connections -->
+    <div class="connections">
+      <div class="section-header" style="margin-top:0">
+        <div class="section-title">Connections Detected</div>
+        <div class="section-count">3 cross-source links</div>
+      </div>
+
+      <div class="connection-item">
+        <svg class="connection-line" viewBox="0 0 24 24" fill="none">
+          <circle cx="6" cy="6" r="3" fill="#7c6df0" opacity="0.6"/>
+          <circle cx="18" cy="18" r="3" fill="#3b9bf5" opacity="0.6"/>
+          <line x1="8" y1="8" x2="16" y2="16" stroke="#6b8acd" stroke-width="1" stroke-dasharray="2,2"/>
+        </svg>
+        <div class="connection-text">
+          The <strong>Dynamic Context Windows</strong> paper (arXiv) directly addresses the scaling problem discussed in yesterday's <a class="link">HN thread on RAG limitations</a>. The paper's authors cite the same benchmarks.
+        </div>
+      </div>
+
+      <div class="connection-item">
+        <svg class="connection-line" viewBox="0 0 24 24" fill="none">
+          <circle cx="6" cy="6" r="3" fill="#2dd4a8" opacity="0.6"/>
+          <circle cx="18" cy="18" r="3" fill="#3b9bf5" opacity="0.6"/>
+          <line x1="8" y1="8" x2="16" y2="16" stroke="#6b8acd" stroke-width="1" stroke-dasharray="2,2"/>
+        </svg>
+        <div class="connection-text">
+          The <strong>Rust ML Pipeline</strong> article and the <strong>MoE on Consumer Hardware</strong> paper both point to a trend: <a class="link">performance-critical ML moving to systems languages</a> for local deployment.
+        </div>
+      </div>
+
+      <div class="connection-item">
+        <svg class="connection-line" viewBox="0 0 24 24" fill="none">
+          <circle cx="6" cy="6" r="3" fill="#2dd4a8" opacity="0.6"/>
+          <circle cx="18" cy="18" r="3" fill="#f07c6d" opacity="0.6"/>
+          <line x1="8" y1="8" x2="16" y2="16" stroke="#6b8acd" stroke-width="1" stroke-dasharray="2,2"/>
+        </svg>
+        <div class="connection-text">
+          The <strong>sqlite-vec guide</strong> is directly relevant to your <a class="link">DKIA project</a> &mdash; it validates the architecture choice for vector storage in the Observatory system itself.
+        </div>
+      </div>
+    </div>
+
+    <!-- Medium Relevance -->
+    <div class="section-header">
+      <div class="section-title">Worth a Glance</div>
+      <div class="section-count">7 items</div>
+    </div>
+
+    <div class="cards-grid">
+      <div class="card">
+        <div class="card-relevance medium"></div>
+        <div class="card-meta">
+          <span class="card-source">RSS &middot; Substack</span>
+          <span class="card-dot"></span>
+          <span class="card-time">14h ago</span>
+          <span class="card-category cat-ai">AI/ML</span>
+        </div>
+        <div class="card-title">The Case Against Fine-Tuning: When RAG Is All You Need</div>
+        <div class="card-summary">Argues that 90% of enterprise LLM use cases are better served by RAG than fine-tuning. Includes cost analysis and decision framework.</div>
+        <div class="card-footer">
+          <span class="card-reading">7 min read</span>
+          <span class="card-score">0.72</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-relevance medium"></div>
+        <div class="card-meta">
+          <span class="card-source">Hacker News</span>
+          <span class="card-dot"></span>
+          <span class="card-time">12h ago</span>
+          <span class="card-category cat-systems">Systems</span>
+        </div>
+        <div class="card-title">PostgreSQL 18 Beta: Native JSON Subscripting and Async I/O</div>
+        <div class="card-summary">Major PostgreSQL release adds native JSON path subscripting, async I/O for parallel sequential scans, and improved partitioning performance.</div>
+        <div class="card-footer">
+          <span class="card-reading">3 min read</span>
+          <span class="card-score">0.68</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-relevance low"></div>
+        <div class="card-meta">
+          <span class="card-source">arXiv</span>
+          <span class="card-dot"></span>
+          <span class="card-time">10h ago</span>
+          <span class="card-category cat-research">Research</span>
+        </div>
+        <div class="card-title">A Survey of Prompt Compression Techniques for Long-Context Models</div>
+        <div class="card-summary">Comprehensive survey of 34 prompt compression methods. Taxonomy of approaches: token pruning, soft prompts, and hybrid methods.</div>
+        <div class="card-footer">
+          <span class="card-reading">8 min read</span>
+          <span class="card-score">0.61</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chat Teaser -->
+    <div class="chat-teaser">
+      <div class="chat-teaser-label">Ask the Observatory</div>
+      <div class="chat-suggestions">
+        <span class="chat-suggestion">What should I read first today?</span>
+        <span class="chat-suggestion">Summarize the RAG paper in detail</span>
+        <span class="chat-suggestion">How does the MoE paper affect my project?</span>
+        <span class="chat-suggestion">Show me this week's trends</span>
+      </div>
+      <div class="chat-input-row">
+        <input class="chat-input" placeholder="Ask anything about today's briefing..." />
+        <button class="chat-send">Send</button>
+      </div>
+    </div>
+
+  </main>
+</div>
+</body>
+</html>
