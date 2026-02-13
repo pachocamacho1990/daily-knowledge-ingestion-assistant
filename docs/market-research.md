@@ -4,6 +4,12 @@
 
 ---
 
+## Problem Statement
+
+Every day I start my routine and realize there is an overwhelming amount of information I don't have time to read: papers, newsletters, social media feeds, and content across the different websites I've starred or kept open in my browser. I need a system that, every morning when I wake up, gives me a summarized guide to navigate all of this — while letting me chat with an AI agent that has already processed everything and can tell me what matters, answer my questions, and help me prioritize. Think of Spock in Star Trek dealing with oceans of data and complex information, but with an AI assistant that processes and identifies the relevant data to help the user solve a specific situation or prioritize according to their human preferences.
+
+---
+
 ## Executive Summary
 
 After exhaustive research across 30+ commercial products, 25+ open-source projects, and dozens of UX patterns, the key finding is:
