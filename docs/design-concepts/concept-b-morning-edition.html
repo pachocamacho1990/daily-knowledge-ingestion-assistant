@@ -3,24 +3,23 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DKIA - Concept B: The Morning Edition</title>
+<title>DKIA - Concept B: The Morning Edition (Split-Pane)</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Source+Sans+3:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
 
   /* ========================================
      DESIGN BRIEF: THE MORNING EDITION
+     Split-Pane Navigator + Visualization
      ========================================
      Metaphor: A bespoke newspaper published just for you
                each morning by an AI editor. Feels crafted,
                editorial, warm — like a ritual.
 
-     Adjectives: Crafted, Warm, Authoritative
+     Layout: Full-viewport split pane.
+             Left: Conversational correspondent (40%)
+             Right: Knowledge graph map (60%)
 
-     Principle: "A publication of one" — every element should
-                feel like it was typeset for a single reader.
-
-     Anti-references: NOT a dashboard, NOT a feed of cards,
-                      NOT a dark-mode tech app.
+     Principle: "A publication of one"
      ======================================== */
 
   :root {
@@ -38,736 +37,1080 @@
     --ink-light: #999999;
     --ink-faint: #c4c0b8;
 
-    /* Editorial red (priority / accent) */
+    /* Editorial red */
     --red-editorial: #c0392b;
     --red-light: rgba(192, 57, 43, 0.08);
     --red-border: rgba(192, 57, 43, 0.2);
+    --red-glow: rgba(192, 57, 43, 0.25);
 
     /* Section blue */
     --blue-section: #2c5f8a;
     --blue-light: rgba(44, 95, 138, 0.08);
 
-    /* Category colors (muted, editorial) */
+    /* Category colors */
     --cat-ai: #7b5ea7;
+    --cat-ai-muted: rgba(123, 94, 167, 0.35);
     --cat-systems: #2c5f8a;
+    --cat-systems-muted: rgba(44, 95, 138, 0.35);
     --cat-programming: #3a7d6a;
+    --cat-programming-muted: rgba(58, 125, 106, 0.35);
     --cat-research: #c0392b;
+    --cat-research-muted: rgba(192, 57, 43, 0.35);
 
     /* Typography */
     --font-headline: 'Playfair Display', Georgia, 'Times New Roman', serif;
     --font-body: 'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif;
     --font-mono: 'IBM Plex Mono', monospace;
-
-    /* Spacing */
-    --space-xs: 4px;
-    --space-sm: 8px;
-    --space-md: 16px;
-    --space-lg: 24px;
-    --space-xl: 40px;
-    --space-2xl: 64px;
-    --space-3xl: 80px;
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    height: 100%;
+    overflow: hidden;
+  }
 
   body {
     background: var(--bg-paper);
     color: var(--ink-body);
     font-family: var(--font-body);
-    font-size: 16px;
-    line-height: 1.7;
-    min-height: 100vh;
+    font-size: 15px;
+    line-height: 1.65;
     -webkit-font-smoothing: antialiased;
   }
 
-  /* ---- MASTHEAD ---- */
+  /* ================================================================
+     MASTHEAD
+     ================================================================ */
   .masthead {
-    text-align: center;
-    padding: var(--space-xl) var(--space-lg) var(--space-lg);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 28px;
+    background: var(--bg-paper);
     border-bottom: 2px solid var(--ink-black);
-    max-width: 900px;
-    margin: 0 auto;
+    height: 52px;
+    flex-shrink: 0;
   }
 
-  .masthead-date {
-    font-family: var(--font-mono);
-    font-size: 11px;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: var(--ink-light);
-    margin-bottom: var(--space-sm);
+  .masthead-left {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
   }
 
   .masthead-title {
     font-family: var(--font-headline);
-    font-size: 42px;
+    font-size: 22px;
     font-weight: 700;
     color: var(--ink-black);
-    letter-spacing: -0.5px;
-    line-height: 1.1;
+    letter-spacing: -0.3px;
+    line-height: 1;
   }
 
   .masthead-subtitle {
     font-family: var(--font-headline);
     font-style: italic;
-    font-size: 16px;
+    font-size: 12px;
     color: var(--ink-secondary);
-    margin-top: var(--space-xs);
+    line-height: 1;
   }
 
-  .masthead-rule {
-    width: 60px;
-    height: 1px;
-    background: var(--ink-faint);
-    margin: var(--space-md) auto 0;
-  }
-
-  .masthead-stats {
+  .masthead-right {
     display: flex;
-    justify-content: center;
-    gap: var(--space-lg);
-    margin-top: var(--space-md);
-    font-size: 13px;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .masthead-date {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 1px;
     color: var(--ink-light);
   }
 
-  .masthead-stats span {
-    font-family: var(--font-mono);
-    font-size: 12px;
-  }
-
-  /* ---- MAIN LAYOUT ---- */
-  .main {
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 0 var(--space-lg);
-  }
-
-  /* ---- EDITOR'S NOTE (AI Insight) ---- */
-  .editors-note {
-    margin: var(--space-xl) 0;
-    padding: var(--space-lg);
-    background: var(--bg-white);
-    border-left: 3px solid var(--red-editorial);
-    position: relative;
-  }
-
-  .editors-note-label {
-    font-family: var(--font-headline);
-    font-style: italic;
-    font-size: 14px;
-    color: var(--red-editorial);
-    margin-bottom: var(--space-sm);
-  }
-
-  .editors-note-text {
-    font-size: 16px;
-    line-height: 1.8;
-    color: var(--ink-dark);
-  }
-
-  .editors-note-text em {
-    font-family: var(--font-headline);
-    font-style: italic;
-  }
-
-  .editors-actions {
+  .masthead-nav {
     display: flex;
-    gap: var(--space-sm);
-    margin-top: var(--space-md);
+    gap: 16px;
   }
 
-  .editors-action {
-    padding: 6px 16px;
+  .masthead-nav a {
     font-family: var(--font-body);
-    font-size: 13px;
-    font-weight: 500;
-    border-radius: 3px;
-    cursor: pointer;
-    transition: all 0.2s;
-    border: none;
-  }
-
-  .editors-action.primary {
-    background: var(--red-editorial);
-    color: white;
-  }
-
-  .editors-action.primary:hover {
-    background: #a93226;
-  }
-
-  .editors-action.secondary {
-    background: transparent;
-    border: 1px solid var(--red-border);
-    color: var(--red-editorial);
-  }
-
-  /* ---- SECTION DIVIDER ---- */
-  .section-divider {
-    display: flex;
-    align-items: center;
-    gap: var(--space-md);
-    margin: var(--space-xl) 0 var(--space-lg);
-  }
-
-  .section-divider::before,
-  .section-divider::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: var(--ink-faint);
-  }
-
-  .section-name {
-    font-family: var(--font-headline);
-    font-size: 13px;
-    font-weight: 600;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: var(--ink-secondary);
-    white-space: nowrap;
-  }
-
-  /* ---- LEAD STORY ---- */
-  .lead-story {
-    margin-bottom: var(--space-xl);
-    padding-bottom: var(--space-xl);
-    border-bottom: 1px solid var(--ink-faint);
-  }
-
-  .lead-story .story-source {
-    font-family: var(--font-mono);
-    font-size: 11px;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    color: var(--red-editorial);
-    margin-bottom: var(--space-sm);
-  }
-
-  .lead-story .story-headline {
-    font-family: var(--font-headline);
-    font-size: 32px;
-    font-weight: 700;
-    color: var(--ink-black);
-    line-height: 1.2;
-    margin-bottom: var(--space-md);
-    letter-spacing: -0.3px;
-  }
-
-  .lead-story .story-summary {
-    font-size: 18px;
-    line-height: 1.8;
-    color: var(--ink-body);
-    max-width: 680px;
-  }
-
-  .lead-story .story-meta {
-    display: flex;
-    align-items: center;
-    gap: var(--space-md);
-    margin-top: var(--space-md);
-    font-size: 13px;
-    color: var(--ink-light);
-  }
-
-  .relevance-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    font-family: var(--font-mono);
-    font-size: 11px;
-    padding: 2px 8px;
-    border-radius: 2px;
-  }
-
-  .relevance-badge.high {
-    background: var(--red-light);
-    color: var(--red-editorial);
-  }
-
-  .relevance-badge.medium {
-    background: var(--blue-light);
-    color: var(--blue-section);
-  }
-
-  /* ---- STORY GRID (2-column newspaper layout) ---- */
-  .story-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1px;
-    background: var(--ink-faint);
-    margin-bottom: var(--space-xl);
-  }
-
-  .story {
-    background: var(--bg-paper);
-    padding: var(--space-lg);
-    cursor: pointer;
-    transition: background 0.2s;
-  }
-
-  .story:hover {
-    background: var(--bg-paper-warm);
-  }
-
-  .story-source {
-    font-family: var(--font-mono);
-    font-size: 10px;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    color: var(--ink-light);
-    margin-bottom: var(--space-xs);
-  }
-
-  .story-headline {
-    font-family: var(--font-headline);
-    font-size: 20px;
-    font-weight: 600;
-    color: var(--ink-black);
-    line-height: 1.3;
-    margin-bottom: var(--space-sm);
-  }
-
-  .story-summary {
-    font-size: 14px;
-    line-height: 1.7;
-    color: var(--ink-secondary);
-  }
-
-  .story-meta {
-    display: flex;
-    align-items: center;
-    gap: var(--space-sm);
-    margin-top: var(--space-md);
     font-size: 12px;
-    color: var(--ink-light);
-  }
-
-  .story-category {
-    font-family: var(--font-mono);
-    font-size: 10px;
     font-weight: 500;
     letter-spacing: 0.5px;
     text-transform: uppercase;
-    padding: 2px 6px;
-    border-radius: 2px;
+    color: var(--ink-secondary);
+    text-decoration: none;
+    cursor: pointer;
+    transition: color 0.2s;
   }
 
-  .cat-ai { background: rgba(123, 94, 167, 0.1); color: var(--cat-ai); }
-  .cat-systems { background: rgba(44, 95, 138, 0.1); color: var(--cat-systems); }
-  .cat-programming { background: rgba(58, 125, 106, 0.1); color: var(--cat-programming); }
-  .cat-research { background: rgba(192, 57, 43, 0.1); color: var(--cat-research); }
-
-  /* ---- CONNECTIONS (Editorial aside) ---- */
-  .connections-aside {
-    background: var(--bg-cream);
-    padding: var(--space-lg) var(--space-xl);
-    margin: var(--space-xl) calc(-1 * var(--space-lg));
-    border-top: 1px solid var(--ink-faint);
-    border-bottom: 1px solid var(--ink-faint);
+  .masthead-nav a:hover {
+    color: var(--ink-black);
   }
 
-  .connections-title {
+  /* ================================================================
+     APP SHELL: Full viewport split pane
+     ================================================================ */
+  .app-shell {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+  }
+
+  .split-pane {
+    display: flex;
+    flex: 1;
+    min-height: 0;
+  }
+
+  /* ================================================================
+     LEFT PANE: YOUR CORRESPONDENT (40%)
+     ================================================================ */
+  .left-pane {
+    width: 40%;
+    min-width: 380px;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-white);
+    border-left: 3px solid var(--red-editorial);
+    border-right: 1px solid var(--ink-faint);
+  }
+
+  .left-pane-header {
+    padding: 16px 24px 12px;
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+  }
+
+  .left-pane-title {
     font-family: var(--font-headline);
-    font-style: italic;
-    font-size: 18px;
-    color: var(--ink-dark);
-    margin-bottom: var(--space-md);
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--ink-secondary);
   }
 
-  .connection {
-    padding: var(--space-sm) 0;
-    font-size: 15px;
-    line-height: 1.7;
+  .conversation {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px 24px;
+  }
+
+  /* Scrollbar styling */
+  .conversation::-webkit-scrollbar {
+    width: 5px;
+  }
+  .conversation::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .conversation::-webkit-scrollbar-thumb {
+    background: var(--ink-faint);
+    border-radius: 3px;
+  }
+
+  /* --- Message styles --- */
+  .message {
+    margin-bottom: 20px;
+  }
+
+  .message-ai {
+    padding-right: 8px;
+  }
+
+  .message-user {
+    margin-left: 24px;
+    background: var(--bg-paper);
+    padding: 12px 16px;
+    border-radius: 2px;
+    border: 1px solid rgba(0,0,0,0.04);
+  }
+
+  .message-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .message-ai .message-label {
+    color: var(--red-editorial);
+  }
+
+  .message-user .message-label {
+    color: var(--ink-light);
+  }
+
+  .message-body {
+    font-size: 14.5px;
+    line-height: 1.75;
     color: var(--ink-body);
   }
 
-  .connection + .connection {
-    border-top: 1px solid rgba(0,0,0,0.06);
-    margin-top: var(--space-sm);
-    padding-top: var(--space-md);
-  }
-
-  .connection strong {
+  .message-ai .message-body {
     color: var(--ink-dark);
   }
 
-  .connection a {
+  /* Editorial italic phrases */
+  .message-body .editorial-phrase {
+    font-family: var(--font-headline);
+    font-style: italic;
+  }
+
+  /* Editorial emphasis */
+  .message-body .editorial-em {
+    color: var(--red-editorial);
+    font-weight: 500;
+  }
+
+  /* Inline citations */
+  .cite {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 11px;
     color: var(--red-editorial);
     text-decoration: none;
     border-bottom: 1px solid var(--red-border);
     cursor: pointer;
+    margin: 0 1px;
+    transition: border-color 0.2s;
   }
 
-  .connection-marker {
+  .cite:hover {
+    border-bottom-color: var(--red-editorial);
+  }
+
+  /* "Show on map" link */
+  .map-link {
+    display: inline-block;
+    font-family: var(--font-body);
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--blue-section);
+    text-decoration: none;
+    border-bottom: 1px solid rgba(44, 95, 138, 0.3);
+    margin-top: 8px;
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+
+  .map-link:hover {
+    border-bottom-color: var(--blue-section);
+  }
+
+  /* Suggested follow-ups */
+  .suggestions {
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid rgba(0,0,0,0.06);
+  }
+
+  .suggestions-label {
     font-family: var(--font-headline);
-    color: var(--red-editorial);
     font-style: italic;
-    margin-right: 4px;
+    font-size: 12px;
+    color: var(--ink-light);
+    margin-bottom: 8px;
   }
 
-  /* ---- BRIEFER (Also noted / quick mentions) ---- */
-  .briefer-section {
-    margin: var(--space-xl) 0;
-  }
-
-  .briefer-list {
+  .suggestions-list {
     list-style: none;
   }
 
-  .briefer-item {
+  .suggestions-list li {
     display: flex;
-    gap: var(--space-md);
-    padding: var(--space-md) 0;
-    border-bottom: 1px solid rgba(0,0,0,0.06);
-    cursor: pointer;
-    transition: background 0.15s;
-  }
-
-  .briefer-item:hover {
-    background: var(--bg-paper-warm);
-    margin: 0 calc(-1 * var(--space-sm));
-    padding-left: var(--space-sm);
-    padding-right: var(--space-sm);
-  }
-
-  .briefer-bullet {
-    font-family: var(--font-headline);
-    font-size: 20px;
-    color: var(--ink-faint);
-    line-height: 1.4;
-    flex-shrink: 0;
-  }
-
-  .briefer-content {
-    flex: 1;
-  }
-
-  .briefer-headline {
-    font-family: var(--font-headline);
-    font-size: 16px;
-    font-weight: 600;
-    color: var(--ink-dark);
-    line-height: 1.4;
-  }
-
-  .briefer-desc {
+    align-items: baseline;
+    gap: 8px;
+    padding: 4px 0;
     font-size: 13px;
     color: var(--ink-secondary);
-    margin-top: 2px;
+    cursor: pointer;
+    transition: color 0.15s;
   }
 
-  .briefer-source {
-    font-family: var(--font-mono);
-    font-size: 10px;
-    color: var(--ink-light);
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
-    margin-top: 4px;
+  .suggestions-list li:hover {
+    color: var(--ink-dark);
   }
 
-  /* ---- CHAT / CORRESPONDENT ---- */
-  .correspondent {
-    margin: var(--space-2xl) 0 var(--space-xl);
-    background: var(--bg-white);
-    border: 1px solid var(--ink-faint);
-    padding: var(--space-xl);
-  }
-
-  .correspondent-header {
-    text-align: center;
-    margin-bottom: var(--space-lg);
-  }
-
-  .correspondent-title {
-    font-family: var(--font-headline);
+  .suggestions-list li::before {
+    content: '\00B7';
     font-size: 22px;
-    font-weight: 600;
-    color: var(--ink-black);
+    line-height: 0;
+    color: var(--ink-faint);
+    position: relative;
+    top: 2px;
   }
 
-  .correspondent-subtitle {
-    font-family: var(--font-headline);
-    font-style: italic;
-    font-size: 14px;
-    color: var(--ink-secondary);
-    margin-top: 2px;
+  /* Chat input area */
+  .chat-input-area {
+    padding: 14px 24px 18px;
+    border-top: 1px solid rgba(0,0,0,0.08);
+    background: var(--bg-white);
   }
 
-  .correspondent-suggestions {
+  .chat-input-row {
     display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: var(--space-sm);
-    margin-bottom: var(--space-lg);
+    gap: 8px;
   }
 
-  .correspondent-suggestion {
-    padding: 8px 16px;
-    background: var(--bg-paper);
-    border: 1px solid var(--ink-faint);
-    font-family: var(--font-body);
-    font-size: 13px;
-    color: var(--ink-secondary);
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-
-  .correspondent-suggestion:hover {
-    background: var(--bg-paper-warm);
-    color: var(--ink-dark);
-    border-color: var(--ink-light);
-  }
-
-  .correspondent-input-row {
-    display: flex;
-    gap: var(--space-sm);
-  }
-
-  .correspondent-input {
+  .chat-input {
     flex: 1;
-    padding: 12px 16px;
+    padding: 10px 14px;
     border: 1px solid var(--ink-faint);
     background: var(--bg-paper);
     font-family: var(--font-body);
-    font-size: 14px;
+    font-size: 13.5px;
     color: var(--ink-dark);
     outline: none;
     transition: border-color 0.2s;
   }
 
-  .correspondent-input::placeholder {
+  .chat-input::placeholder {
     color: var(--ink-light);
     font-style: italic;
   }
 
-  .correspondent-input:focus {
+  .chat-input:focus {
     border-color: var(--ink-light);
   }
 
-  .correspondent-send {
-    padding: 12px 24px;
+  .chat-send {
+    padding: 10px 20px;
     background: var(--ink-black);
     color: var(--bg-paper);
     border: none;
     font-family: var(--font-body);
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 500;
+    letter-spacing: 0.3px;
     cursor: pointer;
     transition: background 0.2s;
   }
 
-  .correspondent-send:hover {
+  .chat-send:hover {
     background: var(--ink-dark);
   }
 
-  /* ---- FOOTER ---- */
-  .footer {
-    text-align: center;
-    padding: var(--space-xl) var(--space-lg);
-    border-top: 2px solid var(--ink-black);
-    max-width: 900px;
-    margin: 0 auto;
+  /* ================================================================
+     RIGHT PANE: THE MAP OF KNOWLEDGE (60%)
+     ================================================================ */
+  .right-pane {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-paper-warm);
+    position: relative;
+    min-width: 0;
   }
 
-  .footer-text {
-    font-family: var(--font-headline);
-    font-style: italic;
-    font-size: 13px;
-    color: var(--ink-light);
+  /* --- Filter bar at top of graph pane --- */
+  .graph-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 20px;
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+    background: var(--bg-paper);
+    flex-shrink: 0;
+    z-index: 2;
   }
+
+  .graph-tabs {
+    display: flex;
+    gap: 0;
+  }
+
+  .graph-tab {
+    padding: 5px 14px;
+    font-family: var(--font-body);
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--ink-light);
+    border: 1px solid var(--ink-faint);
+    background: transparent;
+    cursor: pointer;
+    transition: all 0.15s;
+    margin-left: -1px;
+  }
+
+  .graph-tab:first-child {
+    margin-left: 0;
+    border-radius: 2px 0 0 2px;
+  }
+
+  .graph-tab:last-child {
+    border-radius: 0 2px 2px 0;
+  }
+
+  .graph-tab.active {
+    background: var(--ink-black);
+    color: var(--bg-paper);
+    border-color: var(--ink-black);
+    z-index: 1;
+    position: relative;
+  }
+
+  .graph-tab:hover:not(.active) {
+    background: var(--bg-paper-warm);
+    color: var(--ink-secondary);
+  }
+
+  .category-pills {
+    display: flex;
+    gap: 6px;
+  }
+
+  .category-pill {
+    padding: 4px 10px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+    border-radius: 2px;
+    cursor: pointer;
+    transition: opacity 0.15s;
+  }
+
+  .category-pill:hover {
+    opacity: 0.8;
+  }
+
+  .pill-ai { background: rgba(123,94,167,0.12); color: var(--cat-ai); }
+  .pill-systems { background: rgba(44,95,138,0.12); color: var(--cat-systems); }
+  .pill-programming { background: rgba(58,125,106,0.12); color: var(--cat-programming); }
+  .pill-research { background: rgba(192,57,43,0.12); color: var(--cat-research); }
+
+  /* --- Graph area --- */
+  .graph-area {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .graph-area svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  /* --- Legend (top-right corner) --- */
+  .graph-legend {
+    position: absolute;
+    top: 14px;
+    right: 16px;
+    background: rgba(250, 248, 244, 0.92);
+    border: 1px solid var(--ink-faint);
+    padding: 10px 14px;
+    z-index: 2;
+  }
+
+  .legend-title {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--ink-light);
+    margin-bottom: 8px;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 5px;
+  }
+
+  .legend-item:last-child {
+    margin-bottom: 0;
+  }
+
+  .legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 1.5px solid;
+    flex-shrink: 0;
+  }
+
+  .legend-dot.ai { background: var(--cat-ai-muted); border-color: var(--cat-ai); }
+  .legend-dot.systems { background: var(--cat-systems-muted); border-color: var(--cat-systems); }
+  .legend-dot.programming { background: var(--cat-programming-muted); border-color: var(--cat-programming); }
+  .legend-dot.research { background: var(--cat-research-muted); border-color: var(--cat-research); }
+
+  .legend-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--ink-secondary);
+  }
+
+  .legend-divider {
+    height: 1px;
+    background: var(--ink-faint);
+    margin: 7px 0;
+  }
+
+  .legend-edge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
+  }
+
+  .legend-edge:last-child {
+    margin-bottom: 0;
+  }
+
+  .legend-line {
+    width: 18px;
+    height: 0;
+    flex-shrink: 0;
+  }
+
+  .legend-line.strong {
+    border-top: 1.5px solid var(--ink-secondary);
+  }
+
+  .legend-line.normal {
+    border-top: 1px solid var(--ink-faint);
+  }
+
+  .legend-line.weak {
+    border-top: 1px dashed var(--ink-faint);
+  }
+
+  /* --- Detail panel (bottom-right) --- */
+  .detail-panel {
+    position: absolute;
+    bottom: 16px;
+    right: 16px;
+    width: 320px;
+    background: var(--bg-cream);
+    border: 1px solid var(--ink-faint);
+    z-index: 2;
+  }
+
+  .detail-panel-header {
+    padding: 14px 18px 10px;
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+  }
+
+  .detail-panel-title {
+    font-family: var(--font-headline);
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--ink-black);
+    line-height: 1.25;
+  }
+
+  .detail-panel-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 4px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--ink-light);
+    letter-spacing: 0.3px;
+  }
+
+  .detail-panel-meta .sep {
+    color: var(--ink-faint);
+  }
+
+  .detail-relevance {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--red-editorial);
+    background: var(--red-light);
+    padding: 1px 6px;
+    border-radius: 2px;
+  }
+
+  .detail-panel-body {
+    padding: 12px 18px 14px;
+  }
+
+  .detail-panel-summary {
+    font-size: 13px;
+    line-height: 1.7;
+    color: var(--ink-body);
+  }
+
+  .detail-panel-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 10px;
+  }
+
+  .detail-action {
+    font-family: var(--font-body);
+    font-size: 12px;
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+    transition: color 0.15s;
+  }
+
+  .detail-action.primary {
+    color: var(--red-editorial);
+    border-bottom: 1px solid var(--red-border);
+  }
+
+  .detail-action.primary:hover {
+    border-bottom-color: var(--red-editorial);
+  }
+
+  .detail-action.secondary {
+    color: var(--blue-section);
+    border-bottom: 1px solid rgba(44, 95, 138, 0.25);
+  }
+
+  .detail-action.secondary:hover {
+    border-bottom-color: var(--blue-section);
+  }
+
+  /* --- SVG node hover --- */
+  .graph-area svg .node-group:hover .node-circle {
+    stroke-width: 2.5;
+  }
+
+  .graph-area svg .node-group {
+    cursor: pointer;
+  }
+
 </style>
 </head>
 <body>
 
-  <!-- Masthead -->
+<div class="app-shell">
+
+  <!-- ============================================================
+       MASTHEAD
+       ============================================================ -->
   <header class="masthead">
-    <div class="masthead-date">Wednesday, February 11, 2026</div>
-    <h1 class="masthead-title">The Morning Edition</h1>
-    <div class="masthead-subtitle">Your personal daily intelligence, curated by AI</div>
-    <div class="masthead-rule"></div>
-    <div class="masthead-stats">
-      <span>47 sources scanned</span> &middot;
-      <span>12 stories selected</span> &middot;
-      <span>~18 min total reading</span>
+    <div class="masthead-left">
+      <h1 class="masthead-title">The Morning Edition</h1>
+      <span class="masthead-subtitle">A publication of one</span>
+    </div>
+    <div class="masthead-right">
+      <span class="masthead-date">Friday, February 13, 2026</span>
+      <nav class="masthead-nav">
+        <a>Sources</a>
+        <a>Archives</a>
+      </nav>
     </div>
   </header>
 
-  <main class="main">
+  <!-- ============================================================
+       SPLIT PANE
+       ============================================================ -->
+  <div class="split-pane">
 
-    <!-- Editor's Note -->
-    <div class="editors-note">
-      <div class="editors-note-label">From the Editor's Desk</div>
-      <div class="editors-note-text">
-        Today's edition leads with a significant development in <em>retrieval-augmented generation</em> &mdash; a new paper proposes dynamic context windows that addresses the very scaling concerns raised in yesterday's Hacker News discourse. Elsewhere, the Rust-in-ML-infrastructure trend continues to gather momentum across independent sources. I recommend starting with the lead story and the connections section below.
-      </div>
-      <div class="editors-actions">
-        <button class="editors-action primary">Read lead story</button>
-        <button class="editors-action secondary">Jump to connections</button>
-      </div>
-    </div>
+    <!-- ==========================================================
+         LEFT PANE: YOUR CORRESPONDENT
+         ========================================================== -->
+    <aside class="left-pane">
 
-    <!-- Lead Story -->
-    <div class="section-divider">
-      <span class="section-name">Lead Story</span>
-    </div>
-
-    <article class="lead-story">
-      <div class="story-source">arXiv &middot; cs.CL &middot; 6 hours ago</div>
-      <h2 class="story-headline">Dynamic Context Windows for<br>Retrieval-Augmented Generation</h2>
-      <p class="story-summary">
-        Researchers propose adaptive context window sizing based on query complexity, achieving a 23% improvement on multi-hop reasoning benchmarks while reducing token usage by 40%. The approach dynamically allocates retrieval budget based on question decomposition, tested across three domain-specific datasets including legal, medical, and technical documentation.
-      </p>
-      <div class="story-meta">
-        <span class="relevance-badge high">Relevance: 0.94</span>
-        <span>&middot;</span>
-        <span>4 min read</span>
-        <span>&middot;</span>
-        <span class="story-category cat-ai">AI/ML</span>
-      </div>
-    </article>
-
-    <!-- Top Stories Grid -->
-    <div class="section-divider">
-      <span class="section-name">Top Stories</span>
-    </div>
-
-    <div class="story-grid">
-      <article class="story">
-        <div class="story-source">Hacker News &middot; 9h ago</div>
-        <h3 class="story-headline">Why We Rewrote Our ML Pipeline in Rust</h3>
-        <p class="story-summary">Engineering team shares their 6-month journey replacing Python data pipelines. 10x throughput, candid about trade-offs and where Python still wins.</p>
-        <div class="story-meta">
-          <span class="relevance-badge high">0.91</span>
-          <span class="story-category cat-systems">Systems</span>
-          <span>6 min</span>
-        </div>
-      </article>
-
-      <article class="story">
-        <div class="story-source">Simon Willison's Blog &middot; 11h ago</div>
-        <h3 class="story-headline">SQLite as a Vector Database: A Practical Guide</h3>
-        <p class="story-summary">Comprehensive walkthrough of sqlite-vec for embedding storage. Benchmarks against Chroma and FAISS. Viable for datasets under 1M vectors.</p>
-        <div class="story-meta">
-          <span class="relevance-badge high">0.89</span>
-          <span class="story-category cat-programming">Programming</span>
-          <span>5 min</span>
-        </div>
-      </article>
-
-      <article class="story">
-        <div class="story-source">arXiv &middot; cs.LG &middot; 8h ago</div>
-        <h3 class="story-headline">Scaling Sparse MoE on Consumer Hardware</h3>
-        <p class="story-summary">47B parameter MoE models running on Apple Silicon with 32GB RAM via novel quantization-aware routing. Major implications for local deployment.</p>
-        <div class="story-meta">
-          <span class="relevance-badge high">0.87</span>
-          <span class="story-category cat-research">Research</span>
-          <span>3 min</span>
-        </div>
-      </article>
-
-      <article class="story">
-        <div class="story-source">Hacker News &middot; 5h ago</div>
-        <h3 class="story-headline">Open-Source Notion Alternative with Local-First Sync</h3>
-        <p class="story-summary">CRDT-based note-taking with real-time collaboration, offline support, E2E encryption. Rust + React. Already 2.3k GitHub stars.</p>
-        <div class="story-meta">
-          <span class="relevance-badge medium">0.85</span>
-          <span class="story-category cat-programming">Programming</span>
-          <span>2 min</span>
-        </div>
-      </article>
-    </div>
-
-    <!-- Connections -->
-    <div class="connections-aside">
-      <div class="connections-title">Threads &amp; Connections</div>
-
-      <div class="connection">
-        <span class="connection-marker">&para;</span>
-        The <strong>Dynamic Context Windows</strong> paper directly addresses the scaling problem discussed in yesterday's <a>HN thread on RAG limitations</a>. The paper's authors cite the same benchmarks, suggesting the research was motivated by practitioner feedback.
+      <div class="left-pane-header">
+        <div class="left-pane-title">Your Correspondent</div>
       </div>
 
-      <div class="connection">
-        <span class="connection-marker">&para;</span>
-        Two independent sources &mdash; the <strong>Rust ML Pipeline</strong> post and the <strong>MoE on Consumer Hardware</strong> paper &mdash; both signal a broader trend: <a>performance-critical ML infrastructure moving to systems languages</a> for local and edge deployment.
-      </div>
+      <div class="conversation">
 
-      <div class="connection">
-        <span class="connection-marker">&para;</span>
-        The <strong>sqlite-vec guide</strong> from Simon Willison directly validates the architecture choices in your <a>DKIA project</a>. Worth bookmarking as a reference implementation.
-      </div>
-    </div>
-
-    <!-- Also Noted -->
-    <div class="section-divider">
-      <span class="section-name">Also Noted</span>
-    </div>
-
-    <div class="briefer-section">
-      <ul class="briefer-list">
-        <li class="briefer-item">
-          <span class="briefer-bullet">&bull;</span>
-          <div class="briefer-content">
-            <div class="briefer-headline">The Case Against Fine-Tuning: When RAG Is All You Need</div>
-            <div class="briefer-desc">Argues 90% of enterprise LLM use cases are better served by RAG. Includes cost analysis and decision framework.</div>
-            <div class="briefer-source">RSS &middot; Substack &middot; 14h ago &middot; 7 min</div>
+        <!-- AI greeting message -->
+        <div class="message message-ai">
+          <div class="message-label">Editor</div>
+          <div class="message-body">
+            <span class="editorial-phrase">Good morning.</span> I've reviewed
+            <span class="editorial-em">47 pieces</span> overnight from your
+            sources. Three threads caught my attention:
+            <span class="editorial-phrase">RAG advances</span> that directly
+            address yesterday's discussion, the
+            <span class="editorial-phrase">Rust wave in ML infrastructure</span>,
+            and a growing <span class="editorial-phrase">local-first movement</span>
+            that touches both your tooling preferences and your DKIA architecture.
+            <br><br>
+            The lead today is a paper on dynamic context windows that I believe
+            is the most consequential piece this week.
+            <br>
+            <a class="map-link">Show on map &rarr;</a>
           </div>
-        </li>
-        <li class="briefer-item">
-          <span class="briefer-bullet">&bull;</span>
-          <div class="briefer-content">
-            <div class="briefer-headline">PostgreSQL 18 Beta: JSON Subscripting and Async I/O</div>
-            <div class="briefer-desc">Native JSON path subscripting, async I/O for parallel sequential scans, improved partitioning.</div>
-            <div class="briefer-source">Hacker News &middot; 12h ago &middot; 3 min</div>
-          </div>
-        </li>
-        <li class="briefer-item">
-          <span class="briefer-bullet">&bull;</span>
-          <div class="briefer-content">
-            <div class="briefer-headline">A Survey of Prompt Compression Techniques</div>
-            <div class="briefer-desc">Comprehensive survey of 34 methods. Taxonomy: token pruning, soft prompts, and hybrid approaches.</div>
-            <div class="briefer-source">arXiv &middot; 10h ago &middot; 8 min</div>
-          </div>
-        </li>
-        <li class="briefer-item">
-          <span class="briefer-bullet">&bull;</span>
-          <div class="briefer-content">
-            <div class="briefer-headline">Docker Compose v3 Drops Swarm Mode, Adds GPU Support</div>
-            <div class="briefer-desc">Breaking changes in compose spec. Native GPU passthrough simplifies ML deployments.</div>
-            <div class="briefer-source">RSS &middot; Docker Blog &middot; 16h ago &middot; 2 min</div>
-          </div>
-        </li>
-      </ul>
-    </div>
+        </div>
 
-    <!-- Correspondent (Chat) -->
-    <div class="correspondent">
-      <div class="correspondent-header">
-        <div class="correspondent-title">Your Correspondent</div>
-        <div class="correspondent-subtitle">Ask anything about today's edition or your knowledge archive</div>
+        <!-- User message -->
+        <div class="message message-user">
+          <div class="message-label">You</div>
+          <div class="message-body">
+            Tell me about the RAG developments.
+          </div>
+        </div>
+
+        <!-- AI response with citations -->
+        <div class="message message-ai">
+          <div class="message-label">Editor</div>
+          <div class="message-body">
+            Three pieces converge on this topic today. The lead: a paper on
+            <span class="editorial-phrase">dynamic context windows</span>
+            <a class="cite">[1]</a> that proposes adaptive sizing based on
+            query complexity &mdash; achieving
+            <span class="editorial-em">23% improvement</span> on multi-hop
+            reasoning while cutting token usage by 40%.
+            <br><br>
+            This directly addresses yesterday's HN discussion
+            <a class="cite">[2]</a> on RAG scaling limitations. The paper's
+            authors appear to cite the same benchmarks, suggesting practitioner
+            feedback shaped the research.
+            <br><br>
+            Separately, a Substack essay argues that
+            <span class="editorial-phrase">90% of enterprise use cases</span>
+            are better served by RAG than fine-tuning <a class="cite">[3]</a>,
+            offering a cost framework. Worth reading if you're revisiting your
+            own deployment architecture.
+            <br>
+            <a class="map-link">Highlight connections on map &rarr;</a>
+          </div>
+        </div>
+
+        <!-- Suggestions -->
+        <div class="suggestions">
+          <div class="suggestions-label">Follow-up questions</div>
+          <ul class="suggestions-list">
+            <li>Compare the approaches in [1] and [3]</li>
+            <li>What are the emerging threads this week?</li>
+            <li>Go deeper on the dynamic context paper</li>
+            <li>How does this connect to my DKIA project?</li>
+          </ul>
+        </div>
+
       </div>
 
-      <div class="correspondent-suggestions">
-        <span class="correspondent-suggestion">What should I read first?</span>
-        <span class="correspondent-suggestion">Summarize the RAG paper in full</span>
-        <span class="correspondent-suggestion">How does the MoE paper affect my project?</span>
-        <span class="correspondent-suggestion">Compare this week's themes</span>
+      <!-- Chat input -->
+      <div class="chat-input-area">
+        <div class="chat-input-row">
+          <input class="chat-input" placeholder="Ask your correspondent..." />
+          <button class="chat-send">Send</button>
+        </div>
       </div>
 
-      <div class="correspondent-input-row">
-        <input class="correspondent-input" placeholder="Ask your correspondent anything..." />
-        <button class="correspondent-send">Send</button>
+    </aside>
+
+    <!-- ==========================================================
+         RIGHT PANE: THE MAP OF KNOWLEDGE
+         ========================================================== -->
+    <main class="right-pane">
+
+      <!-- Filter toolbar -->
+      <div class="graph-toolbar">
+        <div class="graph-tabs">
+          <button class="graph-tab">All</button>
+          <button class="graph-tab active">This Week</button>
+          <button class="graph-tab">Today</button>
+        </div>
+        <div class="category-pills">
+          <span class="category-pill pill-ai">AI / ML</span>
+          <span class="category-pill pill-systems">Systems</span>
+          <span class="category-pill pill-programming">Programming</span>
+          <span class="category-pill pill-research">Research</span>
+        </div>
       </div>
-    </div>
 
-  </main>
+      <!-- Graph area with SVG -->
+      <div class="graph-area">
 
-  <footer class="footer">
-    <div class="footer-text">
-      Assembled overnight from 47 sources &middot; Processed locally via Ollama &middot; No data leaves your machine
-    </div>
-  </footer>
+        <svg viewBox="0 0 900 640" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <!-- Subtle drop shadow for highlighted nodes -->
+            <filter id="redGlow" x="-50%" y="-50%" width="200%" height="200%">
+              <feGaussianBlur in="SourceAlpha" stdDeviation="4" result="blur"/>
+              <feFlood flood-color="#c0392b" flood-opacity="0.3" result="color"/>
+              <feComposite in="color" in2="blur" operator="in" result="shadow"/>
+              <feMerge>
+                <feMergeNode in="shadow"/>
+                <feMergeNode in="SourceGraphic"/>
+              </feMerge>
+            </filter>
+            <!-- Subtle noise texture for paper feel -->
+            <filter id="paperTexture">
+              <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch" result="noise"/>
+              <feColorMatrix type="saturate" values="0" in="noise" result="grayNoise"/>
+              <feBlend in="SourceGraphic" in2="grayNoise" mode="multiply" result="textured"/>
+              <feComponentTransfer in="textured">
+                <feFuncA type="linear" slope="0.03"/>
+              </feComponentTransfer>
+            </filter>
+          </defs>
+
+          <!-- Background -->
+          <rect width="900" height="640" fill="#f5f0e8"/>
+
+          <!-- ======================================================
+               CLUSTER BACKGROUNDS (cream ovals)
+               ====================================================== -->
+
+          <!-- Cluster 1: RAG / AI cluster (upper-left area) -->
+          <ellipse cx="250" cy="210" rx="185" ry="130" fill="#eee8db" stroke="#d9d3c7" stroke-width="0.5" opacity="0.7"/>
+
+          <!-- Cluster 2: Systems / Rust cluster (right area) -->
+          <ellipse cx="650" cy="240" rx="175" ry="145" fill="#eee8db" stroke="#d9d3c7" stroke-width="0.5" opacity="0.7"/>
+
+          <!-- Cluster 3: Local-first cluster (lower-center) -->
+          <ellipse cx="420" cy="470" rx="170" ry="110" fill="#eee8db" stroke="#d9d3c7" stroke-width="0.5" opacity="0.7"/>
+
+          <!-- ======================================================
+               EDGES (drawn first, behind nodes)
+               ====================================================== -->
+
+          <!-- Strong edges (darker, 1.5px) -->
+          <!-- RAG <-> Dynamic Context Windows -->
+          <line x1="190" y1="175" x2="310" y2="175" stroke="#6b6b6b" stroke-width="1.5"/>
+          <!-- Dynamic Context Windows <-> Fine-tuning -->
+          <line x1="310" y1="175" x2="225" y2="290" stroke="#6b6b6b" stroke-width="1.5"/>
+          <!-- RAG <-> Fine-tuning -->
+          <line x1="190" y1="175" x2="225" y2="290" stroke="#6b6b6b" stroke-width="1.2"/>
+          <!-- Rust in ML <-> LLM Deployment -->
+          <line x1="620" y1="180" x2="700" y2="290" stroke="#6b6b6b" stroke-width="1.5"/>
+          <!-- Rust in ML <-> Quantization -->
+          <line x1="620" y1="180" x2="570" y2="280" stroke="#6b6b6b" stroke-width="1.5"/>
+          <!-- MoE Scaling <-> Quantization -->
+          <line x1="720" y1="180" x2="570" y2="280" stroke="#6b6b6b" stroke-width="1.3"/>
+          <!-- MoE Scaling <-> LLM Deployment -->
+          <line x1="720" y1="180" x2="700" y2="290" stroke="#6b6b6b" stroke-width="1.3"/>
+          <!-- Local-first <-> CRDT -->
+          <line x1="380" y1="440" x2="480" y2="430" stroke="#6b6b6b" stroke-width="1.5"/>
+          <!-- CRDT <-> sqlite-vec -->
+          <line x1="480" y1="430" x2="440" y2="520" stroke="#6b6b6b" stroke-width="1.3"/>
+          <!-- Local-first <-> sqlite-vec -->
+          <line x1="380" y1="440" x2="440" y2="520" stroke="#6b6b6b" stroke-width="1.2"/>
+
+          <!-- Normal edges (light, 1px) -->
+          <!-- Dynamic Context Windows <-> LLM Deployment -->
+          <line x1="310" y1="175" x2="700" y2="290" stroke="#c4c0b8" stroke-width="1"/>
+          <!-- RAG <-> LLM Deployment -->
+          <line x1="190" y1="175" x2="700" y2="290" stroke="#c4c0b8" stroke-width="1"/>
+          <!-- Fine-tuning <-> Quantization -->
+          <line x1="225" y1="290" x2="570" y2="280" stroke="#c4c0b8" stroke-width="1"/>
+          <!-- sqlite-vec <-> RAG -->
+          <line x1="440" y1="520" x2="190" y2="175" stroke="#c4c0b8" stroke-width="1"/>
+          <!-- Local-first <-> Rust in ML -->
+          <line x1="380" y1="440" x2="620" y2="180" stroke="#c4c0b8" stroke-width="1"/>
+
+          <!-- Weak / dashed edges -->
+          <!-- Prompt Compression <-> RAG -->
+          <line x1="130" y1="130" x2="190" y2="175" stroke="#c4c0b8" stroke-width="1" stroke-dasharray="4,3"/>
+          <!-- Prompt Compression <-> Dynamic Context Windows -->
+          <line x1="130" y1="130" x2="310" y2="175" stroke="#c4c0b8" stroke-width="1" stroke-dasharray="4,3"/>
+          <!-- Async Postgres <-> sqlite-vec -->
+          <line x1="310" y1="530" x2="440" y2="520" stroke="#c4c0b8" stroke-width="1" stroke-dasharray="4,3"/>
+          <!-- Async Postgres <-> Local-first -->
+          <line x1="310" y1="530" x2="380" y2="440" stroke="#c4c0b8" stroke-width="1" stroke-dasharray="4,3"/>
+          <!-- Docker GPU <-> LLM Deployment -->
+          <line x1="780" y1="370" x2="700" y2="290" stroke="#c4c0b8" stroke-width="1" stroke-dasharray="4,3"/>
+          <!-- Docker GPU <-> Quantization -->
+          <line x1="780" y1="370" x2="570" y2="280" stroke="#c4c0b8" stroke-width="1" stroke-dasharray="4,3"/>
+          <!-- CRDT <-> Rust in ML (shared tech) -->
+          <line x1="480" y1="430" x2="620" y2="180" stroke="#c4c0b8" stroke-width="1" stroke-dasharray="4,3"/>
+
+          <!-- ======================================================
+               NODES
+               ====================================================== -->
+
+          <!-- Cluster 1: RAG / AI -->
+
+          <!-- Prompt Compression (AI) - peripheral -->
+          <g class="node-group">
+            <circle class="node-circle" cx="130" cy="130" r="14" fill="rgba(123,94,167,0.3)" stroke="#7b5ea7" stroke-width="1.5"/>
+            <text x="130" y="108" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="9" fill="#6b6b6b">Prompt Compression</text>
+          </g>
+
+          <!-- RAG (AI) - HIGHLIGHTED (related to chat) -->
+          <g class="node-group" filter="url(#redGlow)">
+            <circle class="node-circle" cx="190" cy="175" r="22" fill="rgba(123,94,167,0.35)" stroke="#c0392b" stroke-width="2.5"/>
+            <text x="190" y="179" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="10" font-weight="500" fill="#1a1a1a">RAG</text>
+          </g>
+
+          <!-- Dynamic Context Windows (Research) - HIGHLIGHTED -->
+          <g class="node-group" filter="url(#redGlow)">
+            <circle class="node-circle" cx="310" cy="175" r="20" fill="rgba(192,57,43,0.3)" stroke="#c0392b" stroke-width="2.5"/>
+            <text x="310" y="150" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="9" font-weight="500" fill="#1a1a1a">Dynamic Context</text>
+            <text x="310" y="160" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="9" font-weight="500" fill="#1a1a1a">Windows</text>
+          </g>
+
+          <!-- Fine-tuning (AI) - HIGHLIGHTED -->
+          <g class="node-group" filter="url(#redGlow)">
+            <circle class="node-circle" cx="225" cy="290" r="16" fill="rgba(123,94,167,0.3)" stroke="#c0392b" stroke-width="2"/>
+            <text x="225" y="315" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="9" fill="#3d3d3d">Fine-tuning</text>
+          </g>
+
+          <!-- Cluster 2: Systems / Rust -->
+
+          <!-- Rust in ML (Systems) -->
+          <g class="node-group">
+            <circle class="node-circle" cx="620" cy="180" r="20" fill="rgba(44,95,138,0.35)" stroke="#2c5f8a" stroke-width="1.5"/>
+            <text x="620" y="155" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="9" fill="#2d2d2d">Rust in ML</text>
+          </g>
+
+          <!-- MoE Scaling (Research) -->
+          <g class="node-group">
+            <circle class="node-circle" cx="720" cy="180" r="18" fill="rgba(192,57,43,0.28)" stroke="#c0392b" stroke-width="1.5"/>
+            <text x="720" y="157" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="9" fill="#2d2d2d">MoE Scaling</text>
+          </g>
+
+          <!-- Quantization (AI) -->
+          <g class="node-group">
+            <circle class="node-circle" cx="570" cy="280" r="16" fill="rgba(123,94,167,0.3)" stroke="#7b5ea7" stroke-width="1.5"/>
+            <text x="570" y="305" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="9" fill="#3d3d3d">Quantization</text>
+          </g>
+
+          <!-- LLM Deployment (Systems) -->
+          <g class="node-group">
+            <circle class="node-circle" cx="700" cy="290" r="17" fill="rgba(44,95,138,0.3)" stroke="#2c5f8a" stroke-width="1.5"/>
+            <text x="700" y="315" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="9" fill="#3d3d3d">LLM Deployment</text>
+          </g>
+
+          <!-- Docker GPU (Systems) - peripheral -->
+          <g class="node-group">
+            <circle class="node-circle" cx="780" cy="370" r="13" fill="rgba(44,95,138,0.25)" stroke="#2c5f8a" stroke-width="1.5"/>
+            <text x="780" y="392" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="9" fill="#6b6b6b">Docker GPU</text>
+          </g>
+
+          <!-- Cluster 3: Local-first -->
+
+          <!-- Local-first (Programming) -->
+          <g class="node-group">
+            <circle class="node-circle" cx="380" cy="440" r="19" fill="rgba(58,125,106,0.35)" stroke="#3a7d6a" stroke-width="1.5"/>
+            <text x="380" y="418" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="9" fill="#2d2d2d">Local-first</text>
+          </g>
+
+          <!-- CRDT (Programming) -->
+          <g class="node-group">
+            <circle class="node-circle" cx="480" cy="430" r="16" fill="rgba(58,125,106,0.3)" stroke="#3a7d6a" stroke-width="1.5"/>
+            <text x="480" y="412" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="9" fill="#3d3d3d">CRDT</text>
+          </g>
+
+          <!-- sqlite-vec (Programming) -->
+          <g class="node-group">
+            <circle class="node-circle" cx="440" cy="520" r="17" fill="rgba(58,125,106,0.3)" stroke="#3a7d6a" stroke-width="1.5"/>
+            <text x="440" y="545" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="9" fill="#3d3d3d">sqlite-vec</text>
+          </g>
+
+          <!-- Async Postgres (Systems) - peripheral -->
+          <g class="node-group">
+            <circle class="node-circle" cx="310" cy="530" r="13" fill="rgba(44,95,138,0.25)" stroke="#2c5f8a" stroke-width="1.5"/>
+            <text x="310" y="552" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="9" fill="#6b6b6b">Async Postgres</text>
+          </g>
+
+          <!-- Additional nodes for density -->
+
+          <!-- Embeddings (AI) - between clusters 1 and 3 -->
+          <g class="node-group">
+            <circle class="node-circle" cx="165" cy="385" r="13" fill="rgba(123,94,167,0.25)" stroke="#7b5ea7" stroke-width="1.5"/>
+            <text x="165" y="407" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="9" fill="#6b6b6b">Embeddings</text>
+          </g>
+          <!-- Embeddings <-> RAG -->
+          <line x1="165" y1="385" x2="190" y2="175" stroke="#c4c0b8" stroke-width="1"/>
+          <!-- Embeddings <-> sqlite-vec -->
+          <line x1="165" y1="385" x2="440" y2="520" stroke="#c4c0b8" stroke-width="1" stroke-dasharray="4,3"/>
+
+          <!-- Wasm (Programming) - between clusters 2 and 3 -->
+          <g class="node-group">
+            <circle class="node-circle" cx="575" cy="420" r="12" fill="rgba(58,125,106,0.22)" stroke="#3a7d6a" stroke-width="1.5"/>
+            <text x="575" y="441" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="9" fill="#6b6b6b">Wasm</text>
+          </g>
+          <!-- Wasm <-> Local-first -->
+          <line x1="575" y1="420" x2="380" y2="440" stroke="#c4c0b8" stroke-width="1" stroke-dasharray="4,3"/>
+          <!-- Wasm <-> Rust in ML -->
+          <line x1="575" y1="420" x2="620" y2="180" stroke="#c4c0b8" stroke-width="1" stroke-dasharray="4,3"/>
+
+          <!-- Edge AI (Research) - near systems cluster -->
+          <g class="node-group">
+            <circle class="node-circle" cx="790" cy="210" r="12" fill="rgba(192,57,43,0.22)" stroke="#c0392b" stroke-width="1.5"/>
+            <text x="790" y="232" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="9" fill="#6b6b6b">Edge AI</text>
+          </g>
+          <!-- Edge AI <-> MoE Scaling -->
+          <line x1="790" y1="210" x2="720" y2="180" stroke="#c4c0b8" stroke-width="1"/>
+          <!-- Edge AI <-> LLM Deployment -->
+          <line x1="790" y1="210" x2="700" y2="290" stroke="#c4c0b8" stroke-width="1" stroke-dasharray="4,3"/>
+
+          <!-- Cluster labels (subtle, in background) -->
+          <text x="250" y="105" text-anchor="middle" font-family="'Playfair Display', serif" font-size="11" font-style="italic" fill="#c4c0b8" letter-spacing="1">Retrieval &amp; Generation</text>
+          <text x="660" y="125" text-anchor="middle" font-family="'Playfair Display', serif" font-size="11" font-style="italic" fill="#c4c0b8" letter-spacing="1">Infrastructure &amp; Scale</text>
+          <text x="420" y="580" text-anchor="middle" font-family="'Playfair Display', serif" font-size="11" font-style="italic" fill="#c4c0b8" letter-spacing="1">Local-first &amp; Storage</text>
+
+        </svg>
+
+        <!-- Legend -->
+        <div class="graph-legend">
+          <div class="legend-title">Categories</div>
+          <div class="legend-item">
+            <span class="legend-dot ai"></span>
+            <span class="legend-label">AI / ML</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-dot systems"></span>
+            <span class="legend-label">Systems</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-dot programming"></span>
+            <span class="legend-label">Programming</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-dot research"></span>
+            <span class="legend-label">Research</span>
+          </div>
+          <div class="legend-divider"></div>
+          <div class="legend-title">Connections</div>
+          <div class="legend-edge">
+            <span class="legend-line strong"></span>
+            <span class="legend-label">Strong</span>
+          </div>
+          <div class="legend-edge">
+            <span class="legend-line normal"></span>
+            <span class="legend-label">Related</span>
+          </div>
+          <div class="legend-edge">
+            <span class="legend-line weak"></span>
+            <span class="legend-label">Weak</span>
+          </div>
+        </div>
+
+        <!-- Detail Panel -->
+        <div class="detail-panel">
+          <div class="detail-panel-header">
+            <div class="detail-panel-title">Dynamic Context Windows for Retrieval-Augmented Generation</div>
+            <div class="detail-panel-meta">
+              <span>arXiv</span>
+              <span class="sep">&middot;</span>
+              <span>cs.CL</span>
+              <span class="sep">&middot;</span>
+              <span>6h ago</span>
+              <span class="sep">&middot;</span>
+              <span class="detail-relevance">Relevance: 0.94</span>
+            </div>
+          </div>
+          <div class="detail-panel-body">
+            <div class="detail-panel-summary">
+              Proposes adaptive context window sizing based on query complexity,
+              achieving 23% improvement on multi-hop reasoning benchmarks while
+              reducing token usage by 40%. Tested across legal, medical, and
+              technical documentation domains.
+            </div>
+            <div class="detail-panel-actions">
+              <a class="detail-action primary">Read full piece</a>
+              <a class="detail-action secondary">Show connections</a>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </main>
+
+  </div>
+
+</div>
 
 </body>
 </html>
