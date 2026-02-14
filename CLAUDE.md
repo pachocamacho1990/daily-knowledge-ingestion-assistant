@@ -1,6 +1,6 @@
 # CLAUDE.md - DKIA Project Instructions
 
-> Last updated: February 14, 2026
+> Last updated: February 13, 2026
 > Version: 0.1.0 (MVP-0)
 
 ## What Is This Project
@@ -31,7 +31,7 @@
 |---|---|
 | Language | Python 3.12 |
 | Web framework | FastAPI + Uvicorn |
-| Frontend | Jinja2 + Tailwind CSS (CDN) |
+| Frontend | Jinja2 + Tailwind CSS (CDN) + design-system.css |
 | Database | SQLite + sqlite-vec (built from source) |
 | LLM runtime | Ollama (host-native) |
 | HTTP client | httpx (async) |
@@ -84,13 +84,14 @@ daily-knowledge-ingestion-assistant/
 │       │   ├── navigator.py               # GET /, POST /chat (SSE), GET /conversations
 │       │   └── library.py                 # GET /library, POST submit-url/submit-text, DELETE items
 │       ├── templates/
-│       │   ├── base.html                  # Observatory dark theme, Tailwind CDN
+│       │   ├── base.html                  # Observatory dark theme, Tailwind CDN, design system CSS
 │       │   ├── navigator.html             # Full-screen chat with conversation selector
 │       │   ├── library.html               # URL/text input + item list with status badges
 │       │   └── components/
 │       │       ├── nav.html               # Top nav bar (Navigator / Library)
 │       │       └── chat_message.html      # Chat bubble component
 │       └── static/
+│           ├── design-system.css          # CSS custom properties + component classes
 │           ├── chat.js                    # SSE via fetch + ReadableStream, markdown rendering
 │           └── library.js                 # Submit URL/text, polling status updates
 ├── tests/
@@ -99,13 +100,14 @@ daily-knowledge-ingestion-assistant/
 └── docs/
     ├── architecture-plan.md               # Full architecture (future vision)
     ├── market-research.md                 # Competitive landscape + problem statement
+    ├── design-system.md                   # Design system spec (colors, typography, components)
     └── design-concepts/                   # Three UI mockup concepts
 ```
 
 ## Current State
 
 - **Phase**: MVP-0 implemented
-- **What works**: Docker build, FastAPI startup, DB schema init, sqlite-vec loaded, URL/text ingestion, background processing queue, Navigator chat (SSE streaming), Library page with status polling, Observatory dark theme UI
+- **What works**: Docker build, FastAPI startup, DB schema init, sqlite-vec loaded, URL/text ingestion, background processing queue, Navigator chat (SSE streaming), Library page with status polling, Observatory dark theme UI, design system (CSS tokens + component classes)
 - **Requires**: Ollama running on host with `llama3.1:8b` and `nomic-embed-text` models
 - **Known issue**: sqlite-vec pip package ships broken 32-bit ARM binary for linux/aarch64 — solved by building from amalgamation source in Dockerfile
 
@@ -148,3 +150,4 @@ daily-knowledge-ingestion-assistant/
 - **Feb 13, 2026**: Vision refined to conversational Navigator + graph Visualization Platform
 - **Feb 13, 2026**: Design concepts updated to split-pane layout matching new vision
 - **Feb 14, 2026**: MVP-0 implemented — manual ingestion, background processing, Navigator RAG chat, Library UI, Observatory dark theme. 37 files, Docker build verified on Apple Silicon.
+- **Feb 13, 2026**: Design system formalized — CSS custom properties, component classes (buttons, inputs, cards, chat, badges, nav, loading), category nebula colors, typography scale, animation tokens. Inline styles moved from base.html to design-system.css. Tailwind config extended with border-radius scale and category colors.

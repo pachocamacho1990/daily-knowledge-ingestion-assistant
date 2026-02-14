@@ -1,0 +1,565 @@
+/* ═══════════════════════════════════════════════════════════════════════════════
+   DKIA Design System — Observatory Theme
+   Version 1.0
+
+   Organized sections:
+   1. TOKENS (CSS custom properties)
+   2. BASE (body, scrollbar, selection, focus)
+   3. TYPOGRAPHY (type scale classes)
+   4. COMPONENTS (buttons, inputs, cards, chat, badges, nav, loading)
+   5. CATEGORIES (nebula-tone color utilities)
+   6. ANIMATIONS (keyframes)
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+
+/* ═══ TOKENS ═══════════════════════════════════════════════════════════════════ */
+
+:root {
+    /* Backgrounds */
+    --bg-void: #0a0e1a;
+    --bg-surface: #111827;
+    --bg-card: #1a2236;
+    --bg-card-hover: #1f2a42;
+    --bg-overlay: rgba(0, 0, 0, 0.6);
+
+    /* Text */
+    --text-primary: #e8eaf0;
+    --text-secondary: #8892a8;
+    --text-muted: #4a5568;
+    --text-inverse: #0a0e1a;
+
+    /* Borders */
+    --border-subtle: rgba(255, 255, 255, 0.06);
+    --border-default: #374151;
+    --border-hover: #4b5563;
+    --border-accent: rgba(245, 166, 35, 0.3);
+
+    /* Accent — Amber */
+    --amber: #f5a623;
+    --amber-hover: #fbb543;
+    --amber-dim: #b8801a;
+    --amber-glow: rgba(245, 166, 35, 0.15);
+    --amber-faint: rgba(245, 166, 35, 0.08);
+
+    /* Status */
+    --status-success: #22c55e;
+    --status-error: #ef4444;
+    --status-error-text: #f87171;
+    --status-warning: #f5a623;
+    --status-info: #6b8acd;
+
+    /* Categories — Nebula Tones */
+    --cat-ai: #7c6df0;
+    --cat-ai-glow: rgba(124, 109, 240, 0.15);
+    --cat-ai-fill: rgba(124, 109, 240, 0.06);
+    --cat-systems: #3b9bf5;
+    --cat-systems-glow: rgba(59, 155, 245, 0.15);
+    --cat-systems-fill: rgba(59, 155, 245, 0.06);
+    --cat-programming: #2dd4a8;
+    --cat-programming-glow: rgba(45, 212, 168, 0.15);
+    --cat-programming-fill: rgba(45, 212, 168, 0.06);
+    --cat-research: #f07c6d;
+    --cat-research-glow: rgba(240, 124, 109, 0.15);
+    --cat-research-fill: rgba(240, 124, 109, 0.06);
+
+    /* Spacing */
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 20px;
+    --space-6: 24px;
+    --space-8: 32px;
+    --space-10: 40px;
+    --space-12: 48px;
+
+    /* Border Radius */
+    --radius-sm: 6px;
+    --radius-default: 8px;
+    --radius-lg: 12px;
+    --radius-xl: 16px;
+    --radius-full: 9999px;
+
+    /* Animation */
+    --duration-fast: 150ms;
+    --duration-base: 200ms;
+    --duration-slow: 300ms;
+    --duration-pulse: 2s;
+    --duration-blink: 1s;
+    --ease-default: ease-in-out;
+    --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+
+/* ═══ BASE ═════════════════════════════════════════════════════════════════════ */
+
+body {
+    background-color: var(--bg-void);
+    color: var(--text-primary);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+    width: 6px;
+}
+::-webkit-scrollbar-track {
+    background: var(--bg-surface);
+}
+::-webkit-scrollbar-thumb {
+    background: var(--border-default);
+    border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: var(--border-hover);
+}
+
+/* Selection */
+::selection {
+    background: var(--amber-glow);
+    color: var(--text-primary);
+}
+
+/* Global focus indicator */
+*:focus-visible {
+    outline: 2px solid var(--amber);
+    outline-offset: 2px;
+}
+
+
+/* ═══ TYPOGRAPHY ═══════════════════════════════════════════════════════════════ */
+
+.text-display {
+    font-size: 28px;
+    font-weight: 600;
+    line-height: 1.2;
+    color: var(--text-primary);
+}
+
+.text-h1 {
+    font-size: 24px;
+    font-weight: 600;
+    line-height: 1.3;
+    color: var(--text-primary);
+}
+
+.text-h2 {
+    font-size: 20px;
+    font-weight: 500;
+    line-height: 1.3;
+    color: var(--text-primary);
+}
+
+.text-h3 {
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 1.4;
+    color: var(--text-primary);
+}
+
+.text-body {
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.6;
+    color: var(--text-secondary);
+}
+
+.text-body-medium {
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.6;
+    color: var(--text-secondary);
+}
+
+.text-small {
+    font-size: 13px;
+    font-weight: 400;
+    line-height: 1.5;
+    color: var(--text-secondary);
+}
+
+.text-caption {
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 1.5;
+    color: var(--text-muted);
+}
+
+.text-tiny {
+    font-size: 11px;
+    font-weight: 400;
+    line-height: 1.4;
+    color: var(--text-muted);
+}
+
+.text-micro {
+    font-size: 9px;
+    font-weight: 500;
+    line-height: 1.3;
+    color: var(--text-muted);
+}
+
+
+/* ═══ COMPONENTS ═══════════════════════════════════════════════════════════════ */
+
+/* --- Buttons --- */
+
+.btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--amber);
+    color: var(--text-inverse);
+    font-weight: 500;
+    font-size: 14px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: var(--radius-default);
+    cursor: pointer;
+    transition: background-color var(--duration-fast) var(--ease-default);
+    flex-shrink: 0;
+}
+.btn-primary:hover {
+    background-color: var(--amber-hover);
+}
+.btn-primary:active {
+    background-color: var(--amber-dim);
+}
+.btn-primary:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+.btn-primary:disabled:hover {
+    background-color: var(--amber);
+}
+
+.btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: transparent;
+    color: var(--text-secondary);
+    font-weight: 500;
+    font-size: 14px;
+    padding: 10px 20px;
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-default);
+    cursor: pointer;
+    transition: all var(--duration-fast) var(--ease-default);
+}
+.btn-secondary:hover {
+    border-color: var(--border-hover);
+    color: var(--text-primary);
+}
+.btn-secondary:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.btn-ghost {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: transparent;
+    color: var(--text-secondary);
+    font-weight: 500;
+    font-size: 14px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: var(--radius-default);
+    cursor: pointer;
+    transition: color var(--duration-fast) var(--ease-default);
+}
+.btn-ghost:hover {
+    color: var(--text-primary);
+}
+.btn-ghost:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+/* --- Form Inputs --- */
+
+.input,
+.textarea,
+.select {
+    width: 100%;
+    background-color: var(--bg-card);
+    color: var(--text-primary);
+    font-size: 14px;
+    padding: 10px 16px;
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-default);
+    transition: border-color var(--duration-fast) var(--ease-default),
+                box-shadow var(--duration-fast) var(--ease-default);
+}
+.input::placeholder,
+.textarea::placeholder {
+    color: var(--text-muted);
+}
+.input:focus,
+.textarea:focus,
+.select:focus {
+    outline: none;
+    border-color: rgba(245, 166, 35, 0.5);
+    box-shadow: 0 0 0 1px rgba(245, 166, 35, 0.3);
+}
+.textarea {
+    resize: vertical;
+}
+
+/* --- Cards --- */
+
+.card {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-lg);
+    padding: var(--space-4);
+}
+
+.card-hover {
+    transition: border-color var(--duration-fast) var(--ease-default),
+                background-color var(--duration-fast) var(--ease-default);
+}
+.card-hover:hover {
+    border-color: var(--border-hover);
+    background-color: var(--bg-card-hover);
+}
+
+/* --- Chat Messages --- */
+
+.msg-user {
+    max-width: 70%;
+    background-color: var(--amber-glow);
+    border: 1px solid rgba(245, 166, 35, 0.2);
+    border-radius: var(--radius-lg);
+    padding: 12px 16px;
+}
+.msg-user p {
+    color: #d1d5db;
+    font-size: 14px;
+    white-space: pre-wrap;
+}
+
+.msg-ai {
+    max-width: 80%;
+    display: flex;
+}
+.msg-ai-bar {
+    width: 4px;
+    background-color: var(--amber);
+    border-radius: var(--radius-full);
+    margin-right: 12px;
+    flex-shrink: 0;
+}
+.msg-ai-content {
+    color: #d1d5db;
+    font-size: 14px;
+    line-height: 1.625;
+}
+
+/* Badge: citation [1] */
+.badge-citation {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    font-size: 12px;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    background-color: rgba(245, 166, 35, 0.2);
+    color: var(--amber);
+    border: 1px solid var(--border-accent);
+    border-radius: var(--radius-default);
+    margin: 0 2px;
+}
+
+/* Badge: status */
+.badge-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    padding: 2px 10px;
+    border-radius: var(--radius-full);
+}
+
+/* Badge: category */
+.badge-category {
+    display: inline-block;
+    font-size: 12px;
+    padding: 2px 8px;
+    border-radius: var(--radius-full);
+    background-color: var(--amber-faint);
+    color: var(--amber);
+    border: 1px solid rgba(245, 166, 35, 0.2);
+}
+
+/* --- Status Dots --- */
+
+.status-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: var(--radius-full);
+    flex-shrink: 0;
+}
+.status-dot--pending {
+    background-color: var(--text-muted);
+    animation: pulse-slow var(--duration-pulse) var(--ease-default) infinite;
+}
+.status-dot--processing {
+    background-color: var(--amber);
+    animation: pulse-slow var(--duration-pulse) var(--ease-default) infinite;
+}
+.status-dot--done {
+    background-color: var(--status-success);
+}
+.status-dot--error {
+    background-color: var(--status-error);
+}
+
+/* --- Navigation --- */
+
+.nav-bar {
+    background-color: var(--bg-surface);
+    border-bottom: 1px solid var(--border-default);
+    padding: 12px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+}
+
+.nav-link {
+    font-size: 14px;
+    padding: 6px 12px;
+    border-radius: var(--radius-default);
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color var(--duration-fast) var(--ease-default);
+}
+.nav-link:hover {
+    color: var(--text-primary);
+}
+.nav-link--active {
+    background-color: var(--amber-glow);
+    color: var(--amber);
+}
+
+/* --- Loading Skeletons --- */
+
+.skeleton {
+    background-color: var(--bg-card);
+    border-radius: var(--radius-default);
+    animation: skeleton-shimmer 1.5s var(--ease-default) infinite;
+    background-image: linear-gradient(
+        90deg,
+        var(--bg-card) 0%,
+        var(--bg-card-hover) 40%,
+        var(--bg-card) 80%
+    );
+    background-size: 200% 100%;
+}
+.skeleton-text {
+    width: 100%;
+    height: 14px;
+}
+
+/* --- Shadows --- */
+
+.shadow-subtle {
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+}
+.shadow-card {
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.4);
+}
+.shadow-elevated {
+    box-shadow: 0 4px 40px rgba(0, 0, 0, 0.5);
+}
+.shadow-amber-glow {
+    box-shadow: 0 0 20px var(--amber-glow);
+}
+
+/* --- Typing Cursor --- */
+
+.typing-cursor::after {
+    content: '\2588';
+    color: var(--amber);
+    animation: blink var(--duration-blink) step-end infinite;
+}
+
+/* --- Pulse animation utility --- */
+
+.animate-pulse-slow {
+    animation: pulse-slow var(--duration-pulse) var(--ease-default) infinite;
+}
+
+
+/* ═══ CATEGORIES ═══════════════════════════════════════════════════════════════ */
+
+.cat-ai {
+    color: var(--cat-ai);
+}
+.cat-ai-bg {
+    background-color: var(--cat-ai-fill);
+    border-color: var(--cat-ai-glow);
+}
+.shadow-cat-ai {
+    box-shadow: 0 0 20px var(--cat-ai-glow);
+}
+
+.cat-systems {
+    color: var(--cat-systems);
+}
+.cat-systems-bg {
+    background-color: var(--cat-systems-fill);
+    border-color: var(--cat-systems-glow);
+}
+.shadow-cat-systems {
+    box-shadow: 0 0 20px var(--cat-systems-glow);
+}
+
+.cat-programming {
+    color: var(--cat-programming);
+}
+.cat-programming-bg {
+    background-color: var(--cat-programming-fill);
+    border-color: var(--cat-programming-glow);
+}
+.shadow-cat-programming {
+    box-shadow: 0 0 20px var(--cat-programming-glow);
+}
+
+.cat-research {
+    color: var(--cat-research);
+}
+.cat-research-bg {
+    background-color: var(--cat-research-fill);
+    border-color: var(--cat-research-glow);
+}
+.shadow-cat-research {
+    box-shadow: 0 0 20px var(--cat-research-glow);
+}
+
+
+/* ═══ ANIMATIONS ═══════════════════════════════════════════════════════════════ */
+
+@keyframes pulse-slow {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+}
+
+@keyframes skeleton-shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+@keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
