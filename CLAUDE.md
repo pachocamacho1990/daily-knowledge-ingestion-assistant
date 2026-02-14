@@ -1,28 +1,29 @@
 # CLAUDE.md - DKIA Project Instructions
 
-> Last updated: February 13, 2026
-> Version: Pre-release (design phase)
+> Last updated: February 14, 2026
+> Version: 0.1.0 (MVP-0)
 
 ## What Is This Project
 
-**Daily Knowledge Ingestion Assistant (DKIA)** — A personal knowledge navigation system that ingests content from multiple sources overnight, builds a knowledge graph, and presents it through two components:
+**Daily Knowledge Ingestion Assistant (DKIA)** — A personal knowledge navigation system that ingests content from multiple sources, builds a knowledge base, and presents it through a conversational AI interface.
 
-1. **The Navigator** — Conversational-first chat interface (left pane, ~40%). The user drives discovery each morning through questions. The AI has processed everything overnight and guides on where to look, why it matters, and how to approach it.
+**MVP-0 (current)**: Manual-first ingestion — user pastes URLs or raw text, system processes in background (fetch → summarize → embed), then user asks questions via the Navigator chat powered by semantic RAG.
 
-2. **The Visualization Platform** — Interactive knowledge graph powered by Cytoscape.js (right pane, ~60%). Shows entities, relationships, topic clusters as a living map. Nodes sized by centrality, colored by category, clustered by community detection.
+**Future vision**: Knowledge graphs, community detection, Cytoscape.js visualization, automated source ingestion (RSS, HN, arXiv).
 
 **Core belief**: This is about the future of education — optimizing how humans learn from large volumes of data.
 
 ## Key Architecture Decisions
 
-- **Deployment**: Docker container on a separate Apple Silicon Mac. Ollama runs **natively on the host** (not in Docker) to leverage Metal GPU. Container connects via `host.docker.internal:11434`.
+- **Deployment**: Docker container on Apple Silicon Mac. Ollama runs **natively on the host** (not in Docker) to leverage Metal GPU. Container connects via `host.docker.internal:11434`.
+- **sqlite-vec**: Built from source in Docker (amalgamation release) due to broken aarch64 linux binaries in both pip package and GitHub releases.
 - **100% open-source**: No paid APIs, no proprietary services.
-- **LLM models**: `llama3.1:8b` (chat/summarization/entity extraction) + `nomic-embed-text` (embeddings, 768-dim), both via Ollama.
-- **Storage**: SQLite + sqlite-vec (vector) + SQLite graph tables (entities/relationships) + NetworkX (in-memory batch algorithms).
-- **No separate graph DB**: Graph stored in SQLite tables, loaded into NetworkX for batch computations (PageRank, community detection, centrality).
-- **Triple-factor retrieval**: `final_score = 0.6 * semantic_similarity + 0.2 * temporal_decay + 0.2 * graph_centrality`
-- **Temporal decay**: `0.5 ^ (age_days / half_life)` with content-type-aware half-lives (news: 7d, papers: 30d, reference: 365d).
-- **Five-level summarization pipeline**: Item compression (overnight) → Topic clustering via Leiden/Louvain (overnight) → Landscape mapping (overnight) → Query-driven synthesis (real-time) → Progressive detail (real-time).
+- **LLM models**: `llama3.1:8b` (chat/summarization) + `nomic-embed-text` (embeddings, 768-dim), both via Ollama.
+- **Storage**: SQLite + sqlite-vec (vector search). WAL mode, Row factory.
+- **Background processing**: `asyncio.Queue` + single worker coroutine. Sequential processing (Ollama is single-GPU).
+- **Ingestion model**: Manual URL/text submission (like NotebookLM). User is the curator.
+- **Retrieval**: Semantic-only (sqlite-vec KNN). Triple-factor retrieval deferred to future iteration.
+- **Content truncation**: 6000 chars max (fits llama3.1:8b 8K context with prompts).
 
 ## Tech Stack
 
@@ -30,14 +31,12 @@
 |---|---|
 | Language | Python 3.12 |
 | Web framework | FastAPI + Uvicorn |
-| Frontend | Jinja2 + HTMX + Tailwind CSS (CDN) + Cytoscape.js |
-| Database | SQLite + sqlite-vec |
-| Graph algorithms | NetworkX + python-louvain |
+| Frontend | Jinja2 + Tailwind CSS (CDN) |
+| Database | SQLite + sqlite-vec (built from source) |
 | LLM runtime | Ollama (host-native) |
-| Scheduling | APScheduler |
-| Sources (MVP) | feedparser (RSS), httpx (HN Algolia API), arxiv (PyPI) |
+| HTTP client | httpx (async) |
 | HTML extraction | trafilatura |
-| Text chunking | langchain-text-splitters |
+| SSE streaming | sse-starlette + fetch ReadableStream |
 | Packaging | Docker + docker-compose |
 | Package mgmt | uv |
 | Linting | ruff |
@@ -46,62 +45,95 @@
 
 ```
 daily-knowledge-ingestion-assistant/
-├── CLAUDE.md                          # This file
+├── CLAUDE.md                              # This file
 ├── .gitignore
-├── docs/
-│   ├── architecture-plan.md           # Full architecture (schema, pipeline, implementation steps)
-│   ├── market-research.md             # Competitive landscape + problem statement
-│   └── design-concepts/
-│       ├── concept-a-observatory.html # Dark + amber, constellation graph
-│       ├── concept-b-morning-edition.html # Editorial warmth, parchment graph
-│       └── concept-c-briefing-room.html   # Intelligence analyst, structured graph
-└── (src/, tests/, Dockerfile, etc. — not yet created)
+├── pyproject.toml                         # Dependencies, build config
+├── Dockerfile                             # Python 3.12-slim + sqlite-vec from source
+├── docker-compose.yml                     # Port 8000, volume mounts, Ollama host
+├── .env.example                           # Environment variables template
+├── scripts/
+│   └── setup_ollama.sh                    # Pull required Ollama models
+├── src/
+│   ├── __init__.py
+│   ├── main.py                            # FastAPI app, lifespan, route wiring
+│   ├── config.py                          # pydantic-settings (ollama_host, models, db)
+│   ├── schema.sql                         # DDL for items, processed_items, conversations, chat_messages
+│   ├── database.py                        # get_connection(), init_db(), sqlite-vec loading
+│   ├── llm/
+│   │   ├── __init__.py
+│   │   ├── client.py                      # OllamaClient (chat, chat_stream, embed, health_check)
+│   │   └── prompts.py                     # System prompts for summarization + navigation
+│   ├── ingestion/
+│   │   ├── __init__.py
+│   │   ├── fetcher.py                     # submit_url(), submit_text(), URL dedup
+│   │   └── text_extractor.py              # clean_text(), estimate_reading_time()
+│   ├── processing/
+│   │   ├── __init__.py
+│   │   ├── summarizer.py                  # summarize_item() → JSON (summary, key_points, categories)
+│   │   ├── embedder.py                    # generate_and_store_embedding() → vec0 table
+│   │   └── pipeline.py                    # process_item(), process_worker() (asyncio.Queue)
+│   ├── navigator/
+│   │   ├── __init__.py
+│   │   ├── retriever.py                   # retrieve_relevant_items() → sqlite-vec KNN
+│   │   ├── prompts.py                     # format_context_items()
+│   │   └── agent.py                       # NavigatorAgent.chat_stream() with auto-titling
+│   └── web/
+│       ├── __init__.py
+│       ├── routes/
+│       │   ├── __init__.py
+│       │   ├── navigator.py               # GET /, POST /chat (SSE), GET /conversations
+│       │   └── library.py                 # GET /library, POST submit-url/submit-text, DELETE items
+│       ├── templates/
+│       │   ├── base.html                  # Observatory dark theme, Tailwind CDN
+│       │   ├── navigator.html             # Full-screen chat with conversation selector
+│       │   ├── library.html               # URL/text input + item list with status badges
+│       │   └── components/
+│       │       ├── nav.html               # Top nav bar (Navigator / Library)
+│       │       └── chat_message.html      # Chat bubble component
+│       └── static/
+│           ├── chat.js                    # SSE via fetch + ReadableStream, markdown rendering
+│           └── library.js                 # Submit URL/text, polling status updates
+├── tests/
+│   ├── __init__.py
+│   └── conftest.py                        # Test fixtures (TestClient, temp DB)
+└── docs/
+    ├── architecture-plan.md               # Full architecture (future vision)
+    ├── market-research.md                 # Competitive landscape + problem statement
+    └── design-concepts/                   # Three UI mockup concepts
 ```
-
-## Key Documents
-
-- **Architecture plan**: `docs/architecture-plan.md` — Full DDL schema, 10-step implementation sequence, project structure, verification plan.
-- **Market research**: `docs/market-research.md` — 30+ commercial products, 25+ open-source projects analyzed. Competitive benchmark matrix. Problem statement.
-- **Design concepts**: `docs/design-concepts/` — Three self-contained HTML mockups showing the split-pane Navigator + Visualization Platform layout with different visual identities. Open in browser to view.
 
 ## Current State
 
-- **Phase**: Design / Pre-implementation
-- **What exists**: Documentation + 3 UI design concept mockups (updated Feb 13 to reflect Navigator + Graph split-pane vision)
-- **What doesn't exist yet**: No code, no Dockerfile, no pyproject.toml
-- **Next step**: User reviews design concepts, chooses direction, then implementation begins at Step 1 (project scaffolding + Docker)
-- **Implementation plan**: 10 steps defined in `docs/architecture-plan.md`
-
-## Design Concepts Status
-
-Three visual identities were explored, each now updated to the split-pane Navigator + Graph paradigm:
-
-| Concept | Visual Identity | Status |
-|---|---|---|
-| A: Observatory | Dark void + amber glow, Inter + JetBrains Mono | Updated Feb 13 |
-| B: Morning Edition | Warm paper + editorial red, Playfair + Source Sans | Updated Feb 13 |
-| C: Briefing Room | Structured institutional + priority bands, DM Sans + DM Mono | Updated Feb 13 |
-
-User has not yet chosen a direction.
-
-## MVP Scope (Phase 1)
-
-- 3 source connectors: RSS, Hacker News, arXiv (abstracts only)
-- Full processing pipeline: dedup → extract → summarize → entity extraction → embed → cluster → landscape summaries
-- Navigator with triple-factor retrieval + SSE streaming
-- Visualization Platform with Cytoscape.js
-- APScheduler for overnight automation
-- Sources management page
+- **Phase**: MVP-0 implemented
+- **What works**: Docker build, FastAPI startup, DB schema init, sqlite-vec loaded, URL/text ingestion, background processing queue, Navigator chat (SSE streaming), Library page with status polling, Observatory dark theme UI
+- **Requires**: Ollama running on host with `llama3.1:8b` and `nomic-embed-text` models
+- **Known issue**: sqlite-vec pip package ships broken 32-bit ARM binary for linux/aarch64 — solved by building from amalgamation source in Dockerfile
 
 ## Build / Test / Lint Commands
 
-*(Will be populated when code exists)*
-
+- Setup Ollama: `./scripts/setup_ollama.sh` (run on host, pulls required models)
 - Build: `docker-compose build`
-- Run: `docker-compose up`
+- Run: `docker-compose up` (app at http://localhost:8000)
 - Lint: `ruff check src/`
 - Test: `pytest tests/`
 - Single test: `pytest tests/path/to/test.py::test_function`
+- Health: `curl localhost:8000/health`
+
+## API Endpoints
+
+| Method | Path | Description |
+|---|---|---|
+| GET | `/` | Navigator chat page |
+| POST | `/chat` | SSE streaming chat (JSON body: message, conversation_id) |
+| GET | `/conversations` | List conversations |
+| GET | `/conversations/{id}/messages` | Get conversation messages |
+| GET | `/library` | Library page |
+| POST | `/library/submit-url` | Submit URL for processing |
+| POST | `/library/submit-text` | Submit raw text for processing |
+| GET | `/library/items` | Get all items with status |
+| GET | `/library/status` | Polling endpoint for status updates |
+| DELETE | `/library/items/{id}` | Delete an item |
+| GET | `/health` | Health check (DB + Ollama status) |
 
 ## Git Conventions
 
@@ -113,5 +145,6 @@ User has not yet chosen a direction.
 
 - **Feb 6, 2026**: Initial architecture plan and market research created
 - **Feb 11, 2026**: Three UI design concept mockups (Observatory, Morning Edition, Briefing Room)
-- **Feb 13, 2026**: Vision refined to conversational Navigator + graph Visualization Platform. Both docs fully rewritten. Problem statement added to market research.
+- **Feb 13, 2026**: Vision refined to conversational Navigator + graph Visualization Platform
 - **Feb 13, 2026**: Design concepts updated to split-pane layout matching new vision
+- **Feb 14, 2026**: MVP-0 implemented — manual ingestion, background processing, Navigator RAG chat, Library UI, Observatory dark theme. 37 files, Docker build verified on Apple Silicon.

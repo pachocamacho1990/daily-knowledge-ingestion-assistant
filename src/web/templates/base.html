@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}DKIA{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        void: '#0a0e1a',
+                        surface: '#111827',
+                        card: '#1a2236',
+                        'card-hover': '#1f2a42',
+                        amber: '#f5a623',
+                        'amber-dim': '#b8801a',
+                        'amber-glow': 'rgba(245, 166, 35, 0.15)',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        body { background-color: #0a0e1a; color: #e5e7eb; }
+        /* Scrollbar styling */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #111827; }
+        ::-webkit-scrollbar-thumb { background: #374151; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #4b5563; }
+        /* Pulsing animation for status badges */
+        @keyframes pulse-slow {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .animate-pulse-slow { animation: pulse-slow 2s ease-in-out infinite; }
+        /* Typing cursor */
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+        .typing-cursor::after {
+            content: '▊';
+            color: #f5a623;
+            animation: blink 1s step-end infinite;
+        }
+    </style>
+    {% block head %}{% endblock %}
+</head>
+<body class="h-full font-sans antialiased">
+    <div class="h-full flex flex-col">
+        {% include "components/nav.html" %}
+        <main class="flex-1 overflow-hidden">
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

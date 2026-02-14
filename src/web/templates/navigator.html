@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}Navigator — DKIA{% endblock %}
+
+{% block content %}
+<div class="h-full flex flex-col">
+    <!-- Chat messages area -->
+    <div id="chat-messages" class="flex-1 overflow-y-auto px-6 py-4 space-y-2">
+        <!-- Welcome message when empty -->
+        <div id="welcome" class="flex items-center justify-center h-full">
+            <div class="text-center max-w-md">
+                <div class="text-amber text-4xl mb-4">✦</div>
+                <h2 class="text-xl font-medium text-gray-200 mb-2">Navigator</h2>
+                <p class="text-gray-500 text-sm leading-relaxed">
+                    Ask questions about your curated knowledge base.
+                    Add content in the <a href="/library" class="text-amber hover:underline">Library</a> first.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Input area -->
+    <div class="border-t border-gray-800 bg-surface px-6 py-4">
+        <div class="max-w-3xl mx-auto flex gap-3">
+            <div class="flex-1 relative">
+                <textarea
+                    id="chat-input"
+                    rows="1"
+                    placeholder="Ask about your knowledge base..."
+                    class="w-full bg-card border border-gray-700 rounded-lg px-4 py-3 text-sm text-gray-200
+                           placeholder-gray-500 focus:outline-none focus:border-amber/50 focus:ring-1 focus:ring-amber/30
+                           resize-none overflow-hidden"
+                ></textarea>
+            </div>
+            <button
+                id="send-btn"
+                onclick="sendMessage()"
+                class="bg-amber hover:bg-amber-dim text-void font-medium px-5 py-3 rounded-lg text-sm
+                       transition-colors disabled:opacity-40 disabled:cursor-not-allowed shrink-0"
+            >
+                Send
+            </button>
+        </div>
+        <!-- Conversation selector -->
+        <div class="max-w-3xl mx-auto mt-2 flex items-center gap-2">
+            <select id="conversation-select" onchange="loadConversation(this.value)"
+                    class="bg-card border border-gray-700 rounded text-xs text-gray-400 px-2 py-1 focus:outline-none">
+                <option value="">New conversation</option>
+                {% for conv in conversations %}
+                <option value="{{ conv.id }}">{{ conv.title or 'Untitled' }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/chat.js"></script>
+{% endblock %}

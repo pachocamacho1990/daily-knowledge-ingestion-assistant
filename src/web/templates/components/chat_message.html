@@ -1,0 +1,16 @@
+{% if role == 'user' %}
+<div class="flex justify-end mb-4">
+    <div class="max-w-[70%] bg-amber-glow border border-amber/20 rounded-lg px-4 py-3">
+        <p class="text-gray-200 text-sm whitespace-pre-wrap">{{ content }}</p>
+    </div>
+</div>
+{% else %}
+<div class="flex mb-4">
+    <div class="max-w-[80%] flex">
+        <div class="w-1 bg-amber rounded-full mr-3 shrink-0"></div>
+        <div class="text-gray-300 text-sm leading-relaxed chat-content">
+            {{ content }}
+        </div>
+    </div>
+</div>
+{% endif %}

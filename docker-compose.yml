@@ -1,0 +1,16 @@
+services:
+  dkia:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/app/data
+      - ./src:/app/src
+    environment:
+      - OLLAMA_HOST=http://host.docker.internal:11434
+      - CHAT_MODEL=llama3.1:8b
+      - EMBEDDING_MODEL=nomic-embed-text
+      - DATABASE_PATH=/app/data/dkia.db
+      - EMBEDDING_DIM=768
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
