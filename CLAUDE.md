@@ -68,7 +68,7 @@ daily-knowledge-ingestion-assistant/
 - **Architecture plan**: `docs/architecture-plan.md` — Full DDL schema, 10-step implementation sequence, project structure, verification plan.
 - **Market research**: `docs/market-research.md` — 30+ commercial products, 25+ open-source projects analyzed. Competitive benchmark matrix. Problem statement.
 - **Design concepts**: `docs/design-concepts/` — Three self-contained HTML mockups showing the split-pane Navigator + Visualization Platform layout with different visual identities. Open in browser to view.
-- **GraphRAG notebooks**: `notebooks/` — Working prototypes of the core pipeline. Run in order with "DKIA GraphRAG" kernel.
+- **GraphRAG notebooks**: `notebooks/` — Working prototypes of the core pipeline. See `notebooks/README.md` for kernel setup, learnings, and production transition guide.
 
 ## GraphRAG Notebooks
 
