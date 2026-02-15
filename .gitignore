@@ -37,3 +37,4 @@ logs/
 # Notebook artifacts (generated data)
 notebooks/*.db
 notebooks/*.json
+notebooks/*.html
