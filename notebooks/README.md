@@ -90,9 +90,9 @@ python -m ipykernel install --user --name=dkia-graphrag --display-name="DKIA Gra
 
 | # | Notebook | Input | Output | Key Learning |
 |---|----------|-------|--------|--------------|
-| 01 | `01_graphrag_extraction.ipynb` | Raw document | Entities, relationships, claims | Prompt engineering for structured extraction |
-| 02 | `02_graph_construction_communities.ipynb` | Extraction results | Graph with communities | NetworkX + Louvain integration |
-| 03 | `03_embeddings_vector_search.ipynb` | Graph + entities | Searchable vector store | Triple-factor retrieval implementation |
+| 01 | `01_graphrag_extraction.ipynb` | 7 sources (arXiv + web) | Multi-document entities, relationships, claims | Multi-source extraction + cross-document entity merge |
+| 02 | `02_graph_construction_communities.ipynb` | Extraction results | Graph with communities + ipycytoscape viz | NetworkX + Louvain + interactive visualization |
+| 03 | `03_embeddings_vector_search.ipynb` | Graph + entities | Searchable vector store | Content-type-aware triple-factor retrieval |
 
 ### Execution Order
 
@@ -178,9 +178,13 @@ Notebooks must be run sequentially:
 | nomic-embed-text (768-dim) | ✅ Validated | Sufficient quality, fast inference |
 | SQLite + sqlite-vec | ✅ Validated | Simple, no external services, works for MVP scale |
 | NetworkX for graph algorithms | ✅ Validated | PageRank, centrality, community detection all work |
-| Louvain for community detection | ✅ Validated | Produces meaningful clusters |
+| Louvain for community detection | ✅ Validated | Produces meaningful clusters with multi-source data |
 | Triple-factor retrieval | ✅ Validated | Better results than pure semantic search |
 | 600-token chunks, 100 overlap | ✅ Validated | Good balance for entity extraction |
+| Multi-source pipeline | ✅ Validated | 7 sources, cross-document entity merge works |
+| Content-type-aware decay | ✅ Validated | Per-entity half-lives based on source content type |
+| ipycytoscape visualization | ✅ Validated | Interactive graph exploration in Jupyter |
+| arXiv + trafilatura fetching | ✅ Validated | Live fetching with offline fallbacks |
 
 ---
 
@@ -271,12 +275,57 @@ jupyter lab
 # Run all cells (Shift+Enter or Run → Run All Cells)
 ```
 
+### Dependencies
+
+| Package | Purpose |
+|---------|---------|
+| httpx | Ollama API calls |
+| langchain-text-splitters | Document chunking (600 tokens, 100 overlap) |
+| networkx | Graph construction and algorithms |
+| python-louvain | Community detection (Louvain algorithm) |
+| scipy | Required by NetworkX for PageRank |
+| sqlite-vec | Vector storage and similarity search |
+| ipykernel | Jupyter kernel support |
+| arxiv | Fetch arXiv paper abstracts by ID |
+| trafilatura | Extract article text from web pages |
+| ipycytoscape | Interactive Cytoscape.js graph widget for Jupyter |
+| ipywidgets | Required by ipycytoscape |
+
 ### Expected Runtime
 
 | Notebook | Approximate Time | Notes |
 |----------|-----------------|-------|
-| 01 | 1-2 minutes | Depends on document size |
-| 02 | 1-2 minutes | Community summary generation |
-| 03 | 1-2 minutes | Embedding generation |
+| 01 | 8-15 minutes | ~150-200 LLM calls across 7 sources |
+| 02 | 2-4 minutes | Community summary generation + graph viz |
+| 03 | 2-3 minutes | Embedding generation + cross-domain queries |
 
 Times measured on Mac mini M1 with 8GB RAM.
+
+---
+
+## Multi-Source Pipeline
+
+The notebooks now process **7 diverse sources** across 5+ domains:
+
+| # | Domain | Type | Source |
+|---|--------|------|--------|
+| 1 | AI/Knowledge Graphs | arXiv | GraphRAG paper (2404.16130) |
+| 2 | AI/Biology | arXiv | CRISPR-GPT (2404.18021) |
+| 3 | Climate/Economics | arXiv | Climate economics review (2312.14090) |
+| 4 | Astrophysics | arXiv | JWST mission (2304.04869) |
+| 5 | Neuroscience | Web | Quanta Magazine (memory + perception) |
+| 6 | Economics/AI | Web | IMF blog (AI global economy) |
+| 7 | Space Exploration | Web | Planetary Society (Voyager mission) |
+
+Each source has **hardcoded fallback content** so notebooks run offline.
+
+### Cross-Document Entity Linking
+
+Entities appearing in multiple sources are merged with combined descriptions, enabling cross-domain knowledge connections (e.g., "NASA" appearing in both JWST and Voyager sources).
+
+### Content-Type-Aware Temporal Decay
+
+Different content types decay at different rates:
+- News articles: 7-day half-life
+- Research papers: 30-day half-life
+- Reference documents: 365-day half-life
