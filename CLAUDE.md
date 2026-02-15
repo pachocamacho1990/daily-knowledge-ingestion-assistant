@@ -1,7 +1,7 @@
 # CLAUDE.md - DKIA Project Instructions
 
-> Last updated: February 13, 2026
-> Version: Pre-release (design phase)
+> Last updated: February 15, 2026
+> Version: Pre-release (prototyping phase)
 
 ## What Is This Project
 
@@ -17,7 +17,7 @@
 
 - **Deployment**: Docker container on a separate Apple Silicon Mac. Ollama runs **natively on the host** (not in Docker) to leverage Metal GPU. Container connects via `host.docker.internal:11434`.
 - **100% open-source**: No paid APIs, no proprietary services.
-- **LLM models**: `llama3.1:8b` (chat/summarization/entity extraction) + `nomic-embed-text` (embeddings, 768-dim), both via Ollama.
+- **LLM models**: `qwen2.5:3b` (chat/summarization/entity extraction) + `nomic-embed-text` (embeddings, 768-dim), both via Ollama. Note: `llama3.1:8b` was originally planned but `qwen2.5:3b` is used on 8GB RAM machines.
 - **Storage**: SQLite + sqlite-vec (vector) + SQLite graph tables (entities/relationships) + NetworkX (in-memory batch algorithms).
 - **No separate graph DB**: Graph stored in SQLite tables, loaded into NetworkX for batch computations (PageRank, community detection, centrality).
 - **Triple-factor retrieval**: `final_score = 0.6 * semantic_similarity + 0.2 * temporal_decay + 0.2 * graph_centrality`
@@ -28,7 +28,7 @@
 
 | Component | Technology |
 |---|---|
-| Language | Python 3.12 |
+| Language | Python 3.12+ (dev environment uses 3.14) |
 | Web framework | FastAPI + Uvicorn |
 | Frontend | Jinja2 + HTMX + Tailwind CSS (CDN) + Cytoscape.js |
 | Database | SQLite + sqlite-vec |
@@ -48,6 +48,7 @@
 daily-knowledge-ingestion-assistant/
 ├── CLAUDE.md                          # This file
 ├── .gitignore
+├── .venv/                             # Python virtual environment (not in git)
 ├── docs/
 │   ├── architecture-plan.md           # Full architecture (schema, pipeline, implementation steps)
 │   ├── market-research.md             # Competitive landscape + problem statement
@@ -55,6 +56,10 @@ daily-knowledge-ingestion-assistant/
 │       ├── concept-a-observatory.html # Dark + amber, constellation graph
 │       ├── concept-b-morning-edition.html # Editorial warmth, parchment graph
 │       └── concept-c-briefing-room.html   # Intelligence analyst, structured graph
+├── notebooks/                         # GraphRAG prototyping notebooks
+│   ├── 01_graphrag_extraction.ipynb   # Document chunking, entity/relationship/claims extraction
+│   ├── 02_graph_construction_communities.ipynb  # NetworkX graph, PageRank, Louvain communities
+│   └── 03_embeddings_vector_search.ipynb        # Embeddings, sqlite-vec, triple-factor retrieval
 └── (src/, tests/, Dockerfile, etc. — not yet created)
 ```
 
@@ -63,13 +68,41 @@ daily-knowledge-ingestion-assistant/
 - **Architecture plan**: `docs/architecture-plan.md` — Full DDL schema, 10-step implementation sequence, project structure, verification plan.
 - **Market research**: `docs/market-research.md` — 30+ commercial products, 25+ open-source projects analyzed. Competitive benchmark matrix. Problem statement.
 - **Design concepts**: `docs/design-concepts/` — Three self-contained HTML mockups showing the split-pane Navigator + Visualization Platform layout with different visual identities. Open in browser to view.
+- **GraphRAG notebooks**: `notebooks/` — Working prototypes of the core pipeline. Run in order with "DKIA GraphRAG" kernel.
+
+## GraphRAG Notebooks
+
+The notebooks implement Microsoft's GraphRAG methodology ([arXiv:2404.16130](https://arxiv.org/abs/2404.16130)) adapted for local LLM execution.
+
+| Notebook | Purpose | Key Operations |
+|----------|---------|----------------|
+| `01_graphrag_extraction.ipynb` | Document → Knowledge | Chunking (600 tokens), entity extraction, relationship extraction, claims extraction |
+| `02_graph_construction_communities.ipynb` | Knowledge → Graph | NetworkX DiGraph, PageRank, betweenness centrality, Louvain community detection, community summaries |
+| `03_embeddings_vector_search.ipynb` | Graph → Retrieval | nomic-embed-text embeddings, sqlite-vec storage, triple-factor retrieval, Navigator query interface |
+
+**Pipeline flow:**
+```
+Document → Chunks → Entities/Relations/Claims → Graph → Communities → Embeddings → Triple-Factor Retrieval
+```
+
+**Triple-factor retrieval formula:**
+```
+final_score = 0.6 * semantic_similarity + 0.2 * temporal_decay + 0.2 * graph_centrality
+```
+
+**Generated artifacts (gitignored):**
+- `notebooks/extraction_results.json` — Extracted entities, relationships, claims
+- `notebooks/graphrag.db` — SQLite database with graph + vectors
 
 ## Current State
 
-- **Phase**: Design / Pre-implementation
-- **What exists**: Documentation + 3 UI design concept mockups (updated Feb 13 to reflect Navigator + Graph split-pane vision)
-- **What doesn't exist yet**: No code, no Dockerfile, no pyproject.toml
-- **Next step**: User reviews design concepts, chooses direction, then implementation begins at Step 1 (project scaffolding + Docker)
+- **Phase**: Prototyping (GraphRAG pipeline validated)
+- **What exists**:
+  - Documentation + 3 UI design concept mockups
+  - Working GraphRAG pipeline in Jupyter notebooks (extraction → graph → embeddings → retrieval)
+  - Development environment with Jupyter kernel configured
+- **What doesn't exist yet**: Production code (src/), Dockerfile, pyproject.toml, FastAPI server
+- **Next step**: Convert notebook prototypes to production Python modules, then Docker packaging
 - **Implementation plan**: 10 steps defined in `docs/architecture-plan.md`
 
 ## Design Concepts Status
@@ -103,6 +136,106 @@ User has not yet chosen a direction.
 - Test: `pytest tests/`
 - Single test: `pytest tests/path/to/test.py::test_function`
 
+## Development Environment Setup
+
+### Prerequisites
+
+- **macOS** with Apple Silicon (M1/M2/M3/M4)
+- **Python 3.12+** (development uses 3.14)
+- **Ollama** installed natively (for Metal GPU acceleration)
+- **Jupyter Lab** for running prototype notebooks
+
+### Ollama Configuration
+
+Ollama must be configured to run multiple models simultaneously (chat + embeddings).
+
+Required environment variables in `~/.zshrc`:
+
+```bash
+export OLLAMA_MAX_LOADED_MODELS=2    # Required: run chat + embedding model together
+export OLLAMA_NUM_PARALLEL=1
+export OLLAMA_FLASH_ATTENTION=1
+export OLLAMA_KV_CACHE_TYPE=q8_0
+export OLLAMA_HOST=0.0.0.0
+export OLLAMA_ORIGINS="*"
+```
+
+After editing, restart Ollama:
+```bash
+pkill ollama && source ~/.zshrc && ollama serve
+```
+
+### Required Ollama Models
+
+```bash
+ollama pull qwen2.5:3b        # Chat/extraction (1.9 GB) - for 8GB RAM machines
+ollama pull nomic-embed-text  # Embeddings (274 MB, 768-dim)
+
+# Alternative for 16GB+ RAM machines:
+# ollama pull llama3.1:8b     # Better quality chat model (~5 GB)
+```
+
+### Python Virtual Environment
+
+```bash
+# Create environment
+python3 -m venv .venv
+source .venv/bin/activate
+
+# Install dependencies
+pip install --upgrade pip
+pip install ipykernel httpx langchain-text-splitters networkx python-louvain scipy sqlite-vec
+```
+
+### Jupyter Kernel Registration
+
+Register the project environment as a Jupyter kernel:
+
+```bash
+source .venv/bin/activate
+python -m ipykernel install --user --name=dkia-graphrag --display-name="DKIA GraphRAG"
+```
+
+Verify kernel is registered:
+```bash
+jupyter kernelspec list
+```
+
+Expected output includes:
+```
+dkia-graphrag    /Users/<user>/Library/Jupyter/kernels/dkia-graphrag
+```
+
+### Running the Notebooks
+
+1. Start Ollama: `ollama serve`
+2. Start Jupyter Lab: `jupyter lab`
+3. Open notebooks in order (01 → 02 → 03)
+4. Select kernel: "DKIA GraphRAG"
+
+### Dependencies Summary
+
+| Package | Purpose |
+|---------|---------|
+| httpx | Ollama API calls |
+| langchain-text-splitters | Document chunking (600 tokens, 100 overlap) |
+| networkx | Graph construction and algorithms |
+| python-louvain | Community detection (Louvain algorithm) |
+| scipy | Required by NetworkX for PageRank |
+| sqlite-vec | Vector storage and similarity search |
+| ipykernel | Jupyter kernel support |
+
+### Hardware Notes
+
+**8GB RAM machines (Mac mini M1):**
+- Use `qwen2.5:3b` instead of `llama3.1:8b`
+- Both models fit: ~2GB (chat) + ~0.5GB (embeddings) = ~2.5GB
+- Set `OLLAMA_MAX_LOADED_MODELS=2` to avoid model swapping
+
+**16GB+ RAM machines:**
+- Can use `llama3.1:8b` for better extraction quality
+- Consider `mxbai-embed-large` (1024-dim) for better embeddings
+
 ## Git Conventions
 
 - SSH signing enabled (gpg.format=ssh, commit.gpgsign=true)
@@ -115,3 +248,9 @@ User has not yet chosen a direction.
 - **Feb 11, 2026**: Three UI design concept mockups (Observatory, Morning Edition, Briefing Room)
 - **Feb 13, 2026**: Vision refined to conversational Navigator + graph Visualization Platform. Both docs fully rewritten. Problem statement added to market research.
 - **Feb 13, 2026**: Design concepts updated to split-pane layout matching new vision
+- **Feb 15, 2026**: GraphRAG prototyping phase:
+  - Created `feature/graphrag-backend-engine` branch
+  - Built 3 Jupyter notebooks implementing full GraphRAG pipeline
+  - Set up Python venv with Jupyter kernel (`dkia-graphrag`)
+  - Validated: entity extraction, graph construction, community detection, embeddings, triple-factor retrieval
+  - Documented development environment setup (Ollama config, dependencies, kernel registration)
