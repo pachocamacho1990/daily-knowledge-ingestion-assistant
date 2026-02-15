@@ -33,6 +33,7 @@
 | Frontend | Jinja2 + HTMX + Tailwind CSS (CDN) + Cytoscape.js |
 | Database | SQLite + sqlite-vec |
 | Graph algorithms | NetworkX + python-louvain |
+| Graph visualization | Cytoscape.js (standalone HTML, opened via `webbrowser.open()`) |
 | LLM runtime | Ollama (host-native) |
 | Scheduling | APScheduler |
 | Sources (MVP) | feedparser (RSS), httpx (HN Algolia API), arxiv (PyPI) |
@@ -76,13 +77,13 @@ The notebooks implement Microsoft's GraphRAG methodology ([arXiv:2404.16130](htt
 
 | Notebook | Purpose | Key Operations |
 |----------|---------|----------------|
-| `01_graphrag_extraction.ipynb` | Document → Knowledge | Chunking (600 tokens), entity extraction, relationship extraction, claims extraction |
-| `02_graph_construction_communities.ipynb` | Knowledge → Graph | NetworkX DiGraph, PageRank, betweenness centrality, Louvain community detection, community summaries |
-| `03_embeddings_vector_search.ipynb` | Graph → Retrieval | nomic-embed-text embeddings, sqlite-vec storage, triple-factor retrieval, Navigator query interface |
+| `01_graphrag_extraction.ipynb` | Multi-Source → Knowledge | Fetch 7 sources (arXiv + web), chunking (600 tokens), entity/relationship/claims extraction per document, cross-document entity merge |
+| `02_graph_construction_communities.ipynb` | Knowledge → Graph + Viz | NetworkX DiGraph with source provenance, PageRank, Louvain community detection, standalone Cytoscape.js HTML visualization with chunk expansion, community summaries |
+| `03_embeddings_vector_search.ipynb` | Graph → Retrieval | nomic-embed-text embeddings, sqlite-vec storage, content-type-aware temporal decay, triple-factor retrieval, cross-domain Navigator queries |
 
 **Pipeline flow:**
 ```
-Document → Chunks → Entities/Relations/Claims → Graph → Communities → Embeddings → Triple-Factor Retrieval
+7 Sources (arXiv + Web) → Chunks → Entities/Relations/Claims → Cross-Doc Merge → Graph → Communities → Cytoscape.js HTML Viz → Embeddings → Content-Type-Aware Triple-Factor Retrieval
 ```
 
 **Triple-factor retrieval formula:**
@@ -91,15 +92,20 @@ final_score = 0.6 * semantic_similarity + 0.2 * temporal_decay + 0.2 * graph_cen
 ```
 
 **Generated artifacts (gitignored):**
-- `notebooks/extraction_results.json` — Extracted entities, relationships, claims
+- `notebooks/extraction_results.json` — Extracted entities, relationships, claims, entity-chunk provenance map
 - `notebooks/graphrag.db` — SQLite database with graph + vectors
+- `notebooks/knowledge_graph.html` — Interactive Cytoscape.js graph visualization with chunk expansion
 
 ## Current State
 
-- **Phase**: Prototyping (GraphRAG pipeline validated)
+- **Phase**: Prototyping (multi-source GraphRAG pipeline validated)
 - **What exists**:
   - Documentation + 3 UI design concept mockups
-  - Working GraphRAG pipeline in Jupyter notebooks (extraction → graph → embeddings → retrieval)
+  - Working multi-source GraphRAG pipeline in Jupyter notebooks (7 sources → extraction → graph → viz → embeddings → content-type-aware retrieval)
+  - Cross-document entity merging and source provenance tracking
+  - Entity-to-chunk provenance mapping (trace any entity back to its exact source text passages)
+  - Standalone Cytoscape.js HTML visualization (dark theme, community colors, PageRank sizing, interactive chunk expansion on click)
+  - Content-type-aware temporal decay (news: 7d, papers: 30d, reference: 365d)
   - Development environment with Jupyter kernel configured
 - **What doesn't exist yet**: Production code (src/), Dockerfile, pyproject.toml, FastAPI server
 - **Next step**: Convert notebook prototypes to production Python modules, then Docker packaging
@@ -184,7 +190,7 @@ source .venv/bin/activate
 
 # Install dependencies
 pip install --upgrade pip
-pip install ipykernel httpx langchain-text-splitters networkx python-louvain scipy sqlite-vec
+pip install ipykernel httpx langchain-text-splitters networkx python-louvain scipy sqlite-vec arxiv trafilatura
 ```
 
 ### Jupyter Kernel Registration
@@ -224,6 +230,8 @@ dkia-graphrag    /Users/<user>/Library/Jupyter/kernels/dkia-graphrag
 | scipy | Required by NetworkX for PageRank |
 | sqlite-vec | Vector storage and similarity search |
 | ipykernel | Jupyter kernel support |
+| arxiv | Fetch arXiv paper abstracts by ID |
+| trafilatura | Extract article text from web pages |
 
 ### Hardware Notes
 
@@ -235,6 +243,44 @@ dkia-graphrag    /Users/<user>/Library/Jupyter/kernels/dkia-graphrag
 **16GB+ RAM machines:**
 - Can use `llama3.1:8b` for better extraction quality
 - Consider `mxbai-embed-large` (1024-dim) for better embeddings
+
+## GitHub Wiki
+
+The project maintains a GitHub Wiki that documents the evolution of the product — each phase of development, the design decisions, and the complex logic behind them. The wiki is intended for users to follow along with how the product is being built.
+
+### Wiki Workflow
+
+- **Location:** The wiki is a separate git repo at `pachocamacho1990/daily-knowledge-ingestion-assistant.wiki.git`
+- **Clone to edit:** `cd /tmp && gh repo clone pachocamacho1990/daily-knowledge-ingestion-assistant.wiki`
+- **Working directory:** `/tmp/daily-knowledge-ingestion-assistant.wiki/`
+- **Push after edits:** `cd /tmp/daily-knowledge-ingestion-assistant.wiki && git add -A && git commit -m "..." && git push origin master`
+
+### Wiki Structure
+
+The wiki is organized by phases. Each phase has an overview page and sub-pages for deep dives:
+
+```
+Home.md                              # Project overview, phase tracker, navigation
+Phase-0:-Research-and-Vision.md      # Problem statement, philosophy, motivation
+  ├── Market-Landscape.md            # Competitive analysis, gap analysis
+  ├── Architecture-Vision.md         # System design, deployment model, schema
+  └── Design-Explorations.md         # Three visual identity concepts
+Phase-1:-GraphRAG-Engine.md          # GraphRAG pipeline prototyping
+  ├── GraphRAG-Pipeline-Architecture.md
+  ├── Multi-Source-Ingestion.md
+  ├── Knowledge-Graph-and-Communities.md
+  ├── Triple-Factor-Retrieval.md
+  └── Key-Learnings-and-Design-Decisions.md
+```
+
+### Wiki Conventions
+
+- **Every completed phase gets wiki documentation.** When a phase of work is finished, create wiki pages documenting what was built, why, and what was learned.
+- **Phase pages must include development dates.** Each phase overview page shows `> **Dates:** Month Day – Day, Year` in the header. The Home page phase tracker includes a Dates column.
+- **Navigation links:** Every page ends with `← [[Previous Page]] | [[Next Page]] →` footer navigation. The Home page has a full navigation index.
+- **GitHub Wiki filenames:** Use dashes for spaces, colons for phase prefixes (e.g., `Phase-1:-GraphRAG-Engine.md`). GitHub renders these as page titles.
+- **Tone:** Explain the "why" behind decisions, not just the "what." The wiki tells the story of the product's evolution for someone following along.
+- **No emojis** in wiki content unless the user explicitly requests them.
 
 ## Git Conventions
 
@@ -254,3 +300,22 @@ dkia-graphrag    /Users/<user>/Library/Jupyter/kernels/dkia-graphrag
   - Set up Python venv with Jupyter kernel (`dkia-graphrag`)
   - Validated: entity extraction, graph construction, community detection, embeddings, triple-factor retrieval
   - Documented development environment setup (Ollama config, dependencies, kernel registration)
+- **Feb 15, 2026**: Multi-source pipeline + interactive visualization:
+  - Expanded notebook 01 from 1 hardcoded doc to 7 sources (4 arXiv + 3 web) with offline fallbacks
+  - Added cross-document entity merging and source provenance tracking
+  - Added entity-to-chunk provenance map (`entity_chunk_map`) in extraction results
+  - Added sources table to SQLite schema with source_refs on entities and source_ref on chunks
+  - Implemented content-type-aware temporal decay in notebook 03 (news: 7d, papers: 30d, reference: 365d)
+  - Added cross-domain test queries spanning AI, biology, climate, astrophysics, neuroscience, economics, space
+  - Installed new dependencies: arxiv, trafilatura
+- **Feb 15, 2026**: Standalone Cytoscape.js visualization (replaced ipycytoscape):
+  - Replaced ipycytoscape Jupyter widget with standalone HTML using Cytoscape.js CDN (3.30.4)
+  - Dark theme (#0a0a0f), amber accents, COSE force-directed layout, community color-coded nodes
+  - Interactive chunk expansion: click entity → see source text chunks as nodes with hover tooltips
+  - Sidebar with node info panel, expandable chunk cards, community legend, graph controls
+  - Opened via `webbrowser.open()` — works regardless of JupyterLab widget compatibility
+  - Removed ipycytoscape and ipywidgets dependencies
+- **Feb 15, 2026**: GitHub Wiki created:
+  - Phase 0: Research & Vision (4 pages — problem statement, market landscape, architecture vision, design explorations)
+  - Phase 1: GraphRAG Engine (6 pages — pipeline architecture, multi-source ingestion, knowledge graph, triple-factor retrieval, key learnings)
+  - Home page with phase tracker, navigation, and development dates
