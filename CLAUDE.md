@@ -59,7 +59,7 @@ daily-knowledge-ingestion-assistant/
 │       └── concept-c-briefing-room.html   # Intelligence analyst, structured graph
 ├── notebooks/                         # GraphRAG prototyping notebooks
 │   ├── 01_graphrag_extraction.ipynb   # Document chunking, entity/relationship/claims extraction
-│   ├── 02_graph_construction_communities.ipynb  # NetworkX graph, PageRank, Louvain communities
+│   ├── 02_graph_construction_communities.ipynb  # NetworkX graph, PageRank, Louvain communities, community summaries, SQLite, Cytoscape.js viz
 │   └── 03_embeddings_vector_search.ipynb        # Embeddings, sqlite-vec, triple-factor retrieval
 └── (src/, tests/, Dockerfile, etc. — not yet created)
 ```
@@ -78,12 +78,12 @@ The notebooks implement Microsoft's GraphRAG methodology ([arXiv:2404.16130](htt
 | Notebook | Purpose | Key Operations |
 |----------|---------|----------------|
 | `01_graphrag_extraction.ipynb` | Multi-Source → Knowledge | Fetch 7 sources (arXiv + web), chunking (600 tokens), entity/relationship/claims extraction per document, cross-document entity merge |
-| `02_graph_construction_communities.ipynb` | Knowledge → Graph + Viz | NetworkX DiGraph with source provenance, PageRank, Louvain community detection, standalone Cytoscape.js HTML visualization with chunk expansion, community summaries |
+| `02_graph_construction_communities.ipynb` | Knowledge → Graph + Viz | NetworkX DiGraph with source provenance, PageRank, Louvain community detection, LLM community summaries, SQLite storage, standalone Cytoscape.js HTML visualization with community summaries + chunk expansion |
 | `03_embeddings_vector_search.ipynb` | Graph → Retrieval | nomic-embed-text embeddings, sqlite-vec storage, content-type-aware temporal decay, triple-factor retrieval, cross-domain Navigator queries |
 
 **Pipeline flow:**
 ```
-7 Sources (arXiv + Web) → Chunks → Entities/Relations/Claims → Cross-Doc Merge → Graph → Communities → Cytoscape.js HTML Viz → Embeddings → Content-Type-Aware Triple-Factor Retrieval
+7 Sources (arXiv + Web) → Chunks → Entities/Relations/Claims → Cross-Doc Merge → Graph → Communities → Community Summaries → SQLite → Cytoscape.js HTML Viz → Embeddings → Content-Type-Aware Triple-Factor Retrieval
 ```
 
 **Triple-factor retrieval formula:**
@@ -94,7 +94,7 @@ final_score = 0.6 * semantic_similarity + 0.2 * temporal_decay + 0.2 * graph_cen
 **Generated artifacts (gitignored):**
 - `notebooks/extraction_results.json` — Extracted entities, relationships, claims, entity-chunk provenance map
 - `notebooks/graphrag.db` — SQLite database with graph + vectors
-- `notebooks/knowledge_graph.html` — Interactive Cytoscape.js graph visualization with chunk expansion
+- `notebooks/knowledge_graph.html` — Interactive Cytoscape.js graph visualization with community summaries + chunk expansion
 
 ## Current State
 
@@ -104,7 +104,7 @@ final_score = 0.6 * semantic_similarity + 0.2 * temporal_decay + 0.2 * graph_cen
   - Working multi-source GraphRAG pipeline in Jupyter notebooks (7 sources → extraction → graph → viz → embeddings → content-type-aware retrieval)
   - Cross-document entity merging and source provenance tracking
   - Entity-to-chunk provenance mapping (trace any entity back to its exact source text passages)
-  - Standalone Cytoscape.js HTML visualization (dark theme, community colors, PageRank sizing, interactive chunk expansion on click)
+  - Standalone Cytoscape.js HTML visualization (dark theme, community colors, PageRank sizing, interactive chunk expansion, community summaries in sidebar and legend)
   - Content-type-aware temporal decay (news: 7d, papers: 30d, reference: 365d)
   - Development environment with Jupyter kernel configured
 - **What doesn't exist yet**: Production code (src/), Dockerfile, pyproject.toml, FastAPI server
@@ -315,6 +315,12 @@ Phase-1:-GraphRAG-Engine.md          # GraphRAG pipeline prototyping
   - Sidebar with node info panel, expandable chunk cards, community legend, graph controls
   - Opened via `webbrowser.open()` — works regardless of JupyterLab widget compatibility
   - Removed ipycytoscape and ipywidgets dependencies
+- **Feb 15, 2026**: Community summaries in visualization:
+  - Moved visualization to end of notebook 02 (Step 7) so LLM community summaries are available
+  - Pipeline order: Load → Graph → Metrics → Communities → Summaries → SQLite → Visualization
+  - Legend shows community titles (from LLM summaries) instead of just IDs
+  - Clicking entity shows its community summary (title, executive summary, key insights) in sidebar
+  - Clicking community in legend shows full summary with member list
 - **Feb 15, 2026**: GitHub Wiki created:
   - Phase 0: Research & Vision (4 pages — problem statement, market landscape, architecture vision, design explorations)
   - Phase 1: GraphRAG Engine (6 pages — pipeline architecture, multi-source ingestion, knowledge graph, triple-factor retrieval, key learnings)
