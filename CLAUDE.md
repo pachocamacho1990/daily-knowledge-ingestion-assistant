@@ -17,7 +17,9 @@
 
 - **Deployment**: Docker container on a separate Apple Silicon Mac. Ollama runs **natively on the host** (not in Docker) to leverage Metal GPU. Container connects via `host.docker.internal:11434`.
 - **100% open-source**: No paid APIs, no proprietary services.
-- **LLM models**: `qwen2.5:3b` (chat/summarization/entity extraction) + `nomic-embed-text` (embeddings, 768-dim), both via Ollama. Note: `llama3.1:8b` was originally planned but `qwen2.5:3b` is used on 8GB RAM machines.
+- **LLM models**: `qwen2.5:3b` (chat/summarization/relationship & claims extraction) + `nomic-embed-text` (embeddings, 768-dim), both via Ollama. Note: `llama3.1:8b` was originally planned but `qwen2.5:3b` is used on 8GB RAM machines.
+- **NER model**: `urchade/gliner_small-v2.1` via GLiNER — zero-shot NER, multilingual by default (~166 MB, CPU). Used in `nlp` and `hybrid` extraction modes.
+- **Extraction modes**: `"llm"` (all LLM, ~18s/chunk), `"nlp"` (GLiNER + co-occurrence, <0.5s/chunk), `"hybrid"` (GLiNER entities + LLM relationships/claims, ~12s/chunk). Hybrid is the recommended default.
 - **Storage**: SQLite + sqlite-vec (vector) + SQLite graph tables (entities/relationships) + NetworkX (in-memory batch algorithms).
 - **No separate graph DB**: Graph stored in SQLite tables, loaded into NetworkX for batch computations (PageRank, community detection, centrality).
 - **Triple-factor retrieval**: `final_score = 0.6 * semantic_similarity + 0.2 * temporal_decay + 0.2 * graph_centrality`
@@ -39,6 +41,8 @@
 | Sources (MVP) | feedparser (RSS), httpx (HN Algolia API), arxiv (PyPI) |
 | PDF extraction | pymupdf (full arXiv paper text) |
 | HTML extraction | trafilatura |
+| NER (entity extraction) | GLiNER (`gliner_small-v2.1`, zero-shot, multilingual) |
+| Language detection | langdetect |
 | Text chunking | langchain-text-splitters |
 | Packaging | Docker + docker-compose |
 | Package mgmt | uv |
@@ -78,13 +82,13 @@ The notebooks implement Microsoft's GraphRAG methodology ([arXiv:2404.16130](htt
 
 | Notebook | Purpose | Key Operations |
 |----------|---------|----------------|
-| `01_graphrag_extraction.ipynb` | Multi-Source → Knowledge | Fetch 7 sources (arXiv full PDFs + web), chunking (600 tokens), entity/relationship/claims extraction with retry + skip-on-error, cross-document entity merge, configurable source limits (`ARXIV_LIMIT`/`WEB_LIMIT`) |
+| `01_graphrag_extraction.ipynb` | Multi-Source → Knowledge | Fetch 7 sources (arXiv full PDFs + web), chunking (600 tokens), configurable `EXTRACTION_MODE` (`llm`/`nlp`/`hybrid`), GLiNER zero-shot NER for entity extraction in nlp/hybrid modes, LLM for relationships/claims, retry + skip-on-error, cross-document entity merge by exact name, semantic entity grouping via nomic-embed-text embeddings + cosine similarity + Union-Find (non-destructive overlay), configurable source limits (`ARXIV_LIMIT`/`WEB_LIMIT`) |
 | `02_graph_construction_communities.ipynb` | Knowledge → Graph + Viz | NetworkX DiGraph with source provenance, PageRank, Louvain community detection, LLM community summaries, SQLite storage, standalone Cytoscape.js HTML visualization with community summaries + chunk expansion |
 | `03_embeddings_vector_search.ipynb` | Graph → Retrieval | nomic-embed-text embeddings, sqlite-vec storage, content-type-aware temporal decay, triple-factor retrieval, cross-domain Navigator queries |
 
 **Pipeline flow:**
 ```
-7 Sources (arXiv Full PDFs + Web) → Chunks → Entities/Relations/Claims (with retry + skip-on-error) → Cross-Doc Merge → Graph → Communities → Community Summaries → SQLite → Cytoscape.js HTML Viz → Embeddings → Content-Type-Aware Triple-Factor Retrieval
+7 Sources (arXiv Full PDFs + Web) → Chunks → Entities (GLiNER or LLM) / Relations (LLM or co-occurrence) / Claims (LLM) [configurable mode] → Cross-Doc Merge (exact name) → Semantic Grouping (embedding similarity overlay) → Graph → Communities → Community Summaries → SQLite → Cytoscape.js HTML Viz → Embeddings → Content-Type-Aware Triple-Factor Retrieval
 ```
 
 **Triple-factor retrieval formula:**
@@ -106,7 +110,9 @@ final_score = 0.6 * semantic_similarity + 0.2 * temporal_decay + 0.2 * graph_cen
   - Full arXiv PDF content extraction via pymupdf (not just abstracts)
   - Configurable source limits (`ARXIV_LIMIT`/`WEB_LIMIT`) for fast debugging with single source
   - Retry logic (2 attempts) and skip-on-error resilience in extraction pipeline
-  - Cross-document entity merging and source provenance tracking
+  - Configurable extraction modes: `"llm"` (all LLM), `"nlp"` (GLiNER + co-occurrence), `"hybrid"` (GLiNER entities + LLM relationships/claims, recommended default)
+  - GLiNER zero-shot NER (`gliner_small-v2.1`) — multilingual entity extraction, ~300x faster than LLM, no per-language model downloads
+  - Two-layer entity refinement: exact-name merge + semantic similarity grouping (nomic-embed-text embeddings, cosine similarity, Union-Find — non-destructive overlay for compound node visualization)
   - Entity-to-chunk provenance mapping (trace any entity back to its exact source text passages)
   - Standalone Cytoscape.js HTML visualization (dark theme, community colors, PageRank sizing, interactive chunk expansion, community summaries in sidebar and legend)
   - Content-type-aware temporal decay (news: 7d, papers: 30d, reference: 365d)
@@ -194,7 +200,7 @@ source .venv/bin/activate
 
 # Install dependencies
 pip install --upgrade pip
-pip install ipykernel httpx langchain-text-splitters networkx python-louvain scipy sqlite-vec arxiv trafilatura pymupdf
+pip install ipykernel httpx langchain-text-splitters networkx python-louvain scipy sqlite-vec arxiv trafilatura pymupdf gliner langdetect
 ```
 
 ### Jupyter Kernel Registration
@@ -231,12 +237,15 @@ dkia-graphrag    /Users/<user>/Library/Jupyter/kernels/dkia-graphrag
 | langchain-text-splitters | Document chunking (600 tokens, 100 overlap) |
 | networkx | Graph construction and algorithms |
 | python-louvain | Community detection (Louvain algorithm) |
+| numpy | Cosine similarity matrix for semantic entity dedup |
 | scipy | Required by NetworkX for PageRank |
 | sqlite-vec | Vector storage and similarity search |
 | ipykernel | Jupyter kernel support |
 | arxiv | Fetch arXiv papers by ID |
 | pymupdf | Extract text from arXiv PDF papers |
 | trafilatura | Extract article text from web pages |
+| gliner | Zero-shot NER — multilingual entity extraction (`gliner_small-v2.1`, ~166 MB, CPU) |
+| langdetect | Per-document language detection (metadata for export) |
 
 ### Hardware Notes
 
@@ -339,3 +348,21 @@ Phase-1:-GraphRAG-Engine.md          # GraphRAG pipeline prototyping
   - Installed pymupdf dependency
   - Wiki: added knowledge graph screenshot to Knowledge-Graph-and-Communities page
   - Wiki: added LLM extraction performance benchmarks and improvement roadmap to Key-Learnings page
+- **Feb 16, 2026**: Hybrid extraction mode with GLiNER:
+  - Added configurable `EXTRACTION_MODE` flag: `"llm"`, `"nlp"`, `"hybrid"` (recommended default)
+  - Integrated GLiNER (`urchade/gliner_small-v2.1`) for zero-shot NER entity extraction in nlp/hybrid modes
+  - GLiNER is multilingual by default — single model handles English, Spanish, and more (no per-language model downloads)
+  - Entity types specified at inference time matching project schema directly (person, organization, location, event, product, date, money, concept)
+  - Hybrid mode: GLiNER entities (~300x faster than LLM) + LLM relationships + LLM claims
+  - NLP mode: GLiNER entities + co-occurrence relationships (entities in same sentence), no claims
+  - Added per-document language detection via langdetect (metadata export; GLiNER handles multilingual natively)
+  - spaCy incompatible with Python 3.14 (pydantic v1 dependency) — GLiNER chosen as superior alternative
+  - Installed gliner, langdetect; uninstalled spaCy
+- **Feb 16, 2026**: Semantic entity grouping (non-destructive overlay):
+  - Added Step 7 to notebook 01: semantic grouping layer on top of exact-name dedup
+  - Embeds all entities with nomic-embed-text, computes cosine similarity matrix via numpy
+  - Union-Find groups transitively similar entities (A~B, B~C → all in one group)
+  - Configurable `SIMILARITY_THRESHOLD` (default 0.85) with top-25 similar pairs preview for tuning
+  - Original entities, relationships, claims, provenance maps all preserved unchanged
+  - Produces `semantic_entity_groups` list + `entity_to_semantic_group` lookup map
+  - Exported in extraction_results.json for notebook 02 compound node visualization (quarks inside protons)
