@@ -1,6 +1,6 @@
 # CLAUDE.md - DKIA Project Instructions
 
-> Last updated: February 15, 2026
+> Last updated: February 16, 2026
 > Version: Pre-release (prototyping phase)
 
 ## What Is This Project
@@ -37,6 +37,7 @@
 | LLM runtime | Ollama (host-native) |
 | Scheduling | APScheduler |
 | Sources (MVP) | feedparser (RSS), httpx (HN Algolia API), arxiv (PyPI) |
+| PDF extraction | pymupdf (full arXiv paper text) |
 | HTML extraction | trafilatura |
 | Text chunking | langchain-text-splitters |
 | Packaging | Docker + docker-compose |
@@ -77,13 +78,13 @@ The notebooks implement Microsoft's GraphRAG methodology ([arXiv:2404.16130](htt
 
 | Notebook | Purpose | Key Operations |
 |----------|---------|----------------|
-| `01_graphrag_extraction.ipynb` | Multi-Source → Knowledge | Fetch 7 sources (arXiv + web), chunking (600 tokens), entity/relationship/claims extraction per document, cross-document entity merge |
+| `01_graphrag_extraction.ipynb` | Multi-Source → Knowledge | Fetch 7 sources (arXiv full PDFs + web), chunking (600 tokens), entity/relationship/claims extraction with retry + skip-on-error, cross-document entity merge, configurable source limits (`ARXIV_LIMIT`/`WEB_LIMIT`) |
 | `02_graph_construction_communities.ipynb` | Knowledge → Graph + Viz | NetworkX DiGraph with source provenance, PageRank, Louvain community detection, LLM community summaries, SQLite storage, standalone Cytoscape.js HTML visualization with community summaries + chunk expansion |
 | `03_embeddings_vector_search.ipynb` | Graph → Retrieval | nomic-embed-text embeddings, sqlite-vec storage, content-type-aware temporal decay, triple-factor retrieval, cross-domain Navigator queries |
 
 **Pipeline flow:**
 ```
-7 Sources (arXiv + Web) → Chunks → Entities/Relations/Claims → Cross-Doc Merge → Graph → Communities → Community Summaries → SQLite → Cytoscape.js HTML Viz → Embeddings → Content-Type-Aware Triple-Factor Retrieval
+7 Sources (arXiv Full PDFs + Web) → Chunks → Entities/Relations/Claims (with retry + skip-on-error) → Cross-Doc Merge → Graph → Communities → Community Summaries → SQLite → Cytoscape.js HTML Viz → Embeddings → Content-Type-Aware Triple-Factor Retrieval
 ```
 
 **Triple-factor retrieval formula:**
@@ -102,6 +103,9 @@ final_score = 0.6 * semantic_similarity + 0.2 * temporal_decay + 0.2 * graph_cen
 - **What exists**:
   - Documentation + 3 UI design concept mockups
   - Working multi-source GraphRAG pipeline in Jupyter notebooks (7 sources → extraction → graph → viz → embeddings → content-type-aware retrieval)
+  - Full arXiv PDF content extraction via pymupdf (not just abstracts)
+  - Configurable source limits (`ARXIV_LIMIT`/`WEB_LIMIT`) for fast debugging with single source
+  - Retry logic (2 attempts) and skip-on-error resilience in extraction pipeline
   - Cross-document entity merging and source provenance tracking
   - Entity-to-chunk provenance mapping (trace any entity back to its exact source text passages)
   - Standalone Cytoscape.js HTML visualization (dark theme, community colors, PageRank sizing, interactive chunk expansion, community summaries in sidebar and legend)
@@ -125,7 +129,7 @@ User has not yet chosen a direction.
 
 ## MVP Scope (Phase 1)
 
-- 3 source connectors: RSS, Hacker News, arXiv (abstracts only)
+- 3 source connectors: RSS, Hacker News, arXiv (full PDF content via pymupdf)
 - Full processing pipeline: dedup → extract → summarize → entity extraction → embed → cluster → landscape summaries
 - Navigator with triple-factor retrieval + SSE streaming
 - Visualization Platform with Cytoscape.js
@@ -190,7 +194,7 @@ source .venv/bin/activate
 
 # Install dependencies
 pip install --upgrade pip
-pip install ipykernel httpx langchain-text-splitters networkx python-louvain scipy sqlite-vec arxiv trafilatura
+pip install ipykernel httpx langchain-text-splitters networkx python-louvain scipy sqlite-vec arxiv trafilatura pymupdf
 ```
 
 ### Jupyter Kernel Registration
@@ -230,7 +234,8 @@ dkia-graphrag    /Users/<user>/Library/Jupyter/kernels/dkia-graphrag
 | scipy | Required by NetworkX for PageRank |
 | sqlite-vec | Vector storage and similarity search |
 | ipykernel | Jupyter kernel support |
-| arxiv | Fetch arXiv paper abstracts by ID |
+| arxiv | Fetch arXiv papers by ID |
+| pymupdf | Extract text from arXiv PDF papers |
 | trafilatura | Extract article text from web pages |
 
 ### Hardware Notes
@@ -325,3 +330,12 @@ Phase-1:-GraphRAG-Engine.md          # GraphRAG pipeline prototyping
   - Phase 0: Research & Vision (4 pages — problem statement, market landscape, architecture vision, design explorations)
   - Phase 1: GraphRAG Engine (6 pages — pipeline architecture, multi-source ingestion, knowledge graph, triple-factor retrieval, key learnings)
   - Home page with phase tracker, navigation, and development dates
+- **Feb 16, 2026**: Full PDF extraction and pipeline resilience:
+  - Replaced arXiv abstract-only fetch with full PDF download + pymupdf text extraction (~90K chars per paper vs ~1.5K)
+  - Added `ARXIV_LIMIT`/`WEB_LIMIT` source controls for single-source debugging
+  - Added retry logic (2 attempts, 180s timeout) in `chat_ollama` for timeout/HTTP errors
+  - Added skip-on-error resilience: failed chunks are skipped with diagnostics, pipeline continues
+  - Benchmarked LLM extraction: ~17.8s/chunk avg, ~62 min per paper, ~6.5 hours for all 7 sources
+  - Installed pymupdf dependency
+  - Wiki: added knowledge graph screenshot to Knowledge-Graph-and-Communities page
+  - Wiki: added LLM extraction performance benchmarks and improvement roadmap to Key-Learnings page
