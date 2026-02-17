@@ -46,7 +46,7 @@ source .venv/bin/activate
 
 # Install dependencies
 pip install --upgrade pip
-pip install ipykernel httpx langchain-text-splitters networkx python-louvain scipy sqlite-vec arxiv trafilatura pymupdf gliner langdetect
+pip install ipykernel httpx langchain-text-splitters networkx igraph leidenalg scipy sqlite-vec arxiv trafilatura pymupdf gliner langdetect
 ```
 
 ## Jupyter Kernel Registration
@@ -82,7 +82,7 @@ dkia-graphrag    /Users/<user>/Library/Jupyter/kernels/dkia-graphrag
 | httpx | Ollama API calls |
 | langchain-text-splitters | Document chunking (600 tokens, 100 overlap) |
 | networkx | Graph construction and algorithms |
-| python-louvain | Community detection (Louvain algorithm) |
+| leidenalg + igraph | Community detection (Leiden algorithm) |
 | numpy | Cosine similarity matrix for semantic entity dedup |
 | scipy | Required by NetworkX for PageRank |
 | sqlite-vec | Vector storage and similarity search |

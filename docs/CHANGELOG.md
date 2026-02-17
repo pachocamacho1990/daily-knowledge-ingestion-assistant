@@ -77,3 +77,17 @@
   - Switched from COSE to fCOSE layout (CDN): faster rendering, disconnected component tiling, compound node support
   - Legend "Other" click handler highlights all uncategorized nodes
   - Database unchanged: all 466 entities, 146 relationships, 347 summaries preserved
+- **Feb 17, 2026**: Replaced Louvain with Leiden community detection:
+  - Switched from python-louvain to leidenalg + igraph
+  - Leiden guarantees well-connected communities (fixes Louvain's disconnected community flaw)
+  - Aligns with GraphRAG paper (arxiv:2404.16130) which specifies Leiden
+  - NetworkX -> igraph conversion via `ig.Graph.from_networkx()`
+- **Feb 17, 2026**: Multi-level Cytoscape.js drill-down visualization:
+  - Level 0: Community meta-nodes only (~20-40 nodes), sized by member count, inter-community edges
+  - Level 1: Click community to expand -> entity children appear inside compound container
+  - Level 2: Click entity -> chunk expansion (preserved from previous version)
+  - Removed fCOSE CDN dependency -- built-in `cose` layout handles all levels
+  - Level indicator in sidebar shows current navigation depth
+  - Collapse All button returns to Level 0 overview
+  - Inter-community edge hover shows cross-topic relationship details
+  - Semantic groups appear as nested compound nodes inside expanded communities

@@ -45,7 +45,7 @@ DKIA is a personal knowledge navigation system built on two core components:
           │     ├── Level 1: Item Summarization (Ollama)
           │     ├── Entity-Relationship Extraction (Ollama)
           │     ├── Embedding Generation (nomic-embed-text)
-          │     ├── Level 2: Topic Clustering (NetworkX - Leiden/Louvain)
+          │     ├── Level 2: Topic Clustering (NetworkX - Leiden)
           │     ├── Level 3: Landscape Summarization (Ollama)
           │     └── Graph Metrics (PageRank, centrality → SQLite)
           │
@@ -83,7 +83,7 @@ DKIA is a personal knowledge navigation system built on two core components:
 | Graph visualization | Cytoscape.js | Interactive knowledge graph (Visualization Platform) |
 | Database | SQLite + sqlite-vec | Relational + vector storage |
 | Graph storage | SQLite (entities + relationships tables) | Persistent graph structure |
-| Graph algorithms | NetworkX + python-louvain | Batch: community detection, PageRank, centrality |
+| Graph algorithms | NetworkX + igraph + leidenalg | Batch: community detection, PageRank, centrality |
 | LLM runtime | Ollama (host-native) | Local inference with Metal acceleration |
 | LLM models | llama3.1:8b + nomic-embed-text | Chat/summarization/entity extraction + embeddings |
 | Scheduling | APScheduler | In-process cron-like scheduling |
@@ -254,7 +254,7 @@ CREATE TABLE entities (
     entity_type TEXT NOT NULL,            -- 'person', 'concept', 'technology', 'organization', 'paper'
     description TEXT,
     properties JSON,
-    community_id INTEGER,                 -- assigned by Leiden/Louvain community detection
+    community_id INTEGER,                 -- assigned by Leiden community detection
     pagerank_score REAL DEFAULT 0.0,      -- computed by NetworkX nightly
     degree_centrality REAL DEFAULT 0.0,
     first_seen_at TEXT NOT NULL,
@@ -513,7 +513,7 @@ Ollama runs natively on the host for Metal GPU. The container connects via `host
 - Entity-relationship extraction via Ollama
 - Embedding generation via nomic-embed-text
 - Graph construction in SQLite
-- Level 2: Community detection via NetworkX (Louvain)
+- Level 2: Community detection via NetworkX + igraph (Leiden)
 - Level 3: Landscape summaries per cluster via Ollama
 
 ### Navigator
