@@ -32,7 +32,7 @@
 | Web framework | FastAPI + Uvicorn |
 | Frontend | Jinja2 + HTMX + Tailwind CSS (CDN) + Cytoscape.js |
 | Database | SQLite + sqlite-vec |
-| Graph | NetworkX + python-louvain |
+| Graph | NetworkX + igraph + leidenalg |
 | LLM runtime | Ollama (host-native) |
 | Scheduling | APScheduler |
 | Sources (MVP) | feedparser (RSS), httpx (HN), arxiv + pymupdf (PDFs) |
