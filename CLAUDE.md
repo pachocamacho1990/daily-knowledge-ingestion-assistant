@@ -83,7 +83,7 @@ The notebooks implement Microsoft's GraphRAG methodology ([arXiv:2404.16130](htt
 | Notebook | Purpose | Key Operations |
 |----------|---------|----------------|
 | `01_graphrag_extraction.ipynb` | Multi-Source → Knowledge | Fetch 7 sources (arXiv full PDFs + web), chunking (600 tokens), configurable `EXTRACTION_MODE` (`llm`/`nlp`/`hybrid`), GLiNER zero-shot NER for entity extraction in nlp/hybrid modes, LLM for relationships/claims, retry + skip-on-error, cross-document entity merge by exact name, semantic entity grouping via nomic-embed-text embeddings + cosine similarity + Union-Find (non-destructive overlay), configurable source limits (`ARXIV_LIMIT`/`WEB_LIMIT`) |
-| `02_graph_construction_communities.ipynb` | Knowledge → Graph + Viz | NetworkX DiGraph with source provenance, PageRank, Louvain community detection, LLM community summaries, SQLite storage, standalone Cytoscape.js HTML visualization with community summaries + chunk expansion |
+| `02_graph_construction_communities.ipynb` | Knowledge → Graph + Viz | NetworkX DiGraph with source provenance, PageRank, Louvain community detection, LLM community summaries, SQLite storage, standalone Cytoscape.js HTML visualization with community summaries + chunk expansion + compound node visualization of semantic entity groups (Cytoscape.js parent nodes) |
 | `03_embeddings_vector_search.ipynb` | Graph → Retrieval | nomic-embed-text embeddings, sqlite-vec storage, content-type-aware temporal decay, triple-factor retrieval, cross-domain Navigator queries |
 
 **Pipeline flow:**
@@ -115,6 +115,7 @@ final_score = 0.6 * semantic_similarity + 0.2 * temporal_decay + 0.2 * graph_cen
   - Two-layer entity refinement: exact-name merge + semantic similarity grouping (nomic-embed-text embeddings, cosine similarity, Union-Find — non-destructive overlay for compound node visualization)
   - Entity-to-chunk provenance mapping (trace any entity back to its exact source text passages)
   - Standalone Cytoscape.js HTML visualization (dark theme, community colors, PageRank sizing, interactive chunk expansion, community summaries in sidebar and legend)
+  - Compound node visualization: semantic entity groups rendered as Cytoscape.js parent containers (quarks inside protons) with MAX_COMPOUND_SIZE=15 filter
   - Content-type-aware temporal decay (news: 7d, papers: 30d, reference: 365d)
   - Development environment with Jupyter kernel configured
 - **What doesn't exist yet**: Production code (src/), Dockerfile, pyproject.toml, FastAPI server
@@ -296,6 +297,18 @@ Phase-1:-GraphRAG-Engine.md          # GraphRAG pipeline prototyping
 - **Tone:** Explain the "why" behind decisions, not just the "what." The wiki tells the story of the product's evolution for someone following along.
 - **No emojis** in wiki content unless the user explicitly requests them.
 
+### Plan File Lifecycle
+
+Implementation plans are stored as temporary markdown files (`PLAN_*.md`) near the code they affect (e.g., `notebooks/PLAN_semantic_group_visualization.md`). These files are gitignored.
+
+**Lifecycle:**
+1. **Create**: When a task is too large for the current session, write a self-contained plan file with full context, code snippets, anchor strings, and verification steps — enough for a fresh session to execute without prior context.
+2. **Execute**: A subsequent session reads the plan file and implements it step by step.
+3. **Document**: Once the plan is fully implemented and verified, translate the key insights, design decisions, and learnings into the appropriate GitHub Wiki pages (following Wiki Conventions above).
+4. **Delete**: Remove the `PLAN_*.md` file. The plan's value now lives in the wiki and the code itself.
+
+**Convention**: Never leave stale plan files in the repo. A plan file means "work in progress." If the plan is abandoned, delete it. If it's completed, wiki-fy and delete it.
+
 ## Git Conventions
 
 - SSH signing enabled (gpg.format=ssh, commit.gpgsign=true)
@@ -366,3 +379,10 @@ Phase-1:-GraphRAG-Engine.md          # GraphRAG pipeline prototyping
   - Original entities, relationships, claims, provenance maps all preserved unchanged
   - Produces `semantic_entity_groups` list + `entity_to_semantic_group` lookup map
   - Exported in extraction_results.json for notebook 02 compound node visualization (quarks inside protons)
+- **Feb 16, 2026**: Semantic entity group compound node visualization in notebook 02:
+  - Semantic groups from notebook 01 rendered as Cytoscape.js compound/parent nodes
+  - Dashed lime-green containers with member entities nested inside
+  - MAX_COMPOUND_SIZE=15 filter excludes oversized groups (4 of 123 groups)
+  - Click compound node: sidebar shows canonical name, member list, similarity scores
+  - Entity info sidebar shows semantic group badge when entity belongs to a group
+  - Backward compatible: gracefully handles zero groups or missing keys
