@@ -58,6 +58,7 @@ daily-knowledge-ingestion-assistant/
 ├── docs/
 │   ├── architecture-plan.md           # Full architecture (schema, pipeline, implementation steps)
 │   ├── market-research.md             # Competitive landscape + problem statement
+│   ├── graphrag-algorithm-paper.md    # Scientific-style algorithm reference (equations, complexity, benchmarks)
 │   └── design-concepts/
 │       ├── concept-a-observatory.html # Dark + amber, constellation graph
 │       ├── concept-b-morning-edition.html # Editorial warmth, parchment graph
@@ -73,6 +74,7 @@ daily-knowledge-ingestion-assistant/
 
 - **Architecture plan**: `docs/architecture-plan.md` — Full DDL schema, 10-step implementation sequence, project structure, verification plan.
 - **Market research**: `docs/market-research.md` — 30+ commercial products, 25+ open-source projects analyzed. Competitive benchmark matrix. Problem statement.
+- **Algorithm reference**: `docs/graphrag-algorithm-paper.md` — Scientific-style specification of the full GraphRAG pipeline with formal definitions, LaTeX equations, Mermaid diagrams, complexity analysis, and empirical benchmarks. Also published as a [[Algorithm Reference]] wiki page.
 - **Design concepts**: `docs/design-concepts/` — Three self-contained HTML mockups showing the split-pane Navigator + Visualization Platform layout with different visual identities. Open in browser to view.
 - **GraphRAG notebooks**: `notebooks/` — Working prototypes of the core pipeline. See `notebooks/README.md` for kernel setup, learnings, and production transition guide.
 
@@ -285,7 +287,8 @@ Phase-1:-GraphRAG-Engine.md          # GraphRAG pipeline prototyping
   ├── Multi-Source-Ingestion.md
   ├── Knowledge-Graph-and-Communities.md
   ├── Triple-Factor-Retrieval.md
-  └── Key-Learnings-and-Design-Decisions.md
+  ├── Key-Learnings-and-Design-Decisions.md
+  └── Algorithm-Reference.md          # Full algorithm spec with math, diagrams, complexity
 ```
 
 ### Wiki Conventions
@@ -386,3 +389,11 @@ Implementation plans are stored as temporary markdown files (`PLAN_*.md`) near t
   - Click compound node: sidebar shows canonical name, member list, similarity scores
   - Entity info sidebar shows semantic group badge when entity belongs to a group
   - Backward compatible: gracefully handles zero groups or missing keys
+- **Feb 16, 2026**: Algorithm reference paper:
+  - Created `docs/graphrag-algorithm-paper.md` — scientific-style specification of the full pipeline (19 sections)
+  - Formal definitions with LaTeX math: cosine similarity, Union-Find, PageRank, modularity, temporal decay, triple-factor scoring
+  - 6 Mermaid diagrams: pipeline flowchart, ER schema, extraction modes, dedup flow, navigator pipeline, temporal decay chart
+  - Computational complexity analysis for all 14 pipeline stages
+  - Empirical benchmarks from Mac mini M1 prototype runs
+  - Published to GitHub Wiki as [[Algorithm Reference]] page under Phase 1
+  - Updated wiki navigation: Home.md, Phase-1 deep dives, Key-Learnings footer link
