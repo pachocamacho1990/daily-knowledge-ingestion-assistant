@@ -1,0 +1,72 @@
+# Changelog
+
+- **Feb 6, 2026**: Initial architecture plan and market research created
+- **Feb 11, 2026**: Three UI design concept mockups (Observatory, Morning Edition, Briefing Room)
+- **Feb 13, 2026**: Vision refined to conversational Navigator + graph Visualization Platform. Both docs fully rewritten. Problem statement added to market research.
+- **Feb 13, 2026**: Design concepts updated to split-pane layout matching new vision
+- **Feb 15, 2026**: GraphRAG prototyping phase:
+  - Created `feature/graphrag-backend-engine` branch
+  - Built 3 Jupyter notebooks implementing full GraphRAG pipeline
+  - Set up Python venv with Jupyter kernel (`dkia-graphrag`)
+  - Validated: entity extraction, graph construction, community detection, embeddings, triple-factor retrieval
+  - Documented development environment setup (Ollama config, dependencies, kernel registration)
+- **Feb 15, 2026**: Multi-source pipeline + interactive visualization:
+  - Expanded notebook 01 from 1 hardcoded doc to 7 sources (4 arXiv + 3 web) with offline fallbacks
+  - Added cross-document entity merging and source provenance tracking
+  - Added entity-to-chunk provenance map (`entity_chunk_map`) in extraction results
+  - Added sources table to SQLite schema with source_refs on entities and source_ref on chunks
+  - Implemented content-type-aware temporal decay in notebook 03 (news: 7d, papers: 30d, reference: 365d)
+  - Added cross-domain test queries spanning AI, biology, climate, astrophysics, neuroscience, economics, space
+  - Installed new dependencies: arxiv, trafilatura
+- **Feb 15, 2026**: Standalone Cytoscape.js visualization (replaced ipycytoscape):
+  - Replaced ipycytoscape Jupyter widget with standalone HTML using Cytoscape.js CDN (3.30.4)
+  - Dark theme (#0a0a0f), amber accents, COSE force-directed layout, community color-coded nodes
+  - Interactive chunk expansion: click entity -> see source text chunks as nodes with hover tooltips
+  - Sidebar with node info panel, expandable chunk cards, community legend, graph controls
+  - Opened via `webbrowser.open()` -- works regardless of JupyterLab widget compatibility
+  - Removed ipycytoscape and ipywidgets dependencies
+- **Feb 15, 2026**: Community summaries in visualization:
+  - Moved visualization to end of notebook 02 (Step 7) so LLM community summaries are available
+  - Pipeline order: Load -> Graph -> Metrics -> Communities -> Summaries -> SQLite -> Visualization
+  - Legend shows community titles (from LLM summaries) instead of just IDs
+  - Clicking entity shows its community summary (title, executive summary, key insights) in sidebar
+  - Clicking community in legend shows full summary with member list
+- **Feb 15, 2026**: GitHub Wiki created:
+  - Phase 0: Research & Vision (4 pages)
+  - Phase 1: GraphRAG Engine (6 pages)
+  - Home page with phase tracker, navigation, and development dates
+- **Feb 16, 2026**: Full PDF extraction and pipeline resilience:
+  - Replaced arXiv abstract-only fetch with full PDF download + pymupdf text extraction (~90K chars per paper vs ~1.5K)
+  - Added `ARXIV_LIMIT`/`WEB_LIMIT` source controls for single-source debugging
+  - Added retry logic (2 attempts, 180s timeout) in `chat_ollama` for timeout/HTTP errors
+  - Added skip-on-error resilience: failed chunks are skipped with diagnostics, pipeline continues
+  - Benchmarked LLM extraction: ~17.8s/chunk avg, ~62 min per paper, ~6.5 hours for all 7 sources
+  - Installed pymupdf dependency
+  - Wiki: added knowledge graph screenshot to Knowledge-Graph-and-Communities page
+  - Wiki: added LLM extraction performance benchmarks and improvement roadmap to Key-Learnings page
+- **Feb 16, 2026**: Hybrid extraction mode with GLiNER:
+  - Added configurable `EXTRACTION_MODE` flag: `"llm"`, `"nlp"`, `"hybrid"` (recommended default)
+  - Integrated GLiNER (`urchade/gliner_small-v2.1`) for zero-shot NER entity extraction in nlp/hybrid modes
+  - GLiNER is multilingual by default -- single model handles English, Spanish, and more
+  - Hybrid mode: GLiNER entities (~300x faster than LLM) + LLM relationships + LLM claims
+  - NLP mode: GLiNER entities + co-occurrence relationships, no claims
+  - Added per-document language detection via langdetect
+  - spaCy incompatible with Python 3.14 -- GLiNER chosen as superior alternative
+  - Installed gliner, langdetect; uninstalled spaCy
+- **Feb 16, 2026**: Semantic entity grouping (non-destructive overlay):
+  - Added Step 7 to notebook 01: semantic grouping layer on top of exact-name dedup
+  - Embeds all entities with nomic-embed-text, computes cosine similarity matrix via numpy
+  - Union-Find groups transitively similar entities (A~B, B~C -> all in one group)
+  - Configurable `SIMILARITY_THRESHOLD` (default 0.85)
+  - Produces `semantic_entity_groups` list + `entity_to_semantic_group` lookup map
+- **Feb 16, 2026**: Semantic entity group compound node visualization in notebook 02:
+  - Semantic groups rendered as Cytoscape.js compound/parent nodes
+  - MAX_COMPOUND_SIZE=15 filter excludes oversized groups
+  - Click compound node: sidebar shows canonical name, member list, similarity scores
+- **Feb 16, 2026**: Algorithm reference paper:
+  - Created `docs/graphrag-algorithm-paper.md` (19 sections, LaTeX math, Mermaid diagrams, complexity analysis)
+  - Published to GitHub Wiki as Algorithm Reference page under Phase 1
+- **Feb 16, 2026**: Optimize CLAUDE.md structure:
+  - Moved changelog to `docs/CHANGELOG.md`
+  - Moved development environment setup to `docs/dev-setup.md`
+  - Condensed CLAUDE.md from ~400 to ~200 lines
