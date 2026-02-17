@@ -1,466 +1,380 @@
-# PLAN: Multi-Level Cytoscape.js Visualization
+# PLAN: Extract Visualization into Standalone Script
 
 > Created: 2026-02-17
+> Updated: 2026-02-17 (supersedes multi-level notebook plan)
 > Status: Ready for execution
-> Depends on: `PLAN_leiden_community_detection.md` (execute that first)
-> Target file: `notebooks/02_graph_construction_communities.ipynb`
-> Cells modified: 34 (data prep) and 35 (HTML generation) — full rewrite of both
-> Cells unchanged: 0-33 (extraction, graph, metrics, Plotly, communities, summaries, SQLite)
+> Target files: `notebooks/02_graph_construction_communities.ipynb`, `scripts/generate_viz.py`, `scripts/templates/knowledge_graph.html`
 
-## Problem
+## Why
 
-The current Cytoscape.js visualization renders **all data at once** in a single HTML file:
-- ~148 entity nodes + ~18 semantic group containers + ~136 edges + all chunk refs + all community summaries
-- A single layout pass over everything (slow, cluttered)
-- No hierarchy navigation — communities, entities, and chunks are all at the same visual level
-- File size ~230 KB even after optimization
-- fCOSE CDN scripts failing causes total render failure
+The Cytoscape.js visualization (cells 34-35 in notebook 02) is tightly coupled to the data processing pipeline. Any change to the viz requires re-running the entire notebook (~6+ hours for full extraction). The visualization should be a standalone script that reads from the SQLite database and can be regenerated in seconds.
 
-The GraphRAG paper's core insight is that **the community hierarchy IS the navigation structure**. The visualization should reflect that.
+This also aligns with the production architecture: the script's data-loading logic becomes `src/graph/api.py`, and the template becomes `src/web/templates/graph.html`.
 
-## Solution: Three-Level Drill-Down
+## New Workflow After Execution
 
 ```
-Level 0 (default)    Level 1 (click comm)       Level 2 (click entity)
-┌─────────────┐      ┌─────────────────────┐    ┌──────────────────────┐
-│  [Comm A]---│---   │  ┌─Comm A──────────┐│    │  ┌─Comm A──────────┐│
-│  [Comm B]   │      │  │ (ent1)---(ent2) ││    │  │ (ent1)---(ENT2) ││
-│  [Comm C]---│---   │  │ (ent3)          ││    │  │ (ent3)   ○ ○ ○  ││
-│  [Other]    │      │  └─────────────────┘│    │  │         chunks   ││
-│             │      │  [Comm B]           │    │  └─────────────────┘│
-│  ~20-40     │      │  [Comm C]           │    │  [Comm B]           │
-│  nodes      │      │  [Other]            │    │  [Comm C]           │
-└─────────────┘      └─────────────────────┘    └──────────────────────┘
+Run notebook 02 (pipeline) → graphrag.db updated (with 2 new tables)
+Run: python scripts/generate_viz.py → knowledge_graph.html regenerated instantly
 ```
 
-- **Level 0**: Community meta-nodes only. One node per significant community (2+ visible members), sized by member count. Inter-community edges show cross-topic connections. ~20-40 nodes, renders instantly.
-- **Level 1**: Click a community meta-node → it becomes a Cytoscape compound node, entity children appear inside. Intra-community edges shown. Other communities stay collapsed.
-- **Level 2**: Click an entity node → chunk expansion (existing behavior, unchanged).
+## Overview of Changes
 
-**Key design decisions:**
-- Cross-community entity-to-entity edges are **not shown** at Level 1. The inter-community meta-edge already conveys "these communities are connected." This avoids complex dynamic edge re-routing.
-- Semantic groups only appear inside expanded communities (compound-in-compound).
-- Layout is **incremental**: expanding a community only positions its entity children, other nodes stay fixed.
-- All data is still embedded in the HTML (no server needed for notebooks), but organized by level so only Level 0 data is parsed on initial render.
+1. **Add 2 new SQLite tables** to notebook 02's schema so ALL viz data is in `graphrag.db`
+2. **Create `scripts/generate_viz.py`** — standalone script, reads only from SQLite
+3. **Extract HTML template** to `scripts/templates/knowledge_graph.html`
+4. **Remove cells 34-35** from notebook 02, replace with pointer to script
 
-## Data Structures
+---
 
-### Cell 34: New data preparation
+## Step 1: Add New SQLite Tables (Notebook 02, Cell 22)
 
-Replace the current flat `cyto_elements` construction with level-organized data:
+Two data structures needed by the visualization currently live only in `extraction_results.json`:
+- `semantic_entity_groups` — compound node overlay
+- `entity_chunk_map` — entity-to-chunk provenance for drill-down
+
+**Add to `cursor.executescript(...)` in cell 22**, after the `chunks` table:
+
+```sql
+-- Semantic entity groups (compound node overlay from cross-doc merge)
+CREATE TABLE IF NOT EXISTS semantic_groups (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    group_id INTEGER UNIQUE NOT NULL,
+    canonical TEXT NOT NULL,
+    members TEXT NOT NULL,            -- JSON array of entity names
+    member_similarities TEXT,         -- JSON object {name: score}
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Entity-to-chunk provenance (which chunks an entity was extracted from)
+CREATE TABLE IF NOT EXISTS entity_chunk_map (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    entity_name TEXT NOT NULL,
+    chunk_index INTEGER NOT NULL,
+    source_id TEXT NOT NULL,
+    FOREIGN KEY (entity_name) REFERENCES entities(name)
+);
+
+CREATE INDEX idx_entity_chunk_map_entity ON entity_chunk_map(entity_name);
+CREATE INDEX idx_semantic_groups_gid ON semantic_groups(group_id);
+```
+
+---
+
+## Step 2: Add Insert Cells (Notebook 02, After Cell 28)
+
+**New cell A** — Insert semantic groups (after the "Insert source records" cell):
 
 ```python
-# ============================================================
-# LEVEL 0: Community meta-nodes + inter-community edges
-# ============================================================
+# Insert semantic entity groups
+for group in semantic_entity_groups:
+    cursor.execute(
+        "INSERT INTO semantic_groups (group_id, canonical, members, member_similarities) VALUES (?, ?, ?, ?)",
+        (group["group_id"], group["canonical"],
+         json.dumps(group["members"]), json.dumps(group.get("member_similarities", {}))),
+    )
+conn.commit()
+print(f"Inserted {len(semantic_entity_groups)} semantic entity groups")
+```
 
-# Only communities with 2+ visible members get meta-nodes
-# (viz_nodes, viz_community_counts, cyto_community_summaries already computed above)
+**New cell B** — Insert entity-chunk map:
 
-def scale_community_size(member_count, min_size=40, max_size=120):
-    """Map community member count to meta-node pixel size."""
-    counts = [viz_community_counts[c] for c in viz_community_counts
-              if viz_community_counts[c] >= MIN_COMMUNITY_SIZE_FOR_VIZ]
-    if not counts:
-        return (min_size + max_size) // 2
-    c_min, c_max = min(counts), max(counts)
-    if c_max == c_min:
-        return (min_size + max_size) // 2
-    normalized = (member_count - c_min) / (c_max - c_min)
-    return int(min_size + normalized * (max_size - min_size))
-
-community_meta_elements = []  # Cytoscape elements for Level 0
-
-for comm_id, summary_data in cyto_community_summaries.items():
-    member_count = viz_community_counts[comm_id]
-    color = COMMUNITY_COLORS[comm_id % len(COMMUNITY_COLORS)]
-    top_members = sorted(
-        [n for n in viz_nodes if G.nodes[n].get("community") == comm_id],
-        key=lambda x: -pagerank.get(x, 0)
-    )[:5]
-    pr_sum = sum(pagerank.get(m, 0) for m in top_members)
-
-    community_meta_elements.append({
-        "data": {
-            "id": f"comm-{comm_id}",
-            "label": summary_data["title"][:35],
-            "type": "COMMUNITY",
-            "community": comm_id,
-            "member_count": member_count,
-            "top_members": [m[:25] for m in top_members],
-            "color": color,
-            "size": scale_community_size(member_count),
-            "pagerank_sum": round(pr_sum, 4),
-        }
-    })
-
-# "Other" meta-node for singleton communities
-if other_node_count > 0:
-    community_meta_elements.append({
-        "data": {
-            "id": "comm-other",
-            "label": f"Other ({other_community_count} small)",
-            "type": "COMMUNITY",
-            "community": -1,
-            "member_count": other_node_count,
-            "top_members": [],
-            "color": "#555555",
-            "size": 40,
-            "pagerank_sum": 0,
-        }
-    })
-
-# Inter-community edges (aggregated from entity-level edges)
-inter_comm_edges = {}  # (src_comm, tgt_comm) -> {count, descriptions}
-for src, tgt, attrs in G.edges(data=True):
-    if src not in viz_nodes or tgt not in viz_nodes:
-        continue
-    src_comm = G.nodes[src].get("community", -1)
-    tgt_comm = G.nodes[tgt].get("community", -1)
-    if src_comm == tgt_comm:
-        continue
-    # Only include edges between significant communities
-    src_in = src_comm in cyto_community_summaries
-    tgt_in = tgt_comm in cyto_community_summaries
-    if not src_in and not tgt_in:
-        continue
-    src_id = f"comm-{src_comm}" if src_in else "comm-other"
-    tgt_id = f"comm-{tgt_comm}" if tgt_in else "comm-other"
-    key = (src_id, tgt_id)
-    if key not in inter_comm_edges:
-        inter_comm_edges[key] = {"count": 0, "descriptions": []}
-    inter_comm_edges[key]["count"] += 1
-    desc = attrs.get("description", "")
-    if desc and len(inter_comm_edges[key]["descriptions"]) < 5:
-        inter_comm_edges[key]["descriptions"].append(
-            f"{src} → {tgt}: {desc[:80]}"
+```python
+# Insert entity-chunk provenance map
+ecm_count = 0
+for entity_name, refs in entity_chunk_map.items():
+    for ref in refs:
+        cursor.execute(
+            "INSERT INTO entity_chunk_map (entity_name, chunk_index, source_id) VALUES (?, ?, ?)",
+            (entity_name, ref["chunk_index"], ref["source_id"]),
         )
-
-for (src_id, tgt_id), data in inter_comm_edges.items():
-    community_meta_elements.append({
-        "data": {
-            "id": f"{src_id}-->{tgt_id}",
-            "source": src_id,
-            "target": tgt_id,
-            "weight": data["count"],
-            "description": f"{data['count']} cross-community relationships",
-            "details": data["descriptions"],
-        }
-    })
-
-# ============================================================
-# LEVEL 1: Per-community entity data (loaded on expand)
-# ============================================================
-
-community_entity_data = {}  # comm_id -> {entities: [...], edges: [...]}
-
-for comm_id in cyto_community_summaries:
-    comm_members = [n for n in viz_nodes if G.nodes[n].get("community") == comm_id]
-    member_set = set(comm_members)
-
-    entities = []
-    for node in comm_members:
-        attrs = G.nodes[node]
-        pr = attrs.get("pagerank", 0)
-        chunk_refs = entity_chunk_map.get(node, [])
-        entities.append({
-            "data": {
-                "id": node,
-                "label": node,
-                "parent": f"comm-{comm_id}",  # compound containment
-                "type": attrs.get("type", "UNKNOWN"),
-                "description": attrs.get("description", ""),
-                "community": comm_id,
-                "pagerank": round(pr, 6),
-                "degree_centrality": round(attrs.get("degree_centrality", 0), 4),
-                "betweenness": round(attrs.get("betweenness", 0), 4),
-                "num_sources": attrs.get("num_sources", 1),
-                "source_refs": attrs.get("source_refs", "[]"),
-                "color": COMMUNITY_COLORS[comm_id % len(COMMUNITY_COLORS)],
-                "size": scale_pagerank_to_size(pr),
-                "chunk_count": len(chunk_refs),
-            }
-        })
-
-    # Intra-community edges only
-    edges = []
-    for src, tgt, attrs in G.edges(data=True):
-        if src in member_set and tgt in member_set:
-            edges.append({
-                "data": {
-                    "id": f"{src}-->{tgt}",
-                    "source": src,
-                    "target": tgt,
-                    "description": attrs.get("description", ""),
-                    "weight": attrs.get("weight", 1.0),
-                }
-            })
-
-    # Semantic groups within this community
-    sg_elements = []
-    for group in semantic_entity_groups:
-        gid = group["group_id"]
-        valid_members = [m for m in group["members"]
-                         if m in member_set and m in entity_node_ids]
-        if len(valid_members) < 2 or len(group["members"]) > MAX_COMPOUND_SIZE:
-            continue
-        parent_id = f"sg-{gid}"
-        sg_elements.append({
-            "data": {
-                "id": parent_id,
-                "label": group["canonical"],
-                "parent": f"comm-{comm_id}",  # nested compound
-                "type": "SEMANTIC_GROUP",
-                "group_id": gid,
-                "canonical": group["canonical"],
-                "member_count": len(valid_members),
-                "color": SEMANTIC_GROUP_COLOR,
-            }
-        })
-        # Re-parent entity nodes to semantic group (compound-in-compound)
-        for ent in entities:
-            if ent["data"]["id"] in valid_members:
-                ent["data"]["parent"] = parent_id
-
-    community_entity_data[comm_id] = {
-        "entities": entities,
-        "edges": edges,
-        "semantic_groups": sg_elements,
-    }
-
-# ============================================================
-# LEVEL 2: Chunk data (already deduplicated above)
-# chunk_texts, cyto_chunk_refs — no changes needed
-# ============================================================
+        ecm_count += 1
+conn.commit()
+print(f"Inserted {ecm_count} entity-chunk provenance records")
 ```
 
-### Cell 35: New HTML generation
+---
 
-The HTML template changes significantly in the JavaScript section. CSS remains mostly the same.
+## Step 3: Update Verification Cell (Cell 29)
 
-**JavaScript state management:**
-```javascript
-// Data organized by level
-const metaElements = COMMUNITY_META_JSON;        // Level 0
-const communityData = COMMUNITY_ENTITIES_JSON;   // Level 1 (keyed by comm_id)
-const chunkTexts = CHUNK_TEXTS_JSON;             // Level 2
-const chunkRefs = CHUNK_REFS_JSON;               // Level 2
-const commSummaries = COMMUNITY_SUMMARIES_JSON;
-const semanticGroups = SEMANTIC_GROUPS_JSON;
-
-// State
-const expandedCommunities = new Set();
-
-// Initialize with Level 0 only
-const cy = cytoscape({
-  container: document.getElementById('cy'),
-  elements: metaElements,
-  // ... styles (see below)
-  layout: { name: 'cose', animate: false, ... }
-  // cose is fine for ~30 meta-nodes, no CDN needed
-});
-```
-
-**Key functions:**
-```javascript
-function expandCommunity(commId) {
-  // 1. Convert meta-node to compound parent
-  const metaNode = cy.getElementById('comm-' + commId);
-  if (!metaNode.length) return;
-
-  // 2. Add entity children + intra edges + semantic groups
-  const data = communityData[commId];
-  if (!data) return;
-
-  const toAdd = [...data.entities, ...data.edges, ...data.semantic_groups];
-  cy.add(toAdd);
-
-  // 3. Layout only the new children (keep other nodes fixed)
-  const children = metaNode.children();
-  children.layout({
-    name: 'cose',
-    animate: true,
-    animationDuration: 300,
-    boundingBox: metaNode.boundingBox(),  // keep within original area
-    fit: false,
-    nodeRepulsion: 4000,
-    idealEdgeLength: 60,
-  }).run();
-
-  expandedCommunities.add(commId);
-
-  // 4. Fit view to show expanded community
-  cy.fit(metaNode.union(children), 60);
-}
-
-function collapseCommunity(commId) {
-  // Remove entity children + edges + semantic groups
-  const metaNode = cy.getElementById('comm-' + commId);
-  const children = metaNode.children();
-  // Also remove any chunk nodes attached to these entities
-  children.forEach(function(child) {
-    cy.remove(cy.elements('[id ^= "chunk-' + child.id() + '"]'));
-  });
-  cy.remove(children);
-  cy.remove(metaNode.children());  // semantic group parents
-  expandedCommunities.delete(commId);
-}
-```
-
-**Tap handler (replaces current):**
-```javascript
-cy.on('tap', 'node', function(evt) {
-  const node = evt.target;
-
-  // Chunk node: ignore
-  if (node.hasClass('chunk-node')) return;
-
-  // Semantic group parent: show group info
-  if (node.data('type') === 'SEMANTIC_GROUP') {
-    // ... existing semantic group handler ...
-    return;
-  }
-
-  // Community meta-node: expand/collapse
-  if (node.data('type') === 'COMMUNITY') {
-    const commId = node.data('community');
-    if (expandedCommunities.has(commId)) {
-      collapseCommunity(commId);
-    } else {
-      expandCommunity(commId);
-    }
-    // Show community summary in sidebar
-    showCommunitySummary(commId, node.data('color'));
-    return;
-  }
-
-  // Entity node: highlight neighborhood + show info + expand chunks
-  // ... existing entity tap handler (buildCommSummaryHtml, showChunks, etc.)
-});
-```
-
-**Styles additions for community meta-nodes:**
-```javascript
-{
-  selector: 'node[type="COMMUNITY"]',
-  style: {
-    'shape': 'round-rectangle',
-    'background-color': 'data(color)',
-    'background-opacity': 0.3,
-    'border-color': 'data(color)',
-    'border-width': 3,
-    'label': 'data(label)',
-    'font-size': '11px',
-    'text-valign': 'center',
-    'text-halign': 'center',
-    'text-wrap': 'wrap',
-    'text-max-width': '100px',
-    'color': '#fff',
-    'width': 'data(size)',
-    'height': 'data(size)',
-  }
-}
-```
-
-**When a community is expanded, it becomes a compound parent.** Cytoscape handles this automatically because entity nodes have `parent: "comm-{id}"`. The meta-node transitions from a standalone shape to a container. Apply the `:parent` style:
-```javascript
-{
-  selector: ':parent[type="COMMUNITY"]',
-  style: {
-    'background-opacity': 0.1,
-    'border-style': 'solid',
-    'border-width': 2,
-    'padding': '20px',
-    'text-valign': 'top',
-    'font-size': '10px',
-    'shape': 'round-rectangle',
-  }
-}
-```
-
-**Layout strategy:**
-- Level 0: Built-in `cose` layout (no CDN needed). ~30 nodes, instant.
-- Level 1 expand: `cose` layout on children only, constrained to parent's bounding box.
-- Level 2: Radial placement around entity (existing `showChunks` logic, unchanged).
-
-**No fCOSE CDN needed.** Built-in `cose` handles 30 meta-nodes fine. When expanding a community, we layout 5-20 entity nodes inside it — also fine for `cose`.
-
-### Python substitution (Cell 35, after HTML template)
-
-Replace current substitution block with:
+**Current** table list:
 ```python
-html_content = html_content.replace("COMMUNITY_META_JSON", json.dumps(community_meta_elements))
-html_content = html_content.replace("COMMUNITY_ENTITIES_JSON", json.dumps(community_entity_data))
-html_content = html_content.replace("CHUNK_TEXTS_JSON", json.dumps(chunk_texts))
-html_content = html_content.replace("CHUNK_REFS_JSON", json.dumps(cyto_chunk_refs))
-html_content = html_content.replace("COMMUNITY_SUMMARIES_JSON", json.dumps(cyto_community_summaries))
-html_content = html_content.replace("SEMANTIC_GROUPS_JSON", json.dumps(cyto_semantic_groups))
-html_content = html_content.replace("LEGEND_HTML", "\n".join(legend_html_parts))
-# ... other substitutions
+for table in ["sources", "entities", "relationships", "claims", "community_summaries", "chunks"]:
 ```
 
-### Legend changes
+**Replace** with:
+```python
+for table in ["sources", "entities", "relationships", "claims", "community_summaries", "chunks", "semantic_groups", "entity_chunk_map"]:
+```
 
-The legend shows communities (same as current), but clicking a legend item now:
-1. If community is collapsed: expands it and fits view
-2. If community is expanded: fits view to it
-3. Shows community summary in sidebar
+---
 
-## Sidebar behavior by level
+## Step 4: Create HTML Template (`scripts/templates/knowledge_graph.html`)
 
-| Action | Sidebar shows |
+Extract the HTML template string from current cell 35 — everything between the opening `"""<!DOCTYPE html>` and closing `</html>"""`. This is ~900 lines of HTML/CSS/JS with these placeholders:
+
+- `COMMUNITY_META_JSON` — Level 0 meta-nodes + inter-community edges
+- `COMMUNITY_ENTITIES_JSON` — Level 1 per-community entity data
+- `CHUNK_TEXTS_JSON` — Deduplicated chunk texts
+- `CHUNK_REFS_JSON` — Entity-to-chunk reference mappings
+- `COMMUNITY_SUMMARIES_JSON` — Community summary data
+- `SEMANTIC_GROUPS_JSON` — Semantic group data
+- `LEGEND_HTML` — Pre-rendered legend HTML
+- `LEGEND_COUNT` — Number of legend items
+- `META_NODES` — Count of meta-nodes
+- `TOTAL_ENTITIES` — Total entity count
+- `COMM_COUNT` — Community count
+
+**No changes to the template content.** Same HTML/CSS/JS as currently in cell 35.
+
+**Layout fix**: Use `grid` layout for Level 0 (the `cose` layout has been failing with disconnected components). The template should use:
+```javascript
+layout: {
+  name: 'grid',
+  animate: false,
+  fit: true,
+  padding: 40,
+},
+```
+
+`cose` is still used in `expandCommunity()` for Level 1 entity children (they have edges, so cose works there).
+
+**CDN check**: Add at the start of `<script>`:
+```javascript
+if (typeof cytoscape === 'undefined') {
+  document.getElementById('cy').innerHTML = '<div style="color:#ff4444;padding:40px;font-size:18px"><b>Cytoscape.js CDN failed to load!</b></div>';
+  throw new Error('CDN not loaded');
+}
+```
+
+**Error handling**: Wrap `cytoscape()` init in try-catch that displays errors visually in the `#cy` div.
+
+---
+
+## Step 5: Create `scripts/generate_viz.py`
+
+Standalone Python script. **No NetworkX dependency** — all graph metrics are already in SQLite.
+
+### CLI
+
+```
+python scripts/generate_viz.py                          # defaults
+python scripts/generate_viz.py --db path/to/graphrag.db # custom DB
+python scripts/generate_viz.py --output path/to/out.html
+python scripts/generate_viz.py --no-open                # don't open browser
+```
+
+Defaults: `--db notebooks/graphrag.db`, `--output notebooks/knowledge_graph.html`
+
+### Function Structure
+
+```python
+#!/usr/bin/env python3
+"""Generate knowledge graph HTML visualization from SQLite database."""
+
+import argparse, json, sqlite3, webbrowser
+from pathlib import Path
+
+# --- Constants ---
+COMMUNITY_COLORS = [...]      # same 15 colors
+MAX_COMPOUND_SIZE = 15
+SEMANTIC_GROUP_COLOR = "#bfef45"
+MIN_COMMUNITY_SIZE_FOR_VIZ = 2
+
+# --- Data Loading (SQLite only) ---
+
+def load_entities(cursor) -> dict[str, dict]:
+    """Load all entities as {name: {type, description, pagerank, community, ...}}"""
+    cursor.execute("""
+        SELECT name, type, description, pagerank, degree_centrality,
+               betweenness, community_id, source_refs, num_sources
+        FROM entities
+    """)
+    return {row[0]: {"type": row[1], "description": row[2], "pagerank": row[3],
+                      "degree_centrality": row[4], "betweenness": row[5],
+                      "community": row[6], "source_refs": row[7],
+                      "num_sources": row[8]} for row in cursor.fetchall()}
+
+def load_relationships(cursor) -> list[tuple[str, str, dict]]:
+    """Load edges as [(src_name, tgt_name, {description, weight}), ...]"""
+    cursor.execute("""
+        SELECT e1.name, e2.name, r.description, r.weight
+        FROM relationships r
+        JOIN entities e1 ON r.source_id = e1.id
+        JOIN entities e2 ON r.target_id = e2.id
+    """)
+    return [(row[0], row[1], {"description": row[2], "weight": row[3]})
+            for row in cursor.fetchall()]
+
+def load_community_summaries(cursor) -> dict[int, dict]:
+    """Load {community_id: {title, summary, key_entities, key_insights}}"""
+    cursor.execute("SELECT community_id, title, summary, key_entities, key_insights FROM community_summaries")
+    return {row[0]: {"title": row[1], "summary": row[2],
+                      "key_entities": json.loads(row[3]),
+                      "key_insights": json.loads(row[4])} for row in cursor.fetchall()}
+
+def load_chunk_lookup(cursor) -> dict[int, dict]:
+    """Load {chunk_index: {text, source_id}}"""
+    cursor.execute("SELECT chunk_index, content, source_ref FROM chunks")
+    return {row[0]: {"text": row[1], "source_id": row[2]} for row in cursor.fetchall()}
+
+def load_semantic_groups(cursor) -> list[dict]:
+    """Load [{group_id, canonical, members, member_similarities}, ...]"""
+    cursor.execute("SELECT group_id, canonical, members, member_similarities FROM semantic_groups")
+    return [{"group_id": row[0], "canonical": row[1],
+             "members": json.loads(row[2]),
+             "member_similarities": json.loads(row[3])} for row in cursor.fetchall()]
+
+def load_entity_chunk_map(cursor) -> dict[str, list]:
+    """Load {entity_name: [{chunk_index, source_id}, ...]}"""
+    cursor.execute("SELECT entity_name, chunk_index, source_id FROM entity_chunk_map")
+    result: dict[str, list] = {}
+    for row in cursor.fetchall():
+        result.setdefault(row[0], []).append({"chunk_index": row[1], "source_id": row[2]})
+    return result
+
+# --- Viz Data Preparation ---
+# (Port logic from current cell 34, replacing G.nodes[n] with entities[n])
+
+def prepare_viz_data(entities, edges, community_summaries, chunk_lookup,
+                     semantic_groups, entity_chunk_map):
+    """Build all visualization data structures from raw DB data."""
+    # 1. Compute node degrees from edges (replaces NetworkX G.degree)
+    # 2. Filter to connected nodes (degree > 0)
+    # 3. Build community meta-elements (Level 0)
+    # 4. Build inter-community edges
+    # 5. Build per-community entity data (Level 1)
+    # 6. Build chunk data (Level 2, deduplicated)
+    # 7. Build legend HTML
+    # Returns all JSON-serializable structures
+    ...
+
+# --- HTML Rendering ---
+
+def render_html(viz_data, template_path):
+    """Read template, substitute placeholders, return HTML string."""
+    template = template_path.read_text()
+    html = template
+    html = html.replace("COMMUNITY_META_JSON", json.dumps(viz_data["meta_elements"]))
+    html = html.replace("COMMUNITY_ENTITIES_JSON", json.dumps(viz_data["entity_data"]))
+    # ... all other replacements
+    return html
+
+# --- Main ---
+
+def main():
+    parser = argparse.ArgumentParser(description="Generate knowledge graph visualization")
+    parser.add_argument("--db", default="notebooks/graphrag.db", help="Path to SQLite database")
+    parser.add_argument("--output", default="notebooks/knowledge_graph.html", help="Output HTML path")
+    parser.add_argument("--no-open", action="store_true", help="Don't open in browser")
+    args = parser.parse_args()
+
+    # Load from SQLite
+    conn = sqlite3.connect(args.db)
+    cursor = conn.cursor()
+    # ... load all data ...
+    conn.close()
+
+    # Prepare visualization data
+    viz_data = prepare_viz_data(...)
+
+    # Render HTML
+    template_path = Path(__file__).parent / "templates" / "knowledge_graph.html"
+    html = render_html(viz_data, template_path)
+
+    # Write and optionally open
+    Path(args.output).write_text(html)
+    if not args.no_open:
+        webbrowser.open(f"file://{Path(args.output).absolute()}")
+
+if __name__ == "__main__":
+    main()
+```
+
+### Key Translation: NetworkX → Dict
+
+| Notebook pattern (NetworkX) | Script pattern (dict) |
 |---|---|
-| Click community meta-node | Community summary (title, text, insights, top members) + "Click to expand" hint |
-| Click expanded community border | Community summary + "Click to collapse" hint |
-| Click entity node | Entity details + community summary + chunk expansion |
-| Click semantic group | Group members + similarity scores |
-| Click "Other" in legend | Highlight all singleton community nodes |
-| Click background | Reset to Level 0 view, collapse all |
+| `G.nodes[n].get("pagerank", 0)` | `entities[n]["pagerank"]` |
+| `G.nodes[n].get("community", -1)` | `entities[n].get("community", -1)` |
+| `for src, tgt, attrs in G.edges(data=True):` | `for src, tgt, attrs in edges:` |
+| `G.nodes` iteration | `entities.keys()` iteration |
+| `G.number_of_nodes()` | `len(entities)` |
+| `pagerank.get(x, 0)` | `entities[x]["pagerank"]` |
 
-## File size estimate
+The `filter_connected_nodes` logic computes `node_degree` from the edges list (same as cell 34 already does — it doesn't use `G.degree()`).
 
-| Component | Current | Multi-level |
-|---|---|---|
-| Community meta (Level 0) | N/A | ~3 KB |
-| Inter-community edges | N/A | ~2 KB |
-| Community entities (Level 1) | 199 KB (all at once) | ~50 KB (organized by comm_id) |
-| Chunk texts (Level 2) | ~73 KB (deduped) | ~73 KB (same) |
-| Chunk refs | ~8 KB | ~8 KB |
-| Community summaries | ~18 KB | ~18 KB |
-| Semantic groups | ~5 KB | ~5 KB |
-| CSS + JS + template | ~28 KB | ~35 KB (more JS logic) |
-| **Total** | **~230 KB** | **~194 KB** |
+---
 
-File size doesn't change dramatically (data is the same, just reorganized), but **initial render uses only ~5 KB** of data (Level 0). The rest is parsed on demand.
+## Step 6: Remove Viz Cells from Notebook 02
+
+**Delete cells 34 and 35.**
+
+**Replace cell 33** (currently `## Step 7: Interactive Graph Visualization` markdown) with:
+
+```markdown
+## Step 7: Generate Visualization
+
+The interactive knowledge graph visualization is generated by a standalone script
+that reads from the SQLite database:
+
+```bash
+python scripts/generate_viz.py
+```
+
+This produces a self-contained HTML file with multi-level Cytoscape.js drill-down:
+- **Level 0**: Community meta-nodes (~20-40), sized by member count
+- **Level 1**: Click community to expand → entity children with intra-community edges
+- **Level 2**: Click entity → chunk expansion with source text tooltips
+
+See `scripts/generate_viz.py` for details.
+```
+
+**Update cell 36** (Summary markdown) to mention the external script instead of inline visualization.
+
+---
+
+## Step 7: Update Documentation
+
+**CLAUDE.md** — Add `scripts/` to project structure:
+```
+├── scripts/
+│   ├── generate_viz.py                # Standalone visualization generator
+│   └── templates/
+│       └── knowledge_graph.html       # Cytoscape.js HTML template
+```
+
+**docs/CHANGELOG.md** — Add entry:
+```
+- **Feb 17, 2026**: Extracted visualization into standalone script:
+  - Created `scripts/generate_viz.py` — reads from SQLite, generates `knowledge_graph.html`
+  - Added `semantic_groups` and `entity_chunk_map` tables to SQLite schema
+  - Removed visualization cells (34-35) from notebook 02
+  - Visualization can now be regenerated in seconds without re-running the pipeline
+```
+
+**Delete**: `notebooks/PLAN_cytoscape_multilevel.md` (this file, after execution)
+**Delete**: `notebooks/PLAN_leiden_community_detection.md` (already executed)
+
+---
 
 ## Verification
 
-After running modified cells (34 and 35), verify:
+1. **Re-run notebook 02 Step 6** (cells 22-32) to regenerate `graphrag.db` with the 2 new tables
+2. Verify 8 tables in DB: `sources`, `entities`, `relationships`, `claims`, `community_summaries`, `chunks`, `semantic_groups`, `entity_chunk_map`
+3. Run `python scripts/generate_viz.py` — should produce `knowledge_graph.html`
+4. Open HTML in browser — should show multi-level community graph
+5. Verify interactions: click community to expand, click entity for chunks, legend, collapse all
+6. Run `python scripts/generate_viz.py --no-open` — should not open browser
 
-1. **Level 0 renders instantly**: ~20-40 community nodes + inter-community edges. No layout delay.
-2. **Click community**: Expands to show entity children inside compound container. Layout animates smoothly.
-3. **Click entity inside expanded community**: Shows details sidebar + chunk expansion (Level 2).
-4. **Click expanded community border**: Collapses back to meta-node.
-5. **Click background**: Resets all to Level 0.
-6. **Legend**: Click community in legend expands it and fits view.
-7. **"Other" meta-node**: Shows singleton count, click highlights.
-8. **No CDN dependencies**: Built-in `cose` layout only, no fCOSE scripts needed.
-9. **Semantic groups**: Visible inside expanded communities as nested compound nodes.
-10. **File size**: Should be ~190-200 KB.
+## Files Modified
 
-## Implementation notes
-
-- The `partition` dict and `communities` dict must exist before cell 34 runs (produced by cells 15-16). After Leiden migration, these have the same structure.
-- `viz_nodes`, `viz_community_counts`, `cyto_community_summaries`, `other_community_count`, `other_node_count` are computed in the first half of cell 34 (unchanged from current).
-- `entity_node_ids` is no longer needed as a global set — entity membership is tracked per community in `community_entity_data`.
-- The `scale_pagerank_to_size` function is still needed for entity nodes (unchanged).
-- `graph_plotly.html` (cell 13) is unaffected.
-
-## Post-Execution
-
-1. **Delete this file** (`notebooks/PLAN_cytoscape_multilevel.md`)
-2. **Update GitHub Wiki:**
-   - Update `Knowledge-Graph-and-Communities.md`: replace visualization section with multi-level description
-   - Note the removal of fCOSE CDN dependency
-3. **Update `docs/CHANGELOG.md`**
-4. **Delete `notebooks/PLAN_viz_optimization.md`** if it still exists (superseded by this)
+| File | Action |
+|------|--------|
+| `notebooks/02_graph_construction_communities.ipynb` | Add 2 tables (cell 22), add 2 insert cells, update verify (cell 29), remove cells 34-35, update markdown cells |
+| `scripts/generate_viz.py` | **NEW** — standalone visualization generator (~250 lines) |
+| `scripts/templates/knowledge_graph.html` | **NEW** — HTML template extracted from cell 35 (~900 lines) |
+| `CLAUDE.md` | Add `scripts/` to project structure |
+| `docs/CHANGELOG.md` | Add entry |
+| `notebooks/PLAN_cytoscape_multilevel.md` | Delete after execution |
+| `notebooks/PLAN_leiden_community_detection.md` | Delete after execution |
