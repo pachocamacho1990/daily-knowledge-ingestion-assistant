@@ -38,3 +38,6 @@ logs/
 notebooks/*.db
 notebooks/*.json
 notebooks/*.html
+
+# Plan files (temporary, deleted after implementation + wiki update)
+**/PLAN_*.md
