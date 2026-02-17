@@ -1,6 +1,6 @@
 # CLAUDE.md - DKIA Project Instructions
 
-> Last updated: February 16, 2026
+> Last updated: February 17, 2026
 > Version: Pre-release (prototyping phase)
 
 ## What Is This Project
@@ -84,7 +84,8 @@ daily-knowledge-ingestion-assistant/
 - **Phase**: Prototyping — full GraphRAG pipeline validated in notebooks
 - **What exists**: 3 notebooks (extraction, graph+viz, retrieval), docs, 3 UI mockups, GitHub Wiki (Phase 0 + 1)
 - **What doesn't exist yet**: Production code (src/), Dockerfile, pyproject.toml, FastAPI server
-- **Next step**: Convert notebook prototypes to production Python modules, then Docker packaging
+- **Active plan**: `notebooks/PLAN_cytoscape_multilevel.md` — Extract visualization from notebook 02 into `scripts/generate_viz.py` (standalone script reading from SQLite). Adds `semantic_groups` and `entity_chunk_map` tables to schema.
+- **Next step after plan**: Convert notebook prototypes to production Python modules, then Docker packaging
 - **Implementation plan**: 10 steps in `docs/architecture-plan.md`
 
 ## MVP Scope (Phase 1)
