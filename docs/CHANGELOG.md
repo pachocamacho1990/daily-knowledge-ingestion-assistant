@@ -70,3 +70,10 @@
   - Moved changelog to `docs/CHANGELOG.md`
   - Moved development environment setup to `docs/dev-setup.md`
   - Condensed CLAUDE.md from ~400 to ~200 lines
+- **Feb 16, 2026**: Optimize notebook 02 graph visualization (930 KB -> ~235 KB target):
+  - Filtered isolated nodes (degree=0) from visualization layer; ~317 isolates removed, kept in DB
+  - Collapsed singleton community summaries into "Other" bucket (347 -> ~22-39 legend items)
+  - Deduplicated chunk text storage: 613 chunk refs with 4.4x duplication reduced via text index
+  - Switched from COSE to fCOSE layout (CDN): faster rendering, disconnected component tiling, compound node support
+  - Legend "Other" click handler highlights all uncategorized nodes
+  - Database unchanged: all 466 entities, 146 relationships, 347 summaries preserved
