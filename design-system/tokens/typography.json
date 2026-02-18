@@ -1,0 +1,145 @@
+{
+  "_meta": {
+    "name": "Koine Design System — Typography Tokens",
+    "version": "1.0.0",
+    "description": "Two-font system: Cormorant Garamond (display/brand) + DM Sans (body/UI). Libre Baskerville for taglines."
+  },
+
+  "fontFamily": {
+    "display":  { "value": "'Cormorant Garamond', Georgia, 'Times New Roman', serif", "description": "Brand wordmark, headings, display text" },
+    "body":     { "value": "'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif", "description": "Body text, UI elements, labels" },
+    "accent":   { "value": "'Libre Baskerville', Georgia, serif", "description": "Taglines, pull quotes, italic emphasis" }
+  },
+
+  "fontWeight": {
+    "light":    { "value": "300", "description": "Display wordmark, hero headings" },
+    "regular":  { "value": "400", "description": "Body text, most UI" },
+    "medium":   { "value": "500", "description": "Emphasis, sub-headings, card titles" },
+    "semibold": { "value": "600", "description": "Strong emphasis, section titles" },
+    "bold":     { "value": "700", "description": "Rare — only for critical UI elements" }
+  },
+
+  "fontSize": {
+    "2xs":   { "value": "0.625rem",  "px": "10px", "description": "Legal, footnotes" },
+    "xs":    { "value": "0.75rem",   "px": "12px", "description": "Captions, badges, overlines" },
+    "sm":    { "value": "0.875rem",  "px": "14px", "description": "Small body, secondary text" },
+    "base":  { "value": "1rem",      "px": "16px", "description": "Body text default" },
+    "md":    { "value": "1.125rem",  "px": "18px", "description": "Large body, lead paragraphs" },
+    "lg":    { "value": "1.25rem",   "px": "20px", "description": "H6 / card titles" },
+    "xl":    { "value": "1.5rem",    "px": "24px", "description": "H5 / section sub-heading" },
+    "2xl":   { "value": "1.875rem",  "px": "30px", "description": "H4 / section heading" },
+    "3xl":   { "value": "2.25rem",   "px": "36px", "description": "H3 / page sub-heading" },
+    "4xl":   { "value": "3rem",      "px": "48px", "description": "H2 / page heading" },
+    "5xl":   { "value": "3.75rem",   "px": "60px", "description": "H1 / hero heading" },
+    "6xl":   { "value": "4.5rem",    "px": "72px", "description": "Display — wordmark large" }
+  },
+
+  "lineHeight": {
+    "tight":    { "value": "1.15", "description": "Display headings, wordmark" },
+    "snug":     { "value": "1.3",  "description": "Headings" },
+    "normal":   { "value": "1.5",  "description": "Body text" },
+    "relaxed":  { "value": "1.65", "description": "Long-form reading, descriptions" },
+    "loose":    { "value": "1.8",  "description": "Very spacious — rare" }
+  },
+
+  "letterSpacing": {
+    "wordmark":   { "value": "0.30em", "description": "KOINE wordmark — maximum tracking" },
+    "display":    { "value": "0.20em", "description": "Display headings" },
+    "heading":    { "value": "0.08em", "description": "Section headings" },
+    "overline":   { "value": "0.35em", "description": "Section labels, overlines (e.g. 'I · Primary Logo')" },
+    "label":      { "value": "0.15em", "description": "Badges, small labels" },
+    "body":       { "value": "normal", "description": "Body text — no tracking" },
+    "tight":      { "value": "-0.01em", "description": "Large body text slight tightening" }
+  },
+
+  "textStyle": {
+    "wordmark": {
+      "fontFamily": "{fontFamily.display}",
+      "fontWeight": "{fontWeight.light}",
+      "fontSize": "{fontSize.5xl}",
+      "letterSpacing": "{letterSpacing.wordmark}",
+      "lineHeight": "{lineHeight.tight}",
+      "textTransform": "uppercase"
+    },
+    "tagline": {
+      "fontFamily": "{fontFamily.accent}",
+      "fontWeight": "{fontWeight.regular}",
+      "fontStyle": "italic",
+      "fontSize": "{fontSize.sm}",
+      "letterSpacing": "{letterSpacing.heading}",
+      "lineHeight": "{lineHeight.normal}"
+    },
+    "h1": {
+      "fontFamily": "{fontFamily.display}",
+      "fontWeight": "{fontWeight.light}",
+      "fontSize": "{fontSize.5xl}",
+      "letterSpacing": "{letterSpacing.display}",
+      "lineHeight": "{lineHeight.tight}"
+    },
+    "h2": {
+      "fontFamily": "{fontFamily.display}",
+      "fontWeight": "{fontWeight.regular}",
+      "fontSize": "{fontSize.4xl}",
+      "letterSpacing": "{letterSpacing.display}",
+      "lineHeight": "{lineHeight.tight}"
+    },
+    "h3": {
+      "fontFamily": "{fontFamily.display}",
+      "fontWeight": "{fontWeight.regular}",
+      "fontSize": "{fontSize.3xl}",
+      "letterSpacing": "{letterSpacing.heading}",
+      "lineHeight": "{lineHeight.snug}"
+    },
+    "h4": {
+      "fontFamily": "{fontFamily.display}",
+      "fontWeight": "{fontWeight.medium}",
+      "fontSize": "{fontSize.2xl}",
+      "letterSpacing": "{letterSpacing.heading}",
+      "lineHeight": "{lineHeight.snug}"
+    },
+    "h5": {
+      "fontFamily": "{fontFamily.display}",
+      "fontWeight": "{fontWeight.medium}",
+      "fontSize": "{fontSize.xl}",
+      "letterSpacing": "{letterSpacing.heading}",
+      "lineHeight": "{lineHeight.snug}"
+    },
+    "h6": {
+      "fontFamily": "{fontFamily.display}",
+      "fontWeight": "{fontWeight.medium}",
+      "fontSize": "{fontSize.lg}",
+      "letterSpacing": "{letterSpacing.heading}",
+      "lineHeight": "{lineHeight.snug}"
+    },
+    "body": {
+      "fontFamily": "{fontFamily.body}",
+      "fontWeight": "{fontWeight.regular}",
+      "fontSize": "{fontSize.base}",
+      "letterSpacing": "{letterSpacing.body}",
+      "lineHeight": "{lineHeight.relaxed}"
+    },
+    "body-sm": {
+      "fontFamily": "{fontFamily.body}",
+      "fontWeight": "{fontWeight.regular}",
+      "fontSize": "{fontSize.sm}",
+      "lineHeight": "{lineHeight.relaxed}"
+    },
+    "overline": {
+      "fontFamily": "{fontFamily.display}",
+      "fontWeight": "{fontWeight.regular}",
+      "fontSize": "{fontSize.xs}",
+      "letterSpacing": "{letterSpacing.overline}",
+      "lineHeight": "{lineHeight.normal}",
+      "textTransform": "uppercase"
+    },
+    "caption": {
+      "fontFamily": "{fontFamily.body}",
+      "fontWeight": "{fontWeight.regular}",
+      "fontSize": "{fontSize.xs}",
+      "letterSpacing": "{letterSpacing.label}",
+      "lineHeight": "{lineHeight.normal}"
+    }
+  },
+
+  "googleFontsImport": "https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&family=DM+Sans:wght@300;400;500&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+}

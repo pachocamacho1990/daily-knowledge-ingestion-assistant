@@ -1,0 +1,75 @@
+{
+  "_meta": {
+    "name": "Koine Design System — Spacing & Layout Tokens",
+    "version": "1.0.0",
+    "description": "4px base unit system. Generous negative space reflecting sacred architecture — breathing room is liturgical."
+  },
+
+  "spacing": {
+    "0":   { "value": "0" },
+    "1":   { "value": "0.25rem", "px": "4px" },
+    "2":   { "value": "0.5rem",  "px": "8px" },
+    "3":   { "value": "0.75rem", "px": "12px" },
+    "4":   { "value": "1rem",    "px": "16px" },
+    "5":   { "value": "1.25rem", "px": "20px" },
+    "6":   { "value": "1.5rem",  "px": "24px" },
+    "8":   { "value": "2rem",    "px": "32px" },
+    "10":  { "value": "2.5rem",  "px": "40px" },
+    "12":  { "value": "3rem",    "px": "48px" },
+    "16":  { "value": "4rem",    "px": "64px" },
+    "20":  { "value": "5rem",    "px": "80px" },
+    "24":  { "value": "6rem",    "px": "96px" },
+    "32":  { "value": "8rem",    "px": "128px" }
+  },
+
+  "radius": {
+    "none":  { "value": "0" },
+    "sm":    { "value": "6px",  "description": "Badges, small tags" },
+    "md":    { "value": "10px", "description": "Buttons, inputs" },
+    "lg":    { "value": "14px", "description": "Cards, app icons" },
+    "xl":    { "value": "16px", "description": "Large cards, panels" },
+    "2xl":   { "value": "20px", "description": "Hero sections, modals" },
+    "full":  { "value": "9999px", "description": "Circular elements, pills" }
+  },
+
+  "shadow": {
+    "sm":      { "value": "0 1px 3px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.2)" },
+    "md":      { "value": "0 4px 12px rgba(0,0,0,0.4)" },
+    "lg":      { "value": "0 8px 24px rgba(0,0,0,0.5)" },
+    "glow-sm": { "value": "0 0 8px rgba(201,168,76,0.15)", "description": "Subtle gold glow" },
+    "glow-md": { "value": "0 0 16px rgba(201,168,76,0.2)", "description": "Medium gold glow — focus rings" },
+    "glow-lg": { "value": "0 0 32px rgba(201,168,76,0.12)", "description": "Large aura glow — hero elements" }
+  },
+
+  "layout": {
+    "maxWidth": {
+      "xs":      { "value": "20rem",  "px": "320px" },
+      "sm":      { "value": "24rem",  "px": "384px" },
+      "md":      { "value": "28rem",  "px": "448px" },
+      "lg":      { "value": "32rem",  "px": "512px" },
+      "xl":      { "value": "36rem",  "px": "576px" },
+      "2xl":     { "value": "42rem",  "px": "672px" },
+      "3xl":     { "value": "48rem",  "px": "768px" },
+      "content": { "value": "68.75rem", "px": "1100px", "description": "Main content max-width" },
+      "wide":    { "value": "80rem",  "px": "1280px" },
+      "full":    { "value": "100%"   }
+    },
+    "breakpoint": {
+      "sm":  { "value": "640px"  },
+      "md":  { "value": "768px"  },
+      "lg":  { "value": "1024px" },
+      "xl":  { "value": "1280px" },
+      "2xl": { "value": "1536px" }
+    }
+  },
+
+  "zIndex": {
+    "base":     { "value": "0" },
+    "elevated": { "value": "10" },
+    "dropdown": { "value": "100" },
+    "sticky":   { "value": "200" },
+    "overlay":  { "value": "300" },
+    "modal":    { "value": "400" },
+    "toast":    { "value": "500" }
+  }
+}

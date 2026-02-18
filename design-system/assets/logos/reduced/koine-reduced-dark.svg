@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 180" width="220" height="180">
+  <defs>
+    <linearGradient id="flame" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0%" stop-color="#c97a20"/>
+      <stop offset="40%" stop-color="#daa540"/>
+      <stop offset="100%" stop-color="#f0e0a0"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Dove -->
+  <g>
+    <ellipse cx="110" cy="48" rx="12" ry="16" fill="#e8d5a3" opacity="0.85"/>
+    <path d="M98,42 Q70,18 38,12 Q55,28 68,38 Q78,44 94,45Z" fill="#d4c18a" opacity="0.75"/>
+    <path d="M96,38 Q72,20 48,16 Q62,30 74,38Z" fill="#e8dbb0" opacity="0.5"/>
+    <path d="M122,42 Q150,18 182,12 Q165,28 152,38 Q142,44 126,45Z" fill="#d4c18a" opacity="0.75"/>
+    <path d="M124,38 Q148,20 172,16 Q158,30 146,38Z" fill="#e8dbb0" opacity="0.5"/>
+    <circle cx="110" cy="32" r="6.5" fill="#f0e4c0" opacity="0.9"/>
+    <path d="M105,62 L110,75 L115,62" fill="#d4c18a" opacity="0.5"/>
+  </g>
+
+  <!-- Seven Flames -->
+  <g>
+    <path d="M35,158 Q32,145 36,138 Q30,146 28,140 Q26,130 35,118 Q44,130 42,140 Q40,146 34,138 Q38,145 35,158Z" fill="url(#flame)" opacity="0.85"/>
+    <path d="M62,154 Q59,142 63,135 Q58,142 56,137 Q54,128 62,116 Q70,128 68,137 Q66,142 61,135 Q65,142 62,154Z" fill="url(#flame)" opacity="0.85"/>
+    <path d="M86,151 Q83,139 87,133 Q82,139 80,135 Q78,126 86,114 Q94,126 92,135 Q90,139 85,133 Q89,139 86,151Z" fill="url(#flame)" opacity="0.85"/>
+    <path d="M110,150 Q106,136 111,128 Q105,136 103,131 Q100,120 110,106 Q120,120 117,131 Q115,136 109,128 Q114,136 110,150Z" fill="url(#flame)" opacity="0.95"/>
+    <path d="M134,151 Q131,139 135,133 Q130,139 128,135 Q126,126 134,114 Q142,126 140,135 Q138,139 133,133 Q137,139 134,151Z" fill="url(#flame)" opacity="0.85"/>
+    <path d="M158,154 Q155,142 159,135 Q154,142 152,137 Q150,128 158,116 Q166,128 164,137 Q162,142 157,135 Q161,142 158,154Z" fill="url(#flame)" opacity="0.85"/>
+    <path d="M185,158 Q182,145 186,138 Q180,146 178,140 Q176,130 185,118 Q194,130 192,140 Q190,146 184,138 Q188,145 185,158Z" fill="url(#flame)" opacity="0.85"/>
+  </g>
+</svg>

@@ -1,0 +1,36 @@
+{
+  "_meta": { "name": "Koine — Light Theme", "description": "Parchment warmth. For documentation, print, light-mode preferences." },
+  "surface": {
+    "base": "#fdf9f0",
+    "primary": "#f4efe4",
+    "elevated": "#ffffff",
+    "overlay": "rgba(253,249,240,0.85)"
+  },
+  "text": {
+    "primary": "#2a2010",
+    "secondary": "#5a4a30",
+    "muted": "#8a7a5a",
+    "accent": "#8a5a10",
+    "inverse": "#f4efe4"
+  },
+  "border": {
+    "default": "#e0d4b8",
+    "subtle": "#e8dbb0",
+    "accent": "#8a5a10"
+  },
+  "icon": {
+    "dove-body": "#6b5020",
+    "dove-wing": "#8a6a30",
+    "dove-head": "#5a4015",
+    "flame": "linear-gradient(to top, #8a5a10, #c49830)",
+    "people": "#4a3a20",
+    "graph-edge": "rgba(90,64,21,0.15)"
+  },
+  "interactive": {
+    "default": "#8a5a10",
+    "hover": "#a06218",
+    "pressed": "#6b5020",
+    "focus-ring": "0 0 0 2px #fdf9f0, 0 0 0 4px rgba(138,90,16,0.4)",
+    "disabled": "#c4b68a"
+  }
+}

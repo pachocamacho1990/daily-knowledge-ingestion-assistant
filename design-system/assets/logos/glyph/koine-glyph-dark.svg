@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <!-- Body -->
+  <ellipse cx="32" cy="34" rx="9" ry="12" fill="#e8d5a3" opacity="0.85"/>
+  <!-- Left wing -->
+  <path d="M24,28 Q10,16 2,12 Q12,22 20,28Z" fill="#d4c18a" opacity="0.75"/>
+  <!-- Right wing -->
+  <path d="M40,28 Q54,16 62,12 Q52,22 44,28Z" fill="#d4c18a" opacity="0.75"/>
+  <!-- Head -->
+  <circle cx="32" cy="20" r="5.5" fill="#f0e4c0" opacity="0.9"/>
+</svg>
