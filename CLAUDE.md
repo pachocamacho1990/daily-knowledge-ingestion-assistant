@@ -1,7 +1,7 @@
 # CLAUDE.md - DKIA Project Instructions
 
 > Last updated: February 18, 2026
-> Version: Pre-release (design system integration)
+> Version: Pre-release (knowledge graph integration)
 
 ## What Is This Project
 
@@ -64,10 +64,14 @@ daily-knowledge-ingestion-assistant/
 ├── src/
 │   ├── main.py                    # FastAPI application (routes, static mounts)
 │   └── web/
-│       ├── static/css/app.css     # Application styles (imports global.css)
-│       └── templates/             # Jinja2 templates
-│           ├── base.html          # Shell: favicon, CSS, split-pane layout
-│           └── navigator.html     # Navigator + Visualization with inline SVG logos
+│       ├── static/
+│       │   ├── css/app.css        # Application styles (imports global.css)
+│       │   ├── css/graph.css      # Knowledge graph styles (sidebar, legend, tooltips)
+│       │   ├── js/graph.js        # Cytoscape logic + Koine palette + entity shapes
+│       │   └── data/graph_data.json # Extracted graph data (207KB, 40 communities)
+│       └── templates/
+│           ├── base.html          # Shell: favicon, CSS, split-pane, extra_css block
+│           └── navigator.html     # Navigator + Graph canvas + floating sidebar
 ├── scripts/
 │   ├── generate_viz.py
 │   └── templates/knowledge_graph.html
@@ -98,19 +102,22 @@ daily-knowledge-ingestion-assistant/
 
 ## Current State
 
-- **Phase**: Design system integration — transitioning from prototyping to production frontend
+- **Phase**: Knowledge graph integration complete — frontend fully functional
 - **What exists**:
   - 3 GraphRAG notebooks (extraction, graph+viz, retrieval) — pipeline validated
   - Koine Design System integrated (`design-system/`) with full CSS tokens, SVG logos, favicons
-  - Frontend scaffold: FastAPI + Jinja2 serving Navigator (chat) and Visualization (graph) panes
-  - GitHub Wiki (Phase 0 + 1), comprehensive docs, 3 UI mockups
-- **Frontend status**: Running locally via `uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload`
+  - Frontend: FastAPI + Jinja2 serving Navigator (chat) and Visualization (knowledge graph) panes
+  - Knowledge graph: 40 communities, 158 entities, 96 chunks rendered in Cytoscape.js
+  - 15-color Koine palette, entity shapes by type (diamond, hexagon, rounded-rect, etc.)
+  - Glassmorphism sidebar with legend, node info, chunk expansion, controls
+  - GitHub Wiki (Phase 0 + 1 + 2), comprehensive docs, 3 UI mockups
+- **Frontend status**: Running locally via `python3 -m venv .venv && source .venv/bin/activate && uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload`
   - Split-pane layout: Navigator (~40%) + Visualization (~60%)
   - Koine dark theme with gold/cream candlelight palette
-  - Inline SVG logos: minimal dove (navbar), reduced dove+flames (welcome hero), full logo (viz pane)
-  - Typography: Cormorant Garamond (display), DM Sans (body), Libre Baskerville (accents)
+  - Interactive knowledge graph with community expand/collapse, entity details, chunk tooltips
+  - Typography: Cormorant Garamond (display), DM Sans (body), JetBrains Mono (graph labels)
   - Animations: fade-in, fade-in-up, glow-pulse, staggered entrance
-- **Next step**: Connect Navigator chat to Ollama backend, integrate Cytoscape.js graph in Visualization pane
+- **Next step**: Connect Navigator chat to Ollama backend, refactor notebooks into `src/` modules
 - **Implementation plan**: 10 steps in `docs/architecture-plan.md`
 
 ## MVP Scope (Phase 1)
@@ -124,7 +131,7 @@ daily-knowledge-ingestion-assistant/
 
 ## Build / Test / Lint Commands
 
-- **Dev server**: `uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload`
+- **Dev server**: `python3 -m venv .venv && source .venv/bin/activate && pip install -e . && uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload`
 - **Build CSS**: `npx @tailwindcss/cli -i ./src/web/static/css/app.css -o ./src/web/static/css/output.css`
 - **Install Python deps**: `pip install -e .`
 - **Install Node deps**: `npm install`
@@ -159,6 +166,7 @@ Phase-1:-GraphRAG-Engine.md
   ├── Triple-Factor-Retrieval.md
   ├── Key-Learnings-and-Design-Decisions.md
   └── Algorithm-Reference.md
+Phase-2:-Design-System-and-Frontend-Scaffold.md
 ```
 
 ### Wiki Conventions
