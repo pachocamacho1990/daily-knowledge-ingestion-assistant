@@ -307,6 +307,7 @@ body {
 }
 
 .koine-suggestion-card span:last-child {
+    font-family: var(--koine-font-body);
     font-size: var(--koine-fs-sm);
     color: var(--koine-text-primary);
     display: block;
@@ -334,6 +335,8 @@ body {
 .koine-chat-input {
     width: 100%;
     background: rgba(13, 11, 8, 0.6);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
     border: 1px solid rgba(218, 165, 64, 0.1);
     border-radius: var(--koine-radius-md);
     padding: var(--koine-space-3) var(--koine-space-12) var(--koine-space-3) var(--koine-space-4);
@@ -395,6 +398,7 @@ body {
     font-family: var(--koine-font-mono);
     font-size: var(--koine-fs-2xs);
     letter-spacing: var(--koine-ls-label);
+    color: var(--koine-text-muted);
 }
 
 
