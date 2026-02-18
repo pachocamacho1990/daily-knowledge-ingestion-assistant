@@ -95,39 +95,58 @@
 </div>
 {% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="/static/css/graph.css">
+{% endblock %}
+
 
 {% block visualization %}
-<!-- Empty state with Full Logo -->
-<div class="koine-viz-empty">
-    <div class="koine-viz-empty-content">
-        <!-- Minimal Dove (viz empty state) -->
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 80" width="60">
-            <ellipse cx="60" cy="38" rx="12" ry="16" fill="#e8d5a3" opacity="0.85" />
-            <path d="M48,32 Q20,8 -2,2 Q15,18 28,28 Q38,34 44,35Z" fill="#d4c18a" opacity="0.75" />
-            <path d="M46,28 Q22,10 8,6 Q22,20 34,28Z" fill="#e8dbb0" opacity="0.5" />
-            <path d="M72,32 Q100,8 122,2 Q105,18 92,28 Q82,34 76,35Z" fill="#d4c18a" opacity="0.75" />
-            <path d="M74,28 Q98,10 112,6 Q98,20 86,28Z" fill="#e8dbb0" opacity="0.5" />
-            <circle cx="60" cy="22" r="6.5" fill="#f0e4c0" opacity="0.9" />
-            <path d="M55,52 L60,68 L65,52" fill="#d4c18a" opacity="0.5" />
-        </svg>
+<!-- Cytoscape Canvas -->
+<div id="cy"></div>
 
-        <p>knowledge graph renders here after ingestion and processing</p>
+<!-- Sidebar Toggle -->
+<button class="graph-sidebar-toggle" onclick="toggleGraphSidebar()" title="Toggle sidebar">▶</button>
+
+<!-- Graph Sidebar -->
+<div class="graph-sidebar">
+    <div class="graph-sidebar-header">
+        <h2>DKIA Knowledge Graph</h2>
+        <div class="graph-level-indicator" id="level-indicator">Loading…</div>
+    </div>
+
+    <div class="graph-sidebar-content">
+        <!-- Node Info -->
+        <div id="node-info">
+            <div class="placeholder">Click a community node to expand it<br>Click a community in the legend to focus it
+            </div>
+        </div>
+
+        <!-- Chunk Panel -->
+        <div id="chunk-panel"></div>
+
+        <!-- Legend -->
+        <div class="graph-legend-header">COMMUNITIES</div>
+        <div id="legend"></div>
+    </div>
+
+    <!-- Controls -->
+    <div class="graph-controls">
+        <button onclick="graphFit()">Fit</button>
+        <button onclick="graphCollapseAll()">Collapse All</button>
+        <button onclick="graphReset()">Reset</button>
+    </div>
+
+    <!-- Stats -->
+    <div class="graph-stats" id="graph-stats">
+        40 communities · 158 entities · 96 chunks
     </div>
 </div>
 
-<!-- Controls Overlay -->
-<div class="koine-viz-controls">
-    <button class="koine-icon-btn" title="Search Graph">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-        </svg>
-    </button>
-    <button class="koine-icon-btn" title="Graph Settings">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
-        </svg>
-    </button>
-</div>
+<!-- Chunk Tooltip (absolute positioned) -->
+<div class="chunk-tooltip" id="chunk-tooltip"></div>
+{% endblock %}
+
+
+{% block scripts %}
+<script src="/static/js/graph.js"></script>
 {% endblock %}
