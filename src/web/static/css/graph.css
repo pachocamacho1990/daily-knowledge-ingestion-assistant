@@ -1,0 +1,422 @@
+/* ═══════════════════════════════════════════════════════════════
+   graph.css — Koine Design System · Knowledge Graph Styles
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Cytoscape Canvas ──────────────────────────────────────── */
+#cy {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: var(--koine-surface-base);
+}
+
+/* ── Graph Sidebar ──────────────────────────────────────────── */
+.graph-sidebar {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 320px;
+  height: 100%;
+  background: rgba(10, 10, 14, 0.82);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-left: 1px solid var(--koine-border-subtle);
+  display: flex;
+  flex-direction: column;
+  z-index: 10;
+  overflow: hidden;
+  transition: transform var(--koine-transition-normal) var(--koine-ease-smooth);
+}
+
+.graph-sidebar.collapsed {
+  transform: translateX(100%);
+}
+
+.graph-sidebar-header {
+  padding: 16px 20px 12px;
+  border-bottom: 1px solid var(--koine-border-subtle);
+  flex-shrink: 0;
+}
+
+.graph-sidebar-header h2 {
+  font-family: var(--koine-font-display);
+  font-size: 1.15rem;
+  color: var(--koine-text-accent);
+  margin: 0 0 6px 0;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.graph-level-indicator {
+  font-family: var(--koine-font-mono);
+  font-size: 0.7rem;
+  color: var(--koine-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 3px 8px;
+  background: rgba(201, 168, 76, 0.08);
+  border-radius: var(--koine-radius-xs);
+  display: inline-block;
+}
+
+/* ── Sidebar Scrollable Content ────────────────────────────── */
+.graph-sidebar-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0;
+  scrollbar-width: thin;
+  scrollbar-color: var(--koine-gold-500) transparent;
+}
+
+.graph-sidebar-content::-webkit-scrollbar {
+  width: 4px;
+}
+
+.graph-sidebar-content::-webkit-scrollbar-thumb {
+  background: var(--koine-gold-500);
+  border-radius: 2px;
+}
+
+.graph-sidebar-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* ── Node Info Panel ────────────────────────────────────────── */
+#node-info {
+  padding: 16px 20px;
+  min-height: 80px;
+}
+
+#node-info .placeholder {
+  color: var(--koine-text-tertiary);
+  font-family: var(--koine-font-body);
+  font-size: 0.82rem;
+  line-height: 1.6;
+  text-align: center;
+  padding: 24px 0;
+}
+
+#node-info .name {
+  font-family: var(--koine-font-display);
+  font-size: 1.1rem;
+  color: var(--koine-text-accent);
+  margin-bottom: 8px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+#node-info .type-badge {
+  display: inline-block;
+  font-family: var(--koine-font-mono);
+  font-size: 0.65rem;
+  padding: 2px 8px;
+  border-radius: var(--koine-radius-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-right: 4px;
+  margin-bottom: 8px;
+  vertical-align: middle;
+}
+
+#node-info .metric {
+  font-family: var(--koine-font-body);
+  font-size: 0.78rem;
+  color: var(--koine-text-secondary);
+  margin-bottom: 3px;
+}
+
+#node-info .metric span {
+  color: var(--koine-text-accent);
+  font-family: var(--koine-font-mono);
+  font-size: 0.72rem;
+}
+
+#node-info .desc {
+  font-family: var(--koine-font-body);
+  font-size: 0.78rem;
+  color: var(--koine-text-secondary);
+  margin-top: 10px;
+  padding: 10px 12px;
+  background: rgba(201, 168, 76, 0.04);
+  border-left: 2px solid var(--koine-gold-500);
+  border-radius: 0 var(--koine-radius-xs) var(--koine-radius-xs) 0;
+  line-height: 1.55;
+}
+
+#node-info .chunk-hint {
+  font-family: var(--koine-font-mono);
+  font-size: 0.68rem;
+  color: var(--koine-info);
+  margin-top: 8px;
+  padding: 4px 8px;
+  background: rgba(90, 122, 154, 0.1);
+  border-radius: var(--koine-radius-xs);
+}
+
+/* ── Community Summary Box ──────────────────────────────────── */
+.comm-summary-box {
+  margin-top: 12px;
+  padding: 12px 14px;
+  background: rgba(201, 168, 76, 0.04);
+  border-left: 3px solid var(--koine-gold-400);
+  border-radius: 0 var(--koine-radius-sm) var(--koine-radius-sm) 0;
+}
+
+.comm-summary-box .comm-title {
+  font-family: var(--koine-font-display);
+  font-size: 0.88rem;
+  color: var(--koine-text-accent);
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.comm-summary-box .comm-text {
+  font-family: var(--koine-font-body);
+  font-size: 0.75rem;
+  color: var(--koine-text-secondary);
+  line-height: 1.55;
+  margin-bottom: 8px;
+}
+
+.comm-summary-box .comm-insights {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.comm-summary-box .comm-insights li {
+  font-family: var(--koine-font-body);
+  font-size: 0.72rem;
+  color: var(--koine-text-tertiary);
+  padding: 3px 0 3px 14px;
+  position: relative;
+  line-height: 1.45;
+}
+
+.comm-summary-box .comm-insights li::before {
+  content: '›';
+  position: absolute;
+  left: 0;
+  color: var(--koine-gold-400);
+  font-weight: bold;
+}
+
+/* ── Chunk Panel ───────────────────────────────────────────── */
+#chunk-panel {
+  padding: 0 20px;
+}
+
+.chunk-card {
+  margin-bottom: 8px;
+  background: rgba(90, 122, 154, 0.06);
+  border-left: 2px solid var(--koine-info);
+  border-radius: 0 var(--koine-radius-sm) var(--koine-radius-sm) 0;
+  overflow: hidden;
+}
+
+.chunk-card .chunk-header {
+  font-family: var(--koine-font-mono);
+  font-size: 0.68rem;
+  color: var(--koine-info);
+  padding: 8px 12px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: background var(--koine-transition-fast);
+}
+
+.chunk-card .chunk-header:hover {
+  background: rgba(90, 122, 154, 0.1);
+}
+
+.chunk-card .chunk-body {
+  font-family: var(--koine-font-body);
+  font-size: 0.72rem;
+  color: var(--koine-text-secondary);
+  padding: 0 12px 10px;
+  line-height: 1.5;
+  display: none;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.chunk-card .chunk-body.expanded {
+  display: block;
+}
+
+/* ── Legend ─────────────────────────────────────────────────── */
+.graph-legend-header {
+  font-family: var(--koine-font-mono);
+  font-size: 0.68rem;
+  color: var(--koine-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 12px 20px 6px;
+  border-top: 1px solid var(--koine-border-subtle);
+}
+
+#legend {
+  padding: 0 20px 12px;
+  max-height: 260px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--koine-gold-500) transparent;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  padding: 5px 8px;
+  border-radius: var(--koine-radius-xs);
+  cursor: pointer;
+  transition: background var(--koine-transition-fast);
+  gap: 8px;
+}
+
+.legend-item:hover {
+  background: rgba(201, 168, 76, 0.08);
+}
+
+.legend-item .legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.legend-item .legend-label {
+  font-family: var(--koine-font-body);
+  font-size: 0.72rem;
+  color: var(--koine-text-secondary);
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.legend-item .legend-count {
+  font-family: var(--koine-font-mono);
+  font-size: 0.62rem;
+  color: var(--koine-text-tertiary);
+  flex-shrink: 0;
+}
+
+/* ── Controls ──────────────────────────────────────────────── */
+.graph-controls {
+  padding: 12px 20px;
+  border-top: 1px solid var(--koine-border-subtle);
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.graph-controls button {
+  flex: 1;
+  padding: 6px 0;
+  border: 1px solid var(--koine-border-subtle);
+  border-radius: var(--koine-radius-sm);
+  background: rgba(201, 168, 76, 0.06);
+  color: var(--koine-text-secondary);
+  font-family: var(--koine-font-mono);
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition: all var(--koine-transition-fast);
+}
+
+.graph-controls button:hover {
+  background: rgba(201, 168, 76, 0.15);
+  color: var(--koine-text-accent);
+  border-color: var(--koine-gold-500);
+}
+
+/* ── Stats Bar ─────────────────────────────────────────────── */
+.graph-stats {
+  padding: 8px 20px;
+  border-top: 1px solid var(--koine-border-subtle);
+  font-family: var(--koine-font-mono);
+  font-size: 0.6rem;
+  color: var(--koine-text-tertiary);
+  letter-spacing: 0.04em;
+  flex-shrink: 0;
+}
+
+/* ── Chunk Tooltip ─────────────────────────────────────────── */
+.chunk-tooltip {
+  position: absolute;
+  background: rgba(10, 10, 14, 0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--koine-border-subtle);
+  border-radius: var(--koine-radius-sm);
+  padding: 10px 14px;
+  max-width: 320px;
+  font-family: var(--koine-font-body);
+  font-size: 0.72rem;
+  color: var(--koine-text-secondary);
+  line-height: 1.5;
+  pointer-events: none;
+  z-index: 50;
+  display: none;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+.chunk-tooltip .tooltip-title {
+  font-family: var(--koine-font-mono);
+  font-size: 0.65rem;
+  color: var(--koine-info);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 4px;
+}
+
+/* ── Sidebar Toggle ────────────────────────────────────────── */
+.graph-sidebar-toggle {
+  position: absolute;
+  top: 12px;
+  right: 332px;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--koine-radius-sm);
+  background: rgba(10, 10, 14, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--koine-border-subtle);
+  color: var(--koine-text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 11;
+  transition: all var(--koine-transition-fast);
+  font-size: 0.8rem;
+}
+
+.graph-sidebar-toggle:hover {
+  background: rgba(201, 168, 76, 0.15);
+  color: var(--koine-text-accent);
+  border-color: var(--koine-gold-500);
+}
+
+.graph-sidebar-toggle.sidebar-hidden {
+  right: 12px;
+}
+
+/* ── Ambient glow behind graph ─────────────────────────────── */
+.koine-visualization-pane .koine-viz-glow {
+  pointer-events: none;
+}
+
+/* ── Responsive ────────────────────────────────────────────── */
+@media (max-width: 1200px) {
+  .graph-sidebar {
+    width: 280px;
+  }
+  .graph-sidebar-toggle {
+    right: 292px;
+  }
+}

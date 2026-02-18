@@ -16,6 +16,7 @@ venv/
 
 # Data (runtime)
 data/
+!src/web/static/data/
 
 # IDE
 .vscode/
