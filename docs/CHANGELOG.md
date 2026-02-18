@@ -129,4 +129,17 @@
   - Added `tailwind.config.js` root config using design-system preset
   - Tailwind CSS v4 build working via `npx @tailwindcss/cli`
   - Running locally with `uvicorn --reload` (no Docker needed during active development)
-
+- **Feb 18, 2026**: Knowledge graph integration into Koine frontend:
+  - Extracted 6 data variables from prototype HTML into `src/web/static/data/graph_data.json` (207KB)
+    - 42 meta-elements, 40 communities, 96 chunk texts, 158 entity refs, 40 community summaries, 18 semantic groups
+  - Created `src/web/static/css/graph.css` -- sidebar, legend, node info, chunk panel, tooltip styles using Koine tokens
+  - Created `src/web/static/js/graph.js` -- full Cytoscape.js interaction logic:
+    - 15-color Koine warm palette replacing bright prototype colors (gold, amber, sage, plum, teal, mocha)
+    - Entity shapes by type: diamond (PERSON), hexagon (EVENT), rounded-rect (ORGANIZATION), etc.
+    - Community expand/collapse, entity detail panel, chunk expansion (Level 0/1/2)
+    - Interactive legend with click-to-focus, sidebar toggle, Fit/Collapse All/Reset controls
+  - Updated `base.html` with `{% block extra_css %}` for per-page stylesheets
+  - Updated `navigator.html`: replaced empty state with Cytoscape canvas + floating glassmorphism sidebar
+  - Updated `.gitignore` with negation `!src/web/static/data/` for graph data
+  - DS consistency audit: app.css (103 token refs), graph.css (77 token refs), 0 hardcoded colors
+  - Updated PR #3 description, wiki Phase 2 page (+100 lines), Home.md

@@ -36,14 +36,10 @@ DKIA uses the **Koine Design System** — a custom visual language built around 
 git clone https://github.com/pachocamacho1990/daily-knowledge-ingestion-assistant.git
 cd daily-knowledge-ingestion-assistant
 
-# Install Python dependencies
+# Create virtual environment and install Python dependencies
+python3 -m venv .venv
+source .venv/bin/activate
 pip install -e .
-
-# Install Node.js dependencies (Tailwind CSS)
-npm install
-
-# Build CSS
-npx @tailwindcss/cli -i ./src/web/static/css/app.css -o ./src/web/static/css/output.css
 
 # Start the development server
 uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload
@@ -56,8 +52,9 @@ Open [http://localhost:8000](http://localhost:8000) in your browser.
 ## Current State
 
 - **GraphRAG pipeline**: Validated in Jupyter notebooks (entity extraction, graph construction, community detection, triple-factor retrieval)
-- **Frontend**: Navigator and Visualization panes with Koine Design System integration (empty states — not yet connected to backend)
-- **Next steps**: Connect Navigator to Ollama, integrate Cytoscape.js graph visualization
+- **Frontend**: Navigator chat pane + interactive knowledge graph (40 communities, 158 entities, 96 chunks) with Koine Design System theming
+- **Knowledge graph**: 15-color warm palette, entity shapes by type, community expand/collapse, glassmorphism sidebar
+- **Next steps**: Connect Navigator to Ollama, refactor notebooks into Python modules
 
 ---
 
