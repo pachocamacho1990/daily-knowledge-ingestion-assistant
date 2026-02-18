@@ -46,12 +46,14 @@
 ```
 daily-knowledge-ingestion-assistant/
 ├── CLAUDE.md
+├── design-system/                 # Koine Design System (Tokens, CSS, Assets)
 ├── docs/
 │   ├── architecture-plan.md           # Full architecture, schema, 10-step implementation
 │   ├── market-research.md             # Competitive landscape + problem statement
 │   ├── graphrag-algorithm-paper.md    # Algorithm reference (equations, complexity, benchmarks)
 │   ├── dev-setup.md                   # Development environment setup (Ollama, venv, Jupyter)
 │   ├── CHANGELOG.md                   # Detailed project changelog
+│   ├── design-system.md               # Integration guide for Koine Design System
 │   └── design-concepts/              # 3 HTML mockups (Observatory, Morning Edition, Briefing Room)
 ├── scripts/
 │   ├── generate_viz.py                # Standalone visualization generator

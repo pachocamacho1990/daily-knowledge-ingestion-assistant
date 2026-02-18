@@ -1,0 +1,36 @@
+{
+  "_meta": { "name": "Koine — Liturgical Red Theme", "description": "Pentecost red. For special states, onboarding, celebrations." },
+  "surface": {
+    "base": "#5a0e0e",
+    "primary": "#6a1010",
+    "elevated": "#8b1a1a",
+    "overlay": "rgba(90,14,14,0.85)"
+  },
+  "text": {
+    "primary": "#f4e8c8",
+    "secondary": "#d4b890",
+    "muted": "#a08060",
+    "accent": "#ffe8a0",
+    "inverse": "#2a0808"
+  },
+  "border": {
+    "default": "#7a1515",
+    "subtle": "#6a1010",
+    "accent": "#f0d060"
+  },
+  "icon": {
+    "dove-body": "#ffe8c0",
+    "dove-wing": "#f0d8a0",
+    "dove-head": "#fff0d0",
+    "flame": "linear-gradient(to top, #f0a030, #ffe8a0)",
+    "people": "#2a0808",
+    "graph-edge": "rgba(240,208,96,0.2)"
+  },
+  "interactive": {
+    "default": "#f0d060",
+    "hover": "#ffe8a0",
+    "pressed": "#c9a84c",
+    "focus-ring": "0 0 0 2px #5a0e0e, 0 0 0 4px rgba(240,208,96,0.5)",
+    "disabled": "#7a4040"
+  }
+}

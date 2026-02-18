@@ -1,0 +1,36 @@
+{
+  "_meta": { "name": "Koine — Dark Theme", "description": "Default theme. Gold on dark, like candlelight in a cathedral." },
+  "surface": {
+    "base": "#08080e",
+    "primary": "#0d0b08",
+    "elevated": "#151210",
+    "overlay": "rgba(8,8,14,0.85)"
+  },
+  "text": {
+    "primary": "#c4b68a",
+    "secondary": "#a09070",
+    "muted": "#6b5f3f",
+    "accent": "#c9a84c",
+    "inverse": "#2a2010"
+  },
+  "border": {
+    "default": "#1a1810",
+    "subtle": "#1a1608",
+    "accent": "#c9a84c"
+  },
+  "icon": {
+    "dove-body": "#e8d5a3",
+    "dove-wing": "#d4c18a",
+    "dove-head": "#f0e4c0",
+    "flame": "linear-gradient(to top, #c97a20, #daa540 40%, #f0e0a0)",
+    "people": "#3a2a15",
+    "graph-edge": "rgba(201,168,76,0.12)"
+  },
+  "interactive": {
+    "default": "#daa540",
+    "hover": "#c9a84c",
+    "pressed": "#a06218",
+    "focus-ring": "0 0 0 2px #08080e, 0 0 0 4px rgba(201,168,76,0.5)",
+    "disabled": "#4a4030"
+  }
+}

@@ -1,0 +1,76 @@
+{
+  "_meta": {
+    "name": "Koine Design System — Motion Tokens",
+    "version": "1.0.0",
+    "description": "Motion language inspired by candlelight and sacred spaces — warm, gentle, deliberate. Never sharp or mechanical."
+  },
+
+  "duration": {
+    "instant":   { "value": "100ms",  "description": "Micro-interactions: toggles, checkboxes" },
+    "fast":      { "value": "150ms",  "description": "Hover states, small transitions" },
+    "normal":    { "value": "250ms",  "description": "Standard transitions: buttons, cards" },
+    "slow":      { "value": "400ms",  "description": "Panel reveals, content transitions" },
+    "gentle":    { "value": "600ms",  "description": "Page entrances, hero fades" },
+    "meditative":{ "value": "1000ms", "description": "Background glow pulses, ambient" },
+    "breath":    { "value": "2000ms", "description": "Breathing glow — continuous ambient loop" }
+  },
+
+  "easing": {
+    "default":    { "value": "cubic-bezier(0.4, 0, 0.2, 1)", "description": "Standard ease — material-inspired" },
+    "in":         { "value": "cubic-bezier(0.4, 0, 1, 1)",   "description": "Accelerating — elements leaving" },
+    "out":        { "value": "cubic-bezier(0, 0, 0.2, 1)",   "description": "Decelerating — elements arriving" },
+    "gentle":     { "value": "cubic-bezier(0.25, 0.1, 0.25, 1)", "description": "Soft ease — candlelight warmth" },
+    "flame":      { "value": "cubic-bezier(0.45, 0.05, 0.55, 0.95)", "description": "Flame flicker — slight organic wobble" }
+  },
+
+  "animation": {
+    "fade-in": {
+      "keyframes": "from { opacity: 0 } to { opacity: 1 }",
+      "duration": "{duration.gentle}",
+      "easing": "{easing.gentle}",
+      "description": "Warm fade entrance — like eyes adjusting to candlelight"
+    },
+    "fade-in-up": {
+      "keyframes": "from { opacity: 0; transform: translateY(12px) } to { opacity: 1; transform: translateY(0) }",
+      "duration": "{duration.gentle}",
+      "easing": "{easing.out}",
+      "description": "Content rising gently into view — ascending flames"
+    },
+    "glow-pulse": {
+      "keyframes": "0%,100% { opacity: 0.6 } 50% { opacity: 1 }",
+      "duration": "{duration.breath}",
+      "easing": "{easing.gentle}",
+      "iteration": "infinite",
+      "description": "Continuous soft glow — living flame, active knowledge node"
+    },
+    "flame-flicker": {
+      "keyframes": "0%,100% { opacity: 0.8; transform: scaleY(1) } 25% { opacity: 0.9; transform: scaleY(1.03) } 50% { opacity: 1; transform: scaleY(0.97) } 75% { opacity: 0.85; transform: scaleY(1.01) }",
+      "duration": "3000ms",
+      "easing": "{easing.flame}",
+      "iteration": "infinite",
+      "description": "Subtle flame movement — active/processing states"
+    },
+    "scale-in": {
+      "keyframes": "from { opacity: 0; transform: scale(0.95) } to { opacity: 1; transform: scale(1) }",
+      "duration": "{duration.slow}",
+      "easing": "{easing.out}",
+      "description": "Modal/panel entrance"
+    },
+    "graph-connect": {
+      "keyframes": "from { stroke-dashoffset: 100; opacity: 0 } to { stroke-dashoffset: 0; opacity: 1 }",
+      "duration": "{duration.slow}",
+      "easing": "{easing.gentle}",
+      "description": "Knowledge graph edge drawing in — connection forming"
+    }
+  },
+
+  "transition": {
+    "color":      { "value": "color {duration.fast} {easing.default}" },
+    "background": { "value": "background-color {duration.normal} {easing.default}" },
+    "border":     { "value": "border-color {duration.normal} {easing.default}" },
+    "shadow":     { "value": "box-shadow {duration.normal} {easing.gentle}" },
+    "transform":  { "value": "transform {duration.normal} {easing.out}" },
+    "opacity":    { "value": "opacity {duration.normal} {easing.gentle}" },
+    "all":        { "value": "all {duration.normal} {easing.default}" }
+  }
+}
