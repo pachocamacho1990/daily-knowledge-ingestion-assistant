@@ -197,12 +197,11 @@ body {
 }
 
 .koine-welcome-text p {
-    font-family: var(--koine-font-accent);
-    font-style: italic;
+    font-family: var(--koine-font-mono);
     color: var(--koine-text-muted);
-    font-size: var(--koine-fs-sm);
+    font-size: var(--koine-fs-xs);
     line-height: var(--koine-lh-relaxed);
-    letter-spacing: var(--koine-ls-heading);
+    letter-spacing: var(--koine-ls-label);
 }
 
 /* System status indicator */
@@ -434,9 +433,9 @@ body {
     font-size: var(--koine-fs-xl);
     font-weight: var(--koine-fw-light);
     letter-spacing: var(--koine-ls-heading);
-    color: var(--koine-gold-600);
+    color: var(--koine-text-accent);
     margin-bottom: var(--koine-space-2);
-    text-shadow: 0 0 20px rgba(218, 165, 64, 0.15);
+    text-shadow: 0 0 30px rgba(218, 165, 64, 0.15);
 }
 
 .koine-viz-empty-content p {
@@ -444,6 +443,7 @@ body {
     font-size: var(--koine-fs-xs);
     color: var(--koine-text-muted);
     max-width: 300px;
+    line-height: var(--koine-lh-relaxed);
     letter-spacing: var(--koine-ls-label);
 }
 
