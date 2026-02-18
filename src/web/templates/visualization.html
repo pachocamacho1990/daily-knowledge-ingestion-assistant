@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block navigator %}
+<!-- Re-use navigator block or leave empty if visualization page is distinct. 
+         For the split pane architecture, the base.html defines both slots.
+         If we land on /visualization, maybe we only show visualization or different state?
+         For now, to follow the design, we probably serve the same 'app shell' but maybe with different mobile behavior?
+         Let's stick to the base.html layout where both exist. 
+         Actually, the route / refers to "navigator.html" which extends base. 
+         So "navigator.html" IS the main app shell.
+         "visualization.html" might just be a variant or partial? 
+         Let's just keep visualization.html simple for now. -->
+<div class="p-6">
+    <h1 class="text-koine-text-primary">Visualization Mode</h1>
+</div>
+{% endblock %}
+
+{% block visualization %}
+<div id="cy" class="w-full h-full"></div>
+<script>
+    // Placeholder Cytoscape initialization
+    document.addEventListener('DOMContentLoaded', function () {
+        var cy = cytoscape({
+            container: document.getElementById('cy'),
+            elements: [
+                { data: { id: 'a', label: 'Knowledge' } },
+                { data: { id: 'b', label: 'Wisdom' } },
+                { data: { source: 'a', target: 'b' } }
+            ],
+            style: [
+                {
+                    selector: 'node',
+                    style: {
+                        'background-color': '#c9a84c', // koine-gold-400
+                        'label': 'data(label)',
+                        'color': '#f0e4c0', // koine-gold-100
+                        'font-family': 'Cormorant Garamond',
+                        'font-size': '12px'
+                    }
+                },
+                {
+                    selector: 'edge',
+                    style: {
+                        'width': 1,
+                        'line-color': '#3e3e42', // koine-border-subtle
+                        'target-arrow-color': '#3e3e42',
+                        'target-arrow-shape': 'triangle',
+                        'curve-style': 'bezier'
+                    }
+                }
+            ],
+            layout: {
+                name: 'grid',
+                rows: 1
+            }
+        });
+    });
+</script>
+{% endblock %}

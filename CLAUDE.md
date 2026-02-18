@@ -1,7 +1,7 @@
 # CLAUDE.md - DKIA Project Instructions
 
-> Last updated: February 17, 2026
-> Version: Pre-release (prototyping phase)
+> Last updated: February 18, 2026
+> Version: Pre-release (design system integration)
 
 ## What Is This Project
 
@@ -30,7 +30,8 @@
 |---|---|
 | Language | Python 3.12+ (dev uses 3.14) |
 | Web framework | FastAPI + Uvicorn |
-| Frontend | Jinja2 + HTMX + Tailwind CSS (CDN) + Cytoscape.js |
+| Frontend | Jinja2 + Koine Design System + Cytoscape.js |
+| Design System | Koine (custom): CSS tokens, SVG logos, Tailwind 4 preset |
 | Database | SQLite + sqlite-vec |
 | Graph | NetworkX + igraph + leidenalg |
 | LLM runtime | Ollama (host-native) |
@@ -47,23 +48,33 @@
 daily-knowledge-ingestion-assistant/
 ├── CLAUDE.md
 ├── design-system/                 # Koine Design System (Tokens, CSS, Assets)
+│   ├── assets/logos/              # SVG logos: full, reduced, minimal, glyph (dark/light)
+│   ├── assets/favicons/           # Favicon set (ico, png 16-512, apple-touch)
+│   ├── styles/global.css          # CSS custom properties, themes, animations, typography
+│   ├── docs/components.md         # Component guidelines (buttons, cards, inputs, nav)
+│   └── tailwind.config.js         # Tailwind 4 preset with Koine tokens
 ├── docs/
-│   ├── architecture-plan.md           # Full architecture, schema, 10-step implementation
-│   ├── market-research.md             # Competitive landscape + problem statement
-│   ├── graphrag-algorithm-paper.md    # Algorithm reference (equations, complexity, benchmarks)
-│   ├── dev-setup.md                   # Development environment setup (Ollama, venv, Jupyter)
-│   ├── CHANGELOG.md                   # Detailed project changelog
-│   ├── design-system.md               # Integration guide for Koine Design System
-│   └── design-concepts/              # 3 HTML mockups (Observatory, Morning Edition, Briefing Room)
+│   ├── architecture-plan.md
+│   ├── market-research.md
+│   ├── graphrag-algorithm-paper.md
+│   ├── dev-setup.md
+│   ├── CHANGELOG.md
+│   ├── design-system.md           # Integration guide for Koine Design System
+│   └── design-concepts/           # 3 HTML mockups (Observatory, Morning Edition, Briefing Room)
+├── src/
+│   ├── main.py                    # FastAPI application (routes, static mounts)
+│   └── web/
+│       ├── static/css/app.css     # Application styles (imports global.css)
+│       └── templates/             # Jinja2 templates
+│           ├── base.html          # Shell: favicon, CSS, split-pane layout
+│           └── navigator.html     # Navigator + Visualization with inline SVG logos
 ├── scripts/
-│   ├── generate_viz.py                # Standalone visualization generator
-│   └── templates/
-│       └── knowledge_graph.html       # Cytoscape.js HTML template
-├── notebooks/                         # GraphRAG prototyping notebooks
-│   ├── 01_graphrag_extraction.ipynb   # Sources -> chunks -> entities/relations/claims -> merge -> semantic grouping
-│   ├── 02_graph_construction_communities.ipynb  # Graph -> PageRank -> communities -> summaries -> SQLite
-│   └── 03_embeddings_vector_search.ipynb        # Embeddings -> sqlite-vec -> triple-factor retrieval
-└── (src/, tests/, Dockerfile — not yet created)
+│   ├── generate_viz.py
+│   └── templates/knowledge_graph.html
+├── notebooks/                     # GraphRAG prototyping notebooks (01, 02, 03)
+├── tailwind.config.js             # Root Tailwind config (uses design-system preset)
+├── pyproject.toml                 # Python dependencies
+└── package.json                   # Node.js dev dependencies (tailwindcss)
 ```
 
 ## Key Documents
@@ -87,22 +98,19 @@ daily-knowledge-ingestion-assistant/
 
 ## Current State
 
-- **Phase**: Prototyping — full GraphRAG pipeline validated in notebooks
-- **What exists**: 3 notebooks (extraction, graph+viz, retrieval), docs, 3 UI mockups, GitHub Wiki (Phase 0 + 1)
-- **What doesn't exist yet**: Production code (src/), Dockerfile, pyproject.toml, FastAPI server
-- **Visualization**: Complete. Extracted from notebook 02 into standalone scripts:
-  - `scripts/generate_viz.py` — Cytoscape.js multi-level drill-down (primary)
-  - `scripts/generate_viz_plotly.py` — Plotly fallback (`--view entity` or `--view community`)
-  - Run: `python scripts/generate_viz.py` or `python scripts/generate_viz_plotly.py`
-  - All nodes circular (ellipse shape at every level)
-  - Concentric layouts: Level 0 communities by size, Level 1 entities by PageRank
-  - Expand/collapse: expanded community centers, collapsed nodes form ring outside
-- **Cytoscape.js lessons learned** (all resolved):
-  - `#cy` container must use `position: absolute` (not flex) for canvas sizing
-  - Entity IDs sanitized: `.#[]():"',\` replaced with `_` (breaks CSS selectors)
-  - Compound node layout: use `descendants()` not `children()`, avoid `cose` on compounds
-  - Manual positioning (`arrangeInCircle`) for top-level relayout — built-in layouts don't account for compound node size
-- **Next step**: Convert notebook prototypes to production Python modules, then Docker packaging
+- **Phase**: Design system integration — transitioning from prototyping to production frontend
+- **What exists**:
+  - 3 GraphRAG notebooks (extraction, graph+viz, retrieval) — pipeline validated
+  - Koine Design System integrated (`design-system/`) with full CSS tokens, SVG logos, favicons
+  - Frontend scaffold: FastAPI + Jinja2 serving Navigator (chat) and Visualization (graph) panes
+  - GitHub Wiki (Phase 0 + 1), comprehensive docs, 3 UI mockups
+- **Frontend status**: Running locally via `uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload`
+  - Split-pane layout: Navigator (~40%) + Visualization (~60%)
+  - Koine dark theme with gold/cream candlelight palette
+  - Inline SVG logos: minimal dove (navbar), reduced dove+flames (welcome hero), full logo (viz pane)
+  - Typography: Cormorant Garamond (display), DM Sans (body), Libre Baskerville (accents)
+  - Animations: fade-in, fade-in-up, glow-pulse, staggered entrance
+- **Next step**: Connect Navigator chat to Ollama backend, integrate Cytoscape.js graph in Visualization pane
 - **Implementation plan**: 10 steps in `docs/architecture-plan.md`
 
 ## MVP Scope (Phase 1)
@@ -116,10 +124,10 @@ daily-knowledge-ingestion-assistant/
 
 ## Build / Test / Lint Commands
 
-*(Will be populated when production code exists)*
-
-- Build: `docker-compose build`
-- Run: `docker-compose up`
+- **Dev server**: `uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload`
+- **Build CSS**: `npx @tailwindcss/cli -i ./src/web/static/css/app.css -o ./src/web/static/css/output.css`
+- **Install Python deps**: `pip install -e .`
+- **Install Node deps**: `npm install`
 - Lint: `ruff check src/`
 - Test: `pytest tests/`
 - Single test: `pytest tests/path/to/test.py::test_function`
