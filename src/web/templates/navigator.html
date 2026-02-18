@@ -14,7 +14,7 @@
             <circle cx="60" cy="22" r="6.5" fill="#f0e4c0" opacity="0.9" />
             <path d="M55,52 L60,68 L65,52" fill="#d4c18a" opacity="0.5" />
         </svg>
-        <span class="koine-wordmark" style="font-size: var(--koine-fs-lg);">Navigator</span>
+        <span class="koine-wordmark">Navigator</span>
     </div>
 
     <div class="koine-nav-controls">
@@ -35,6 +35,11 @@
 <!-- Chat Area -->
 <div class="koine-chat-area">
     <div class="koine-welcome">
+
+        <!-- System status -->
+        <div class="koine-system-status">
+            <span class="koine-status-dot"></span> System Online · Local Processing
+        </div>
 
         <!-- Reduced Logo: Dove + 7 Flames (welcome hero) -->
         <svg class="koine-welcome-logo koine-animate-glow" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 180"
@@ -105,7 +110,7 @@
 <!-- Input Area -->
 <div class="koine-input-area">
     <div class="koine-input-wrapper">
-        <textarea rows="1" placeholder="Ask a question..." class="koine-chat-input"></textarea>
+        <textarea rows="1" placeholder="ask a question..." class="koine-chat-input"></textarea>
         <button class="koine-send-btn" title="Send">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7" />
@@ -113,8 +118,7 @@
         </button>
     </div>
     <div class="koine-input-footer">
-        <span class="koine-overline" style="font-size: var(--koine-fs-2xs); opacity: 0.5;">Confidential · Local
-            Processing</span>
+        <small>confidential · local inference · no external apis</small>
     </div>
 </div>
 {% endblock %}
@@ -216,7 +220,7 @@
         </svg>
 
         <h3>Visualization Platform</h3>
-        <p>Your knowledge graph will appear here once content is ingested and processed.</p>
+        <p>knowledge graph renders here after ingestion and processing</p>
     </div>
 </div>
 
