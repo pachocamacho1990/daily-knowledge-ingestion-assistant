@@ -1,7 +1,26 @@
 /* Koine Design System — Application Styles */
+/* "Futuristic Pentecost" — Liturgical Cyberpunk Edition */
 
 /* Import the full design system (tokens, themes, reset, typography, animations) */
 @import '../../../../design-system/styles/global.css';
+
+/* ═══════════════════════════════════════════
+   BACKGROUND DATA GRID
+   ═══════════════════════════════════════════ */
+
+.koine-background-grid {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background-image:
+        linear-gradient(var(--koine-grid-color) 1px, transparent 1px),
+        linear-gradient(90deg, var(--koine-grid-color) 1px, transparent 1px);
+    background-size: 40px 40px;
+    -webkit-mask-image: radial-gradient(ellipse at 50% 50%, black 20%, transparent 75%);
+    mask-image: radial-gradient(ellipse at 50% 50%, black 20%, transparent 75%);
+}
+
 
 /* ═══════════════════════════════════════════
    APPLICATION LAYOUT
@@ -18,6 +37,7 @@ body {
     display: flex;
     width: 100%;
     height: 100vh;
+    position: relative;
 }
 
 .koine-navigator-pane {
@@ -26,7 +46,9 @@ body {
     display: flex;
     flex-direction: column;
     background: var(--koine-surface-primary);
-    border-right: 1px solid var(--koine-border-subtle);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-right: 1px solid rgba(218, 165, 64, 0.08);
     position: relative;
     z-index: var(--koine-z-elevated);
 }
@@ -48,14 +70,15 @@ body {
 
 .koine-nav-header {
     height: 64px;
-    border-bottom: 1px solid var(--koine-border-subtle);
+    border-bottom: 1px solid rgba(218, 165, 64, 0.08);
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 0 var(--koine-space-6);
     flex-shrink: 0;
-    backdrop-filter: blur(12px);
-    background: rgba(13, 11, 8, 0.8);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    background: rgba(8, 8, 14, 0.6);
 }
 
 .koine-nav-brand {
@@ -67,6 +90,16 @@ body {
 .koine-nav-brand svg {
     width: 36px;
     height: auto;
+    filter: drop-shadow(0 0 6px rgba(218, 165, 64, 0.3));
+}
+
+.koine-nav-brand .koine-wordmark {
+    font-family: var(--koine-font-mono);
+    font-weight: var(--koine-fw-light);
+    font-size: var(--koine-fs-sm);
+    letter-spacing: var(--koine-ls-wordmark);
+    text-transform: uppercase;
+    color: var(--koine-text-accent);
 }
 
 .koine-nav-controls {
@@ -78,8 +111,8 @@ body {
 .koine-icon-btn {
     width: 36px;
     height: 36px;
-    border-radius: var(--koine-radius-full);
-    border: none;
+    border-radius: var(--koine-radius-md);
+    border: 1px solid transparent;
     background: transparent;
     color: var(--koine-text-secondary);
     cursor: pointer;
@@ -91,7 +124,9 @@ body {
 
 .koine-icon-btn:hover {
     color: var(--koine-text-accent);
-    background: var(--koine-surface-elevated);
+    background: rgba(218, 165, 64, 0.08);
+    border-color: rgba(218, 165, 64, 0.15);
+    box-shadow: 0 0 8px rgba(218, 165, 64, 0.1);
 }
 
 .koine-icon-btn svg {
@@ -113,7 +148,7 @@ body {
 }
 
 .koine-chat-area::-webkit-scrollbar {
-    width: 6px;
+    width: 4px;
 }
 
 .koine-chat-area::-webkit-scrollbar-track {
@@ -121,7 +156,7 @@ body {
 }
 
 .koine-chat-area::-webkit-scrollbar-thumb {
-    background: var(--koine-border-default);
+    background: rgba(218, 165, 64, 0.15);
     border-radius: var(--koine-radius-full);
 }
 
@@ -140,11 +175,12 @@ body {
     width: 140px;
     height: auto;
     opacity: 0;
+    filter: drop-shadow(0 0 20px rgba(218, 165, 64, 0.25));
     animation: koine-fade-in var(--koine-dur-gentle) var(--koine-ease-gentle) both;
 }
 
 .koine-welcome-text {
-    max-width: 320px;
+    max-width: 340px;
     opacity: 0;
     animation: koine-fade-in-up var(--koine-dur-gentle) var(--koine-ease-out) both;
     animation-delay: 200ms;
@@ -156,7 +192,8 @@ body {
     font-weight: var(--koine-fw-light);
     letter-spacing: var(--koine-ls-display);
     color: var(--koine-text-accent);
-    margin-bottom: var(--koine-space-3);
+    margin-bottom: var(--koine-space-2);
+    text-shadow: 0 0 30px rgba(218, 165, 64, 0.15);
 }
 
 .koine-welcome-text p {
@@ -168,13 +205,37 @@ body {
     letter-spacing: var(--koine-ls-heading);
 }
 
-/* Suggestion cards */
+/* System status indicator */
+.koine-system-status {
+    font-family: var(--koine-font-mono);
+    font-size: var(--koine-fs-2xs);
+    letter-spacing: var(--koine-ls-overline);
+    text-transform: uppercase;
+    color: var(--koine-text-muted);
+    opacity: 0;
+    animation: koine-fade-in var(--koine-dur-gentle) var(--koine-ease-gentle) both;
+    animation-delay: 100ms;
+}
+
+.koine-system-status .koine-status-dot {
+    display: inline-block;
+    width: 5px;
+    height: 5px;
+    border-radius: var(--koine-radius-full);
+    background: var(--koine-success);
+    box-shadow: 0 0 6px var(--koine-success);
+    margin-right: var(--koine-space-2);
+    vertical-align: middle;
+    animation: koine-glow-pulse var(--koine-dur-breath) var(--koine-ease-gentle) infinite;
+}
+
+/* Suggestion cards — glassmorphism */
 .koine-suggestions {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: var(--koine-space-3);
     width: 100%;
-    max-width: 400px;
+    max-width: 420px;
     opacity: 0;
     animation: koine-fade-in-up var(--koine-dur-gentle) var(--koine-ease-out) both;
     animation-delay: 400ms;
@@ -182,26 +243,62 @@ body {
 
 .koine-suggestion-card {
     padding: var(--koine-space-4);
-    border-radius: var(--koine-radius-lg);
-    border: 1px solid var(--koine-border-subtle);
-    background: rgba(26, 24, 16, 0.3);
+    border-radius: var(--koine-radius-md);
+    border: 1px solid rgba(218, 165, 64, 0.1);
+    background: rgba(18, 16, 12, 0.5);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     cursor: pointer;
     text-align: left;
     transition: all var(--koine-dur-fast) var(--koine-ease-default);
+    position: relative;
+    overflow: hidden;
+}
+
+/* HUD corner markers */
+.koine-suggestion-card::before,
+.koine-suggestion-card::after {
+    content: '';
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    border-color: rgba(218, 165, 64, 0.25);
+    border-style: solid;
+    transition: border-color var(--koine-dur-fast) var(--koine-ease-default);
+}
+
+.koine-suggestion-card::before {
+    top: 4px;
+    left: 4px;
+    border-width: 1px 0 0 1px;
+}
+
+.koine-suggestion-card::after {
+    bottom: 4px;
+    right: 4px;
+    border-width: 0 1px 1px 0;
 }
 
 .koine-suggestion-card:hover {
-    background: var(--koine-surface-elevated);
-    border-color: rgba(201, 168, 76, 0.3);
-    box-shadow: var(--koine-glow-sm);
+    background: rgba(30, 25, 20, 0.6);
+    border-color: rgba(218, 165, 64, 0.25);
+    box-shadow: var(--koine-glow-neon);
+    transform: translateY(-1px);
+}
+
+.koine-suggestion-card:hover::before,
+.koine-suggestion-card:hover::after {
+    border-color: rgba(218, 165, 64, 0.5);
 }
 
 .koine-suggestion-card .koine-overline {
+    font-family: var(--koine-font-mono);
     font-size: var(--koine-fs-2xs);
+    letter-spacing: var(--koine-ls-overline);
     margin-bottom: var(--koine-space-1);
     display: block;
     color: var(--koine-text-accent);
-    opacity: 0.7;
+    opacity: 0.6;
     transition: opacity var(--koine-dur-fast) var(--koine-ease-default);
 }
 
@@ -222,9 +319,10 @@ body {
 
 .koine-input-area {
     padding: var(--koine-space-4);
-    border-top: 1px solid var(--koine-border-subtle);
-    background: rgba(13, 11, 8, 0.95);
-    backdrop-filter: blur(8px);
+    border-top: 1px solid rgba(218, 165, 64, 0.08);
+    background: rgba(8, 8, 14, 0.7);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
 }
 
 .koine-input-wrapper {
@@ -235,9 +333,9 @@ body {
 
 .koine-chat-input {
     width: 100%;
-    background: var(--koine-surface-base);
-    border: 1px solid var(--koine-border-default);
-    border-radius: var(--koine-radius-lg);
+    background: rgba(13, 11, 8, 0.6);
+    border: 1px solid rgba(218, 165, 64, 0.1);
+    border-radius: var(--koine-radius-md);
     padding: var(--koine-space-3) var(--koine-space-12) var(--koine-space-3) var(--koine-space-4);
     font-family: var(--koine-font-body);
     font-size: var(--koine-fs-base);
@@ -249,11 +347,14 @@ body {
 
 .koine-chat-input::placeholder {
     color: var(--koine-text-muted);
+    font-family: var(--koine-font-mono);
+    font-size: var(--koine-fs-sm);
 }
 
 .koine-chat-input:focus {
-    border-color: var(--koine-border-accent);
-    box-shadow: var(--koine-focus-ring);
+    border-color: rgba(218, 165, 64, 0.3);
+    box-shadow: 0 0 0 1px rgba(218, 165, 64, 0.15), var(--koine-glow-neon);
+    background: rgba(13, 11, 8, 0.8);
 }
 
 .koine-send-btn {
@@ -262,8 +363,8 @@ body {
     bottom: var(--koine-space-2);
     width: 32px;
     height: 32px;
-    border: none;
-    border-radius: var(--koine-radius-md);
+    border: 1px solid transparent;
+    border-radius: var(--koine-radius-sm);
     background: transparent;
     color: var(--koine-interactive);
     cursor: pointer;
@@ -276,6 +377,8 @@ body {
 .koine-send-btn:hover {
     color: var(--koine-interactive-hover);
     background: rgba(218, 165, 64, 0.1);
+    border-color: rgba(218, 165, 64, 0.2);
+    box-shadow: 0 0 8px rgba(218, 165, 64, 0.2);
 }
 
 .koine-send-btn svg {
@@ -286,6 +389,12 @@ body {
 .koine-input-footer {
     text-align: center;
     margin-top: var(--koine-space-2);
+}
+
+.koine-input-footer small {
+    font-family: var(--koine-font-mono);
+    font-size: var(--koine-fs-2xs);
+    letter-spacing: var(--koine-ls-label);
 }
 
 
@@ -313,6 +422,7 @@ body {
     width: 80px;
     height: auto;
     margin: 0 auto var(--koine-space-6);
+    filter: drop-shadow(0 0 20px rgba(218, 165, 64, 0.2));
 }
 
 .koine-viz-empty-content h3 {
@@ -322,12 +432,15 @@ body {
     letter-spacing: var(--koine-ls-heading);
     color: var(--koine-gold-600);
     margin-bottom: var(--koine-space-2);
+    text-shadow: 0 0 20px rgba(218, 165, 64, 0.15);
 }
 
 .koine-viz-empty-content p {
-    font-size: var(--koine-fs-sm);
+    font-family: var(--koine-font-mono);
+    font-size: var(--koine-fs-xs);
     color: var(--koine-text-muted);
-    max-width: 280px;
+    max-width: 300px;
+    letter-spacing: var(--koine-ls-label);
 }
 
 
@@ -348,20 +461,21 @@ body {
 .koine-viz-controls .koine-icon-btn {
     width: 40px;
     height: 40px;
-    background: rgba(13, 11, 8, 0.9);
-    border: 1px solid var(--koine-border-subtle);
-    backdrop-filter: blur(8px);
+    background: rgba(8, 8, 14, 0.7);
+    border: 1px solid rgba(218, 165, 64, 0.1);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     box-shadow: var(--koine-shadow-md);
 }
 
 .koine-viz-controls .koine-icon-btn:hover {
-    border-color: rgba(201, 168, 76, 0.3);
-    box-shadow: var(--koine-glow-sm);
+    border-color: rgba(218, 165, 64, 0.3);
+    box-shadow: var(--koine-glow-neon);
 }
 
 
 /* ═══════════════════════════════════════════
-   AMBIENT GLOW (background warmth)
+   AMBIENT GLOW (intensified for futuristic feel)
    ═══════════════════════════════════════════ */
 
 .koine-ambient-glow {
@@ -371,7 +485,17 @@ body {
     transform: translateX(-50%);
     width: 60%;
     height: 40%;
-    background: radial-gradient(ellipse at center, rgba(201, 168, 76, 0.04) 0%, transparent 70%);
+    background: radial-gradient(ellipse at center, rgba(218, 165, 64, 0.06) 0%, transparent 70%);
     pointer-events: none;
     z-index: 0;
+    animation: koine-glow-pulse 4s var(--koine-ease-gentle) infinite;
+}
+
+
+/* ═══════════════════════════════════════════
+   MONO UTILITY CLASS
+   ═══════════════════════════════════════════ */
+
+.koine-mono {
+    font-family: var(--koine-font-mono);
 }

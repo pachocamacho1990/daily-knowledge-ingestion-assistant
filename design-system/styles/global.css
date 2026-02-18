@@ -10,14 +10,14 @@
  * Motion: Warm, gentle, deliberate — never sharp or mechanical
  */
 
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&family=DM+Sans:wght@300;400;500&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&family=DM+Sans:wght@300;400;500&family=JetBrains+Mono:wght@300;400;500&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap');
 
 /* ═══════════════════════════════════════════
    BRAND PALETTE
    ═══════════════════════════════════════════ */
 :root {
   /* Gold — primary brand */
-  --koine-gold-50:  #faf6e8;
+  --koine-gold-50: #faf6e8;
   --koine-gold-100: #f0e4c0;
   --koine-gold-200: #e8d5a3;
   --koine-gold-300: #d4c18a;
@@ -29,7 +29,7 @@
   --koine-gold-900: #6b5020;
 
   /* Cream — warm neutrals */
-  --koine-cream-50:  #fdf9f0;
+  --koine-cream-50: #fdf9f0;
   --koine-cream-100: #f4efe4;
   --koine-cream-200: #e8dbb0;
   --koine-cream-300: #d4c5a0;
@@ -37,7 +37,7 @@
   --koine-cream-500: #a09070;
 
   /* Dark — sacred depth */
-  --koine-dark-50:  #1a1810;
+  --koine-dark-50: #1a1810;
   --koine-dark-100: #151210;
   --koine-dark-200: #111118;
   --koine-dark-300: #0f0e0a;
@@ -55,73 +55,74 @@
   --koine-red-300: #c53030;
 
   /* Flame */
-  --koine-flame-light:  #f0e0a0;
+  --koine-flame-light: #f0e0a0;
   --koine-flame-medium: #daa540;
-  --koine-flame-deep:   #c97a20;
-  --koine-flame-ember:  #8a5a10;
+  --koine-flame-deep: #c97a20;
+  --koine-flame-ember: #8a5a10;
 
   /* Status */
   --koine-success: #4a8a3a;
   --koine-warning: var(--koine-flame-medium);
-  --koine-error:   var(--koine-red-400);
-  --koine-info:    #5a7a9a;
+  --koine-error: var(--koine-red-400);
+  --koine-info: #5a7a9a;
 
   /* ═══════════════════════════════════════════
      GRADIENTS
      ═══════════════════════════════════════════ */
-  --koine-gradient-flame:     linear-gradient(to top, #c97a20, #daa540 40%, #f0e0a0);
-  --koine-gradient-aura:      radial-gradient(ellipse at 50% 30%, rgba(240,216,120,0.12) 0%, transparent 100%);
-  --koine-gradient-surface:   radial-gradient(ellipse at 50% 30%, #1a120a 0%, #0d0b08 50%, #08080e 100%);
+  --koine-gradient-flame: linear-gradient(to top, #c97a20, #daa540 40%, #f0e0a0);
+  --koine-gradient-aura: radial-gradient(ellipse at 50% 30%, rgba(240, 216, 120, 0.12) 0%, transparent 100%);
+  --koine-gradient-surface: radial-gradient(ellipse at 50% 30%, #1a120a 0%, #0d0b08 50%, #08080e 100%);
   --koine-gradient-liturgical: linear-gradient(160deg, #8b1a1a, #5a0e0e);
-  --koine-gradient-ray:       linear-gradient(to bottom, rgba(212,184,96,0.6) 0%, rgba(212,184,96,0) 100%);
+  --koine-gradient-ray: linear-gradient(to bottom, rgba(212, 184, 96, 0.6) 0%, rgba(212, 184, 96, 0) 100%);
 
   /* ═══════════════════════════════════════════
      TYPOGRAPHY
      ═══════════════════════════════════════════ */
   --koine-font-display: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
-  --koine-font-body:    'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --koine-font-accent:  'Libre Baskerville', Georgia, serif;
+  --koine-font-body: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --koine-font-accent: 'Libre Baskerville', Georgia, serif;
+  --koine-font-mono: 'JetBrains Mono', 'Fira Code', monospace;
 
-  --koine-fw-light:    300;
-  --koine-fw-regular:  400;
-  --koine-fw-medium:   500;
+  --koine-fw-light: 300;
+  --koine-fw-regular: 400;
+  --koine-fw-medium: 500;
   --koine-fw-semibold: 600;
-  --koine-fw-bold:     700;
+  --koine-fw-bold: 700;
 
   --koine-fs-2xs: 0.625rem;
-  --koine-fs-xs:  0.75rem;
-  --koine-fs-sm:  0.875rem;
+  --koine-fs-xs: 0.75rem;
+  --koine-fs-sm: 0.875rem;
   --koine-fs-base: 1rem;
-  --koine-fs-md:  1.125rem;
-  --koine-fs-lg:  1.25rem;
-  --koine-fs-xl:  1.5rem;
+  --koine-fs-md: 1.125rem;
+  --koine-fs-lg: 1.25rem;
+  --koine-fs-xl: 1.5rem;
   --koine-fs-2xl: 1.875rem;
   --koine-fs-3xl: 2.25rem;
   --koine-fs-4xl: 3rem;
   --koine-fs-5xl: 3.75rem;
   --koine-fs-6xl: 4.5rem;
 
-  --koine-lh-tight:   1.15;
-  --koine-lh-snug:    1.3;
-  --koine-lh-normal:  1.5;
+  --koine-lh-tight: 1.15;
+  --koine-lh-snug: 1.3;
+  --koine-lh-normal: 1.5;
   --koine-lh-relaxed: 1.65;
 
   --koine-ls-wordmark: 0.30em;
-  --koine-ls-display:  0.20em;
-  --koine-ls-heading:  0.08em;
+  --koine-ls-display: 0.20em;
+  --koine-ls-heading: 0.08em;
   --koine-ls-overline: 0.35em;
-  --koine-ls-label:    0.15em;
+  --koine-ls-label: 0.15em;
 
   /* ═══════════════════════════════════════════
      SPACING
      ═══════════════════════════════════════════ */
-  --koine-space-1:  0.25rem;
-  --koine-space-2:  0.5rem;
-  --koine-space-3:  0.75rem;
-  --koine-space-4:  1rem;
-  --koine-space-5:  1.25rem;
-  --koine-space-6:  1.5rem;
-  --koine-space-8:  2rem;
+  --koine-space-1: 0.25rem;
+  --koine-space-2: 0.5rem;
+  --koine-space-3: 0.75rem;
+  --koine-space-4: 1rem;
+  --koine-space-5: 1.25rem;
+  --koine-space-6: 1.5rem;
+  --koine-space-8: 2rem;
   --koine-space-10: 2.5rem;
   --koine-space-12: 3rem;
   --koine-space-16: 4rem;
@@ -132,56 +133,60 @@
   /* ═══════════════════════════════════════════
      RADIUS
      ═══════════════════════════════════════════ */
-  --koine-radius-sm:   6px;
-  --koine-radius-md:   10px;
-  --koine-radius-lg:   14px;
-  --koine-radius-xl:   16px;
-  --koine-radius-2xl:  20px;
+  --koine-radius-sm: 6px;
+  --koine-radius-md: 10px;
+  --koine-radius-lg: 14px;
+  --koine-radius-xl: 16px;
+  --koine-radius-2xl: 20px;
   --koine-radius-full: 9999px;
 
   /* ═══════════════════════════════════════════
      SHADOWS
      ═══════════════════════════════════════════ */
-  --koine-shadow-sm:      0 1px 3px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.2);
-  --koine-shadow-md:      0 4px 12px rgba(0,0,0,0.4);
-  --koine-shadow-lg:      0 8px 24px rgba(0,0,0,0.5);
-  --koine-glow-sm:        0 0 8px rgba(201,168,76,0.15);
-  --koine-glow-md:        0 0 16px rgba(201,168,76,0.2);
-  --koine-glow-lg:        0 0 32px rgba(201,168,76,0.12);
+  --koine-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2);
+  --koine-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --koine-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5);
+  --koine-glow-sm: 0 0 8px rgba(201, 168, 76, 0.15);
+  --koine-glow-md: 0 0 16px rgba(201, 168, 76, 0.2);
+  --koine-glow-lg: 0 0 32px rgba(201, 168, 76, 0.12);
+  --koine-glow-neon: 0 0 10px rgba(218, 165, 64, 0.4), 0 0 30px rgba(218, 165, 64, 0.15);
+
+  /* Grid / Data texture */
+  --koine-grid-color: rgba(218, 165, 64, 0.035);
 
   /* ═══════════════════════════════════════════
      MOTION
      ═══════════════════════════════════════════ */
-  --koine-dur-instant:     100ms;
-  --koine-dur-fast:        150ms;
-  --koine-dur-normal:      250ms;
-  --koine-dur-slow:        400ms;
-  --koine-dur-gentle:      600ms;
-  --koine-dur-meditative:  1000ms;
-  --koine-dur-breath:      2000ms;
+  --koine-dur-instant: 100ms;
+  --koine-dur-fast: 150ms;
+  --koine-dur-normal: 250ms;
+  --koine-dur-slow: 400ms;
+  --koine-dur-gentle: 600ms;
+  --koine-dur-meditative: 1000ms;
+  --koine-dur-breath: 2000ms;
 
   --koine-ease-default: cubic-bezier(0.4, 0, 0.2, 1);
-  --koine-ease-in:      cubic-bezier(0.4, 0, 1, 1);
-  --koine-ease-out:     cubic-bezier(0, 0, 0.2, 1);
-  --koine-ease-gentle:  cubic-bezier(0.25, 0.1, 0.25, 1);
-  --koine-ease-flame:   cubic-bezier(0.45, 0.05, 0.55, 0.95);
+  --koine-ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --koine-ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --koine-ease-gentle: cubic-bezier(0.25, 0.1, 0.25, 1);
+  --koine-ease-flame: cubic-bezier(0.45, 0.05, 0.55, 0.95);
 
   /* ═══════════════════════════════════════════
      LAYOUT
      ═══════════════════════════════════════════ */
   --koine-max-content: 68.75rem;
-  --koine-max-wide:    80rem;
+  --koine-max-wide: 80rem;
 
   /* ═══════════════════════════════════════════
      Z-INDEX
      ═══════════════════════════════════════════ */
-  --koine-z-base:     0;
+  --koine-z-base: 0;
   --koine-z-elevated: 10;
   --koine-z-dropdown: 100;
-  --koine-z-sticky:   200;
-  --koine-z-overlay:  300;
-  --koine-z-modal:    400;
-  --koine-z-toast:    500;
+  --koine-z-sticky: 200;
+  --koine-z-overlay: 300;
+  --koine-z-modal: 400;
+  --koine-z-toast: 500;
 }
 
 
@@ -190,25 +195,25 @@
    ═══════════════════════════════════════════ */
 :root,
 [data-theme="dark"] {
-  --koine-surface-base:     var(--koine-dark-600);
-  --koine-surface-primary:  var(--koine-dark-400);
-  --koine-surface-elevated: var(--koine-dark-100);
-  --koine-surface-overlay:  rgba(8,8,14,0.85);
+  --koine-surface-base: var(--koine-dark-600);
+  --koine-surface-primary: rgba(13, 11, 8, 0.7);
+  --koine-surface-elevated: rgba(30, 25, 20, 0.55);
+  --koine-surface-overlay: rgba(8, 8, 14, 0.85);
 
-  --koine-text-primary:   var(--koine-cream-400);
+  --koine-text-primary: var(--koine-cream-400);
   --koine-text-secondary: var(--koine-cream-500);
-  --koine-text-muted:     #6b5f3f;
-  --koine-text-accent:    var(--koine-gold-400);
+  --koine-text-muted: #6b5f3f;
+  --koine-text-accent: var(--koine-gold-400);
 
   --koine-border-default: var(--koine-dark-50);
-  --koine-border-subtle:  #1a1608;
-  --koine-border-accent:  var(--koine-gold-400);
+  --koine-border-subtle: #1a1608;
+  --koine-border-accent: var(--koine-gold-400);
 
-  --koine-interactive:         var(--koine-gold-500);
-  --koine-interactive-hover:   var(--koine-gold-400);
+  --koine-interactive: var(--koine-gold-500);
+  --koine-interactive-hover: var(--koine-gold-400);
   --koine-interactive-pressed: var(--koine-gold-700);
   --koine-interactive-disabled: #4a4030;
-  --koine-focus-ring: 0 0 0 2px var(--koine-dark-600), 0 0 0 4px rgba(201,168,76,0.5);
+  --koine-focus-ring: 0 0 0 2px var(--koine-dark-600), 0 0 0 4px rgba(201, 168, 76, 0.5);
 
   color-scheme: dark;
 }
@@ -218,25 +223,25 @@
    LIGHT THEME
    ═══════════════════════════════════════════ */
 [data-theme="light"] {
-  --koine-surface-base:     var(--koine-cream-50);
-  --koine-surface-primary:  var(--koine-cream-100);
+  --koine-surface-base: var(--koine-cream-50);
+  --koine-surface-primary: var(--koine-cream-100);
   --koine-surface-elevated: #ffffff;
-  --koine-surface-overlay:  rgba(253,249,240,0.85);
+  --koine-surface-overlay: rgba(253, 249, 240, 0.85);
 
-  --koine-text-primary:   #2a2010;
+  --koine-text-primary: #2a2010;
   --koine-text-secondary: #5a4a30;
-  --koine-text-muted:     #8a7a5a;
-  --koine-text-accent:    var(--koine-gold-800);
+  --koine-text-muted: #8a7a5a;
+  --koine-text-accent: var(--koine-gold-800);
 
   --koine-border-default: #e0d4b8;
-  --koine-border-subtle:  var(--koine-cream-200);
-  --koine-border-accent:  var(--koine-gold-800);
+  --koine-border-subtle: var(--koine-cream-200);
+  --koine-border-accent: var(--koine-gold-800);
 
-  --koine-interactive:         var(--koine-gold-800);
-  --koine-interactive-hover:   var(--koine-gold-700);
+  --koine-interactive: var(--koine-gold-800);
+  --koine-interactive-hover: var(--koine-gold-700);
   --koine-interactive-pressed: var(--koine-gold-900);
   --koine-interactive-disabled: var(--koine-cream-400);
-  --koine-focus-ring: 0 0 0 2px var(--koine-cream-50), 0 0 0 4px rgba(138,90,16,0.4);
+  --koine-focus-ring: 0 0 0 2px var(--koine-cream-50), 0 0 0 4px rgba(138, 90, 16, 0.4);
 
   color-scheme: light;
 }
@@ -246,25 +251,25 @@
    LITURGICAL RED THEME
    ═══════════════════════════════════════════ */
 [data-theme="liturgical"] {
-  --koine-surface-base:     var(--koine-red-700);
-  --koine-surface-primary:  var(--koine-red-600);
+  --koine-surface-base: var(--koine-red-700);
+  --koine-surface-primary: var(--koine-red-600);
   --koine-surface-elevated: var(--koine-red-500);
-  --koine-surface-overlay:  rgba(90,14,14,0.85);
+  --koine-surface-overlay: rgba(90, 14, 14, 0.85);
 
-  --koine-text-primary:   #f4e8c8;
+  --koine-text-primary: #f4e8c8;
   --koine-text-secondary: #d4b890;
-  --koine-text-muted:     #a08060;
-  --koine-text-accent:    #ffe8a0;
+  --koine-text-muted: #a08060;
+  --koine-text-accent: #ffe8a0;
 
   --koine-border-default: #7a1515;
-  --koine-border-subtle:  var(--koine-red-600);
-  --koine-border-accent:  #f0d060;
+  --koine-border-subtle: var(--koine-red-600);
+  --koine-border-accent: #f0d060;
 
-  --koine-interactive:         #f0d060;
-  --koine-interactive-hover:   #ffe8a0;
+  --koine-interactive: #f0d060;
+  --koine-interactive-hover: #ffe8a0;
   --koine-interactive-pressed: var(--koine-gold-400);
   --koine-interactive-disabled: #7a4040;
-  --koine-focus-ring: 0 0 0 2px var(--koine-red-700), 0 0 0 4px rgba(240,208,96,0.5);
+  --koine-focus-ring: 0 0 0 2px var(--koine-red-700), 0 0 0 4px rgba(240, 208, 96, 0.5);
 
   color-scheme: dark;
 }
@@ -273,7 +278,9 @@
 /* ═══════════════════════════════════════════
    BASE RESET & DEFAULTS
    ═══════════════════════════════════════════ */
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
@@ -294,11 +301,11 @@ body {
   color: var(--koine-text-primary);
   background-color: var(--koine-surface-base);
   transition: background-color var(--koine-dur-slow) var(--koine-ease-gentle),
-              color var(--koine-dur-slow) var(--koine-ease-gentle);
+    color var(--koine-dur-slow) var(--koine-ease-gentle);
 }
 
 ::selection {
-  background-color: rgba(201,168,76,0.25);
+  background-color: rgba(201, 168, 76, 0.25);
   color: inherit;
 }
 
@@ -306,7 +313,12 @@ body {
 /* ═══════════════════════════════════════════
    TYPOGRAPHY UTILITIES
    ═══════════════════════════════════════════ */
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-family: var(--koine-font-display);
   color: var(--koine-text-accent);
 }
@@ -410,35 +422,85 @@ code {
    ANIMATIONS
    ═══════════════════════════════════════════ */
 @keyframes koine-fade-in {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes koine-fade-in-up {
-  from { opacity: 0; transform: translateY(12px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes koine-scale-in {
-  from { opacity: 0; transform: scale(0.95); }
-  to   { opacity: 1; transform: scale(1); }
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 @keyframes koine-glow-pulse {
-  0%, 100% { opacity: 0.6; }
-  50%      { opacity: 1; }
+
+  0%,
+  100% {
+    opacity: 0.6;
+  }
+
+  50% {
+    opacity: 1;
+  }
 }
 
 @keyframes koine-flame-flicker {
-  0%, 100% { opacity: 0.8; transform: scaleY(1); }
-  25%      { opacity: 0.9; transform: scaleY(1.03); }
-  50%      { opacity: 1;   transform: scaleY(0.97); }
-  75%      { opacity: 0.85; transform: scaleY(1.01); }
+
+  0%,
+  100% {
+    opacity: 0.8;
+    transform: scaleY(1);
+  }
+
+  25% {
+    opacity: 0.9;
+    transform: scaleY(1.03);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scaleY(0.97);
+  }
+
+  75% {
+    opacity: 0.85;
+    transform: scaleY(1.01);
+  }
 }
 
 @keyframes koine-graph-connect {
-  from { stroke-dashoffset: 100; opacity: 0; }
-  to   { stroke-dashoffset: 0; opacity: 1; }
+  from {
+    stroke-dashoffset: 100;
+    opacity: 0;
+  }
+
+  to {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
 }
 
 .koine-animate-fade-in {
@@ -462,17 +524,40 @@ code {
 }
 
 /* Staggered entrance delays for lists */
-.koine-stagger > *:nth-child(1) { animation-delay: 0ms; }
-.koine-stagger > *:nth-child(2) { animation-delay: 80ms; }
-.koine-stagger > *:nth-child(3) { animation-delay: 160ms; }
-.koine-stagger > *:nth-child(4) { animation-delay: 240ms; }
-.koine-stagger > *:nth-child(5) { animation-delay: 320ms; }
-.koine-stagger > *:nth-child(6) { animation-delay: 400ms; }
-.koine-stagger > *:nth-child(7) { animation-delay: 480ms; }
+.koine-stagger>*:nth-child(1) {
+  animation-delay: 0ms;
+}
+
+.koine-stagger>*:nth-child(2) {
+  animation-delay: 80ms;
+}
+
+.koine-stagger>*:nth-child(3) {
+  animation-delay: 160ms;
+}
+
+.koine-stagger>*:nth-child(4) {
+  animation-delay: 240ms;
+}
+
+.koine-stagger>*:nth-child(5) {
+  animation-delay: 320ms;
+}
+
+.koine-stagger>*:nth-child(6) {
+  animation-delay: 400ms;
+}
+
+.koine-stagger>*:nth-child(7) {
+  animation-delay: 480ms;
+}
 
 /* Reduce motion for accessibility */
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
+
+  *,
+  *::before,
+  *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
@@ -495,7 +580,7 @@ code {
   padding: 0;
   margin: -1px;
   overflow: hidden;
-  clip: rect(0,0,0,0);
+  clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border: 0;
 }
