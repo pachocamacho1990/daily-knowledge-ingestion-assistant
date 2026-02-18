@@ -315,7 +315,7 @@ try {
       {
         selector: 'node[type="COMMUNITY"]',
         style: {
-          'shape': 'round-rectangle',
+          'shape': 'ellipse',
           'background-color': 'data(color)',
           'background-opacity': 0.35,
           'border-color': 'data(color)',
@@ -342,7 +342,7 @@ try {
           'padding': '20px',
           'text-valign': 'top',
           'font-size': '10px',
-          'shape': 'round-rectangle',
+          'shape': 'ellipse',
         }
       },
       {
@@ -373,7 +373,7 @@ try {
           'border-width': 2,
           'border-style': 'dashed',
           'border-opacity': 0.5,
-          'shape': 'round-rectangle',
+          'shape': 'ellipse',
           'padding': '15px',
           'text-valign': 'top',
           'text-halign': 'center',
@@ -476,10 +476,18 @@ try {
       },
     ],
     layout: {
-      name: 'grid',
+      name: 'concentric',
       animate: false,
       fit: true,
       padding: 40,
+      avoidOverlap: true,
+      minNodeSpacing: 30,
+      concentric: function(node) {
+        // Larger communities (more members) go to the center
+        return node.data('size') || 40;
+      },
+      levelWidth: function() { return 3; },
+      nodeDimensionsIncludeLabels: true,
     },
     minZoom: 0.15,
     maxZoom: 4,
@@ -523,23 +531,113 @@ function expandCommunity(commId) {
   var toAdd = [].concat(data.entities, data.edges, data.semantic_groups);
   cy.add(toAdd);
 
+  // Place children in a circle centered on the meta-node
   var descendants = metaNode.descendants();
-  var layoutEles = descendants.union(descendants.edgesWith(descendants));
-  layoutEles.layout({
-    name: 'grid',
-    animate: false,
-    boundingBox: metaNode.boundingBox(),
-    fit: false,
-    condense: true,
-    avoidOverlapPadding: 10,
-  }).run();
+  var entityNodes = descendants.filter('node[type != "SEMANTIC_GROUP"]');
+  var center = metaNode.position();
+  var childRadius = Math.max(60, entityNodes.length * 12);
+
+  entityNodes.forEach(function(node, i) {
+    var angle = (2 * Math.PI * i) / entityNodes.length - Math.PI / 2;
+    node.position({
+      x: center.x + childRadius * Math.cos(angle),
+      y: center.y + childRadius * Math.sin(angle),
+    });
+  });
 
   expandedCommunities.add(commId);
   updateLevelIndicator();
-  cy.animate({ fit: { eles: metaNode.union(descendants), padding: 60 }, duration: 300 });
+
+  // Re-layout top-level: push other nodes away from expanded community
+  relayoutTopLevel();
 }
 
-function collapseCommunity(commId) {
+function relayoutTopLevel() {
+  // Collect all top-level community nodes
+  var topNodes = cy.nodes().filter(function(n) { return !n.isChild(); });
+  if (topNodes.length === 0) return;
+
+  // Find which are expanded (they have children and are larger)
+  var expanded = [];
+  var collapsed = [];
+  topNodes.forEach(function(n) {
+    if (n.isParent()) {
+      expanded.push(n);
+    } else {
+      collapsed.push(n);
+    }
+  });
+
+  // Calculate center of the viewport
+  var bb = cy.extent();
+  var cx = (bb.x1 + bb.x2) / 2;
+  var cy2 = (bb.y1 + bb.y2) / 2;
+
+  if (expanded.length === 0) {
+    // All collapsed: simple concentric by size
+    topNodes.sort(function(a, b) {
+      return (b.data('size') || 40) - (a.data('size') || 40);
+    });
+    var baseRadius = Math.max(200, topNodes.length * 25);
+    arrangeInCircle(topNodes, cx, cy2, baseRadius, true);
+  } else {
+    // Place expanded nodes at center, collapsed nodes in a ring outside
+    // Find the max radius of expanded nodes (their bounding boxes)
+    var maxExpandedRadius = 0;
+    expanded.forEach(function(n, i) {
+      var nbb = n.boundingBox({ includeLabels: false });
+      var r = Math.max(nbb.w, nbb.h) / 2;
+      if (r > maxExpandedRadius) maxExpandedRadius = r;
+      // If multiple expanded, spread them around center
+      if (expanded.length === 1) {
+        n.position({ x: cx, y: cy2 });
+      } else {
+        var angle = (2 * Math.PI * i) / expanded.length - Math.PI / 2;
+        var expandedSpread = maxExpandedRadius * 2.5;
+        n.position({
+          x: cx + expandedSpread * Math.cos(angle),
+          y: cy2 + expandedSpread * Math.sin(angle),
+        });
+      }
+    });
+
+    // Re-measure after positioning expanded nodes
+    if (expanded.length > 1) {
+      maxExpandedRadius = 0;
+      expanded.forEach(function(n) {
+        var nbb = n.boundingBox({ includeLabels: false });
+        var dist = Math.sqrt(
+          Math.pow(n.position().x - cx, 2) + Math.pow(n.position().y - cy2, 2)
+        );
+        var r = dist + Math.max(nbb.w, nbb.h) / 2;
+        if (r > maxExpandedRadius) maxExpandedRadius = r;
+      });
+    }
+
+    // Place collapsed nodes in a ring outside the expanded area
+    var outerRadius = maxExpandedRadius + 120;
+    arrangeInCircle(collapsed, cx, cy2, outerRadius, true);
+  }
+
+  cy.animate({ fit: { padding: 40 }, duration: 300 });
+}
+
+function arrangeInCircle(nodes, cx, cy2, radius, animate) {
+  nodes.forEach(function(n, i) {
+    var angle = (2 * Math.PI * i) / nodes.length - Math.PI / 2;
+    var pos = {
+      x: cx + radius * Math.cos(angle),
+      y: cy2 + radius * Math.sin(angle),
+    };
+    if (animate) {
+      n.animate({ position: pos, duration: 300 });
+    } else {
+      n.position(pos);
+    }
+  });
+}
+
+function collapseCommunity(commId, skipRelayout) {
   var metaNode = cy.getElementById('comm-' + commId);
   if (!metaNode.length) return;
 
@@ -555,15 +653,20 @@ function collapseCommunity(commId) {
 
   expandedCommunities.delete(commId);
   updateLevelIndicator();
+
+  if (!skipRelayout) {
+    relayoutTopLevel();
+  }
 }
 
 function collapseAll() {
   clearChunks();
   Array.from(expandedCommunities).forEach(function(commId) {
-    collapseCommunity(commId);
+    collapseCommunity(commId, true); // skip individual relayouts
   });
   cy.elements().removeClass('dimmed highlighted');
-  resetView();
+  // Single relayout after all collapsed
+  relayoutTopLevel();
 }
 
 function resetView() {
