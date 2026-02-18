@@ -158,49 +158,220 @@ Inspired by candlelight — warm, gentle, deliberate — with precise, technolog
 
 ---
 
-## Usage in CSS
+## ⚡ Design Rules — Read Before Building
 
-All tokens are available as CSS custom properties:
+These rules **must** be followed by any developer or AI agent working on features:
+
+### Visual Identity
+- **Always use `backdrop-filter: blur(20px) saturate(1.5)`** on panels, cards, and elevated surfaces. Surfaces are semi-transparent — this is what creates the frosted-glass look.
+- **Surfaces must use RGBA tokens**, not opaque colors. `--koine-surface-primary` = `rgba(13,11,8,0.7)`, `--koine-surface-elevated` = `rgba(30,25,20,0.55)`.
+- **Never use raw hex colors.** Always reference design tokens via `var(--koine-*)`.
+- **Never use sharp corners.** Minimum radius is `--koine-radius-sm` (6px). Cards use `--koine-radius-xl` (16px).
+
+### Typography
+- **Headers:** Cormorant Garamond — always with `letter-spacing` and `uppercase`.
+- **Body text:** DM Sans — the default for paragraphs and UI labels.
+- **Technical / HUD metadata:** JetBrains Mono (`--koine-font-mono`) — for status indicators, overline labels on cards, input placeholders, footers, and anything that feels like "system data". Always `uppercase` or `lowercase`, never mixed case.
+- **Never use browser default fonts.** Every text element should use one of the four font families.
+
+### Glow & Interaction
+- **Default hover glow:** `--koine-glow-sm` for subtle elements.
+- **Focus / prominent hover:** `--koine-glow-neon` — the intensified neon gold (`0 0 10px + 0 0 30px`).
+- **Borders lighten on hover:** transition `border-color` from `--koine-border-subtle` → `--koine-gold-400`.
+
+### HUD Elements
+- **Corner markers** (bracket-style `::before`/`::after`) are used on interactive cards. They fade in on hover. See `components.md` → HUD Elements.
+- **The data grid** (`--koine-grid-color`) is a background texture applied to the page body, not to individual components.
+- **System status indicators** use mono font + a pulsing green dot.
+
+### What NOT to Do
+- ❌ Opaque backgrounds on cards or panels (breaks glassmorphism)
+- ❌ Mixed-case text in mono font (always all-uppercase or all-lowercase)
+- ❌ Bright white text (use `--koine-text-primary` = cream, not `#fff`)
+- ❌ Generic shadows (`box-shadow: 0 2px 4px rgba(0,0,0,0.1)`) — use Koine shadow/glow tokens only
+- ❌ Tailwind default colors (`bg-gray-800`, `text-white`) — use Koine tokens
+- ❌ Animations faster than `--koine-dur-instant` (100ms) or without easing
+
+---
+
+## Futuristic Pentecost Patterns
+
+### Glassmorphism Panel (the core pattern)
+
+Every card, panel, and elevated surface follows this pattern:
 
 ```css
-.my-card {
-  background: var(--koine-surface-primary);
+.my-panel {
+  /* Semi-transparent surface + frosted glass */
+  background: var(--koine-surface-primary);    /* rgba(13,11,8,0.7) */
+  backdrop-filter: blur(20px) saturate(1.5);
+  -webkit-backdrop-filter: blur(20px) saturate(1.5);
+
+  /* Structure */
   border: 1px solid var(--koine-border-subtle);
-  border-radius: var(--koine-radius-xl);
+  border-radius: var(--koine-radius-xl);       /* 16px */
+  padding: var(--koine-space-6);               /* 24px */
   color: var(--koine-text-primary);
-  padding: var(--koine-space-6);
-  transition: box-shadow var(--koine-dur-normal) var(--koine-ease-gentle);
+
+  /* Interaction */
+  transition: all var(--koine-dur-normal) var(--koine-ease-gentle);
 }
 
-.my-card:hover {
-  box-shadow: var(--koine-glow-sm);
+.my-panel:hover {
+  border-color: var(--koine-gold-400);
+  box-shadow: var(--koine-glow-neon);          /* Neon gold glow */
+}
+```
+
+### HUD Card with Corner Markers
+
+Interactive cards gain bracket-style corner markers on hover:
+
+```css
+.my-hud-card {
+  position: relative;
+  /* ... same glassmorphism base as above ... */
 }
 
+/* Top-left bracket */
+.my-hud-card::before {
+  content: '';
+  position: absolute;
+  top: -1px; left: -1px;
+  width: 12px; height: 12px;
+  border-top: 2px solid var(--koine-gold-400);
+  border-left: 2px solid var(--koine-gold-400);
+  opacity: 0;
+  transition: opacity var(--koine-dur-normal) var(--koine-ease-gentle);
+}
+
+/* Bottom-right bracket */
+.my-hud-card::after {
+  content: '';
+  position: absolute;
+  bottom: -1px; right: -1px;
+  width: 12px; height: 12px;
+  border-bottom: 2px solid var(--koine-gold-400);
+  border-right: 2px solid var(--koine-gold-400);
+  opacity: 0;
+  transition: opacity var(--koine-dur-normal) var(--koine-ease-gentle);
+}
+
+.my-hud-card:hover::before,
+.my-hud-card:hover::after {
+  opacity: 1;
+}
+```
+
+### Mono / Technical Text
+
+Use for status labels, card overlines, metadata, and input footers:
+
+```css
+.my-status-label {
+  font-family: var(--koine-font-mono);
+  font-size: var(--koine-fs-xs);               /* 0.75rem */
+  font-weight: var(--koine-fw-regular);
+  letter-spacing: var(--koine-ls-label);        /* 0.15em */
+  text-transform: uppercase;
+  color: var(--koine-text-muted);
+}
+```
+
+```html
+<!-- Example: card with mono overline -->
+<div class="my-hud-card">
+  <span class="my-status-label">Explore</span>
+  <p>What's new in my library?</p>
+</div>
+```
+
+### Button with Neon Focus
+
+```css
 .my-button {
   background: var(--koine-interactive);
   color: var(--koine-dark-600);
-  border-radius: var(--koine-radius-md);
+  border: none;
+  border-radius: var(--koine-radius-md);       /* 10px */
+  padding: var(--koine-space-3) var(--koine-space-6);
   font-family: var(--koine-font-body);
   font-weight: var(--koine-fw-medium);
+  cursor: pointer;
   transition: all var(--koine-dur-fast) var(--koine-ease-default);
 }
 
 .my-button:hover {
   background: var(--koine-interactive-hover);
-  box-shadow: var(--koine-glow-sm);
+  box-shadow: var(--koine-glow-neon);
+}
+
+.my-button:focus-visible {
+  outline: none;
+  box-shadow: var(--koine-glow-neon);
 }
 ```
 
+### Input with Glassmorphism
+
+```css
+.my-input {
+  background: var(--koine-surface-primary);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--koine-border-default);
+  border-radius: var(--koine-radius-md);
+  padding: var(--koine-space-3) var(--koine-space-4);
+  font-family: var(--koine-font-body);
+  color: var(--koine-text-primary);
+  transition: all var(--koine-dur-normal) var(--koine-ease-gentle);
+}
+
+.my-input::placeholder {
+  font-family: var(--koine-font-mono);         /* Mono for placeholders */
+  text-transform: lowercase;
+  color: var(--koine-text-muted);
+}
+
+.my-input:focus {
+  outline: none;
+  border-color: var(--koine-gold-400);
+  box-shadow: var(--koine-glow-neon);
+}
+```
+
+---
+
 ## Usage in Tailwind
 
+All tokens are mapped in `tailwind.config.js`:
+
 ```html
-<div class="bg-koine-dark-400 border border-koine-dark-50 rounded-koine-xl p-6
-            text-koine-cream-400 transition-shadow duration-normal ease-gentle
-            hover:shadow-koine-glow-sm">
-  <h3 class="font-display text-koine-gold-400 tracking-heading">Card Title</h3>
+<!-- Glassmorphism card with neon hover -->
+<div class="bg-surface-primary backdrop-blur-xl border border-koine-dark-50
+            rounded-koine-xl p-6 text-koine-cream-400
+            transition-all duration-normal ease-gentle
+            hover:border-koine-gold-400 hover:shadow-koine-glow-neon">
+  <span class="font-mono text-2xs uppercase tracking-label text-koine-cream-500">
+    Explore
+  </span>
+  <h3 class="font-display text-koine-gold-400 tracking-heading mt-2">
+    Card Title
+  </h3>
   <p class="font-body text-koine-cream-500">Card content here.</p>
 </div>
+
+<!-- Button with neon focus -->
+<button class="bg-koine-gold-500 text-koine-dark-600 font-body font-medium
+               rounded-koine-md px-6 py-3
+               hover:bg-koine-gold-400 hover:shadow-koine-glow-neon
+               focus-visible:shadow-koine-glow-neon focus-visible:outline-none
+               transition-all duration-fast">
+  Get Started
+</button>
 ```
+
+> **📖 Full component specs** — see [components.md](docs/components.md) for detailed Cards, Inputs, Buttons, Navigation, Modals, Notifications, and HUD Elements specifications.
 
 ---
 
