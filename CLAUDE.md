@@ -53,9 +53,13 @@ daily-knowledge-ingestion-assistant/
 │   ├── dev-setup.md                   # Development environment setup (Ollama, venv, Jupyter)
 │   ├── CHANGELOG.md                   # Detailed project changelog
 │   └── design-concepts/              # 3 HTML mockups (Observatory, Morning Edition, Briefing Room)
+├── scripts/
+│   ├── generate_viz.py                # Standalone visualization generator
+│   └── templates/
+│       └── knowledge_graph.html       # Cytoscape.js HTML template
 ├── notebooks/                         # GraphRAG prototyping notebooks
 │   ├── 01_graphrag_extraction.ipynb   # Sources -> chunks -> entities/relations/claims -> merge -> semantic grouping
-│   ├── 02_graph_construction_communities.ipynb  # Graph -> PageRank -> communities -> summaries -> SQLite -> Cytoscape.js viz
+│   ├── 02_graph_construction_communities.ipynb  # Graph -> PageRank -> communities -> summaries -> SQLite
 │   └── 03_embeddings_vector_search.ipynb        # Embeddings -> sqlite-vec -> triple-factor retrieval
 └── (src/, tests/, Dockerfile — not yet created)
 ```
@@ -84,8 +88,16 @@ daily-knowledge-ingestion-assistant/
 - **Phase**: Prototyping — full GraphRAG pipeline validated in notebooks
 - **What exists**: 3 notebooks (extraction, graph+viz, retrieval), docs, 3 UI mockups, GitHub Wiki (Phase 0 + 1)
 - **What doesn't exist yet**: Production code (src/), Dockerfile, pyproject.toml, FastAPI server
-- **Active plan**: `notebooks/PLAN_cytoscape_multilevel.md` — Extract visualization from notebook 02 into `scripts/generate_viz.py` (standalone script reading from SQLite). Adds `semantic_groups` and `entity_chunk_map` tables to schema.
-- **Next step after plan**: Convert notebook prototypes to production Python modules, then Docker packaging
+- **Visualization**: Extracted from notebook 02 into standalone scripts:
+  - `scripts/generate_viz.py` — Cytoscape.js multi-level drill-down (primary)
+  - `scripts/generate_viz_plotly.py` — Plotly fallback (`--view entity` or `--view community`)
+  - Run: `python scripts/generate_viz.py` or `python scripts/generate_viz_plotly.py`
+- **Cytoscape.js known issues (fixed)**:
+  - `#cy` container must use `position: absolute` (not flex) for canvas sizing
+  - Entity IDs sanitized: `.#[]():"',\` replaced with `_` (breaks CSS selectors)
+  - Expand layout uses `descendants()` + `grid` (not `children()` + `cose` which crashes on compound nodes)
+- **Viz TODO**: All nodes should be circular (including communities, currently round-rectangle)
+- **Next step**: Convert notebook prototypes to production Python modules, then Docker packaging
 - **Implementation plan**: 10 steps in `docs/architecture-plan.md`
 
 ## MVP Scope (Phase 1)
