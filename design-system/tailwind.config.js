@@ -67,6 +67,7 @@ module.exports = {
         display: ["'Cormorant Garamond'", 'Georgia', "'Times New Roman'", 'serif'],
         body: ["'DM Sans'", '-apple-system', 'BlinkMacSystemFont', "'Segoe UI'", 'sans-serif'],
         accent: ["'Libre Baskerville'", 'Georgia', 'serif'],
+        mono: ["'JetBrains Mono'", "'Fira Code'", 'monospace'],
       },
       fontSize: {
         '2xs': ['0.625rem', { lineHeight: '1.5' }],
@@ -101,6 +102,7 @@ module.exports = {
         'koine-glow-sm': '0 0 8px rgba(201,168,76,0.15)',
         'koine-glow-md': '0 0 16px rgba(201,168,76,0.2)',
         'koine-glow-lg': '0 0 32px rgba(201,168,76,0.12)',
+        'koine-glow-neon': '0 0 10px rgba(218,165,64,0.4), 0 0 30px rgba(218,165,64,0.15)',
       },
 
       /* ═══ MOTION ═══ */

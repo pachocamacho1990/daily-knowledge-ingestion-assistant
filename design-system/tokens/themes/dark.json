@@ -1,9 +1,12 @@
 {
-  "_meta": { "name": "Koine — Dark Theme", "description": "Default theme. Gold on dark, like candlelight in a cathedral." },
+  "_meta": {
+    "name": "Koine — Dark Theme",
+    "description": "Default theme. Gold on dark — candlelight through frosted glass. Surfaces are semi-transparent for glassmorphism."
+  },
   "surface": {
     "base": "#08080e",
-    "primary": "#0d0b08",
-    "elevated": "#151210",
+    "primary": "rgba(13,11,8,0.7)",
+    "elevated": "rgba(30,25,20,0.55)",
     "overlay": "rgba(8,8,14,0.85)"
   },
   "text": {
