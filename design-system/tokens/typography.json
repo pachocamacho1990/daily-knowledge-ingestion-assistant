@@ -1,14 +1,15 @@
 {
   "_meta": {
     "name": "Koine Design System — Typography Tokens",
-    "version": "1.0.0",
-    "description": "Two-font system: Cormorant Garamond (display/brand) + DM Sans (body/UI). Libre Baskerville for taglines."
+    "version": "1.1.0",
+    "description": "Four-font system: Cormorant Garamond (display/brand) + DM Sans (body/UI) + Libre Baskerville (taglines) + JetBrains Mono (status/tech/HUD elements)."
   },
 
   "fontFamily": {
     "display":  { "value": "'Cormorant Garamond', Georgia, 'Times New Roman', serif", "description": "Brand wordmark, headings, display text" },
     "body":     { "value": "'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif", "description": "Body text, UI elements, labels" },
-    "accent":   { "value": "'Libre Baskerville', Georgia, serif", "description": "Taglines, pull quotes, italic emphasis" }
+    "accent":   { "value": "'Libre Baskerville', Georgia, serif", "description": "Taglines, pull quotes, italic emphasis" },
+    "mono":     { "value": "'JetBrains Mono', 'Fira Code', monospace", "description": "System status, HUD elements, technical metadata, input placeholders" }
   },
 
   "fontWeight": {
@@ -138,8 +139,17 @@
       "fontSize": "{fontSize.xs}",
       "letterSpacing": "{letterSpacing.label}",
       "lineHeight": "{lineHeight.normal}"
+    },
+    "mono": {
+      "fontFamily": "{fontFamily.mono}",
+      "fontWeight": "{fontWeight.regular}",
+      "fontSize": "{fontSize.xs}",
+      "letterSpacing": "{letterSpacing.label}",
+      "lineHeight": "{lineHeight.normal}",
+      "textTransform": "uppercase",
+      "description": "System status, HUD metadata, input footers, technical labels"
     }
   },
 
-  "googleFontsImport": "https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&family=DM+Sans:wght@300;400;500&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+  "googleFontsImport": "https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&family=DM+Sans:wght@300;400;500&family=JetBrains+Mono:wght@300;400;500&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
 }

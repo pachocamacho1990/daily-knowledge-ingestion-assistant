@@ -4,6 +4,8 @@
 
 A design system rooted in Pentecost iconography — the moment knowledge became universally accessible. Named after Koine Greek, the common tongue that first made universal understanding possible.
 
+> *Futuristic Pentecost* — candlelight through frosted glass. Sacred motifs rendered with glassmorphism, monospace HUD elements, and data-grid textures.
+
 ---
 
 ## Quick Start
@@ -11,7 +13,7 @@ A design system rooted in Pentecost iconography — the moment knowledge became 
 ### 1. Install fonts
 Add to your HTML `<head>` or import in CSS:
 ```html
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&family=DM+Sans:wght@300;400;500&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&family=DM+Sans:wght@300;400;500&family=JetBrains+Mono:wght@300;400;500&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
 ```
 
 ### 2. Include global styles
@@ -62,7 +64,6 @@ koine-design-system/
 ├── tailwind.config.js         ← Tailwind preset with all tokens
 │
 └── docs/
-    ├── README.md              ← This file
     └── components.md          ← Component design guidelines
 ```
 
@@ -100,7 +101,7 @@ From dove head (#f0e4c0) through wing (#d4c18a) to flame (#c97a20).
 
 ### Themes
 
-**Dark (default):** Gold on `#08080e` — candlelight in a cathedral.  
+**Dark (default):** Gold on `#08080e` — candlelight through frosted glass. Semi-transparent surfaces with `backdrop-filter`.  
 **Light:** Dark gold on `#fdf9f0` — ink on parchment.  
 **Liturgical Red:** Gold on `#5a0e0e` → `#8b1a1a` — Pentecost vestments.
 
@@ -116,12 +117,13 @@ From dove head (#f0e4c0) through wing (#d4c18a) to flame (#c97a20).
 | **Body** | DM Sans | Regular (400) | Normal |
 | **Labels** | DM Sans | Medium (500) | 0.15em |
 | **Overlines** | Cormorant Garamond | Regular | 0.35em, uppercase |
+| **Mono / HUD** | JetBrains Mono | Regular (400) | 0.15em, uppercase |
 
 ---
 
 ## Motion
 
-Inspired by candlelight — warm, gentle, deliberate. Never sharp or mechanical.
+Inspired by candlelight — warm, gentle, deliberate — with precise, technological transitions at the edges.
 
 | Token | Duration | Use |
 |-------|----------|-----|

@@ -2,91 +2,298 @@
   "$schema": "https://design-tokens.github.io/community-group/format/",
   "_meta": {
     "name": "Koine Design System — Color Tokens",
-    "version": "1.0.0",
-    "description": "Color palette derived from Pentecost iconography: gold flame, warm cream, sacred dark, liturgical red"
+    "version": "1.1.0",
+    "description": "Color palette derived from Pentecost iconography: gold flame, warm cream, sacred dark, liturgical red. Futuristic Pentecost refinement adds semi-transparent surfaces and data grid textures."
   },
-
   "brand": {
     "gold": {
-      "50":  { "value": "#faf6e8", "type": "color", "description": "Lightest gold — subtle backgrounds" },
-      "100": { "value": "#f0e4c0", "type": "color", "description": "Light gold — dove head, highlights" },
-      "200": { "value": "#e8d5a3", "type": "color", "description": "Dove body — primary icon fill" },
-      "300": { "value": "#d4c18a", "type": "color", "description": "Dove wings — secondary icon fill" },
-      "400": { "value": "#c9a84c", "type": "color", "description": "Core brand gold — accent color" },
-      "500": { "value": "#daa540", "type": "color", "description": "Flame medium — interactive elements" },
-      "600": { "value": "#c97a20", "type": "color", "description": "Flame deep — gradients, emphasis" },
-      "700": { "value": "#a06218", "type": "color", "description": "Dark gold — pressed states" },
-      "800": { "value": "#8a5a10", "type": "color", "description": "Ember — light theme icon fill" },
-      "900": { "value": "#6b5020", "type": "color", "description": "Deepest gold — light theme body" }
+      "50": {
+        "value": "#faf6e8",
+        "type": "color",
+        "description": "Lightest gold — subtle backgrounds"
+      },
+      "100": {
+        "value": "#f0e4c0",
+        "type": "color",
+        "description": "Light gold — dove head, highlights"
+      },
+      "200": {
+        "value": "#e8d5a3",
+        "type": "color",
+        "description": "Dove body — primary icon fill"
+      },
+      "300": {
+        "value": "#d4c18a",
+        "type": "color",
+        "description": "Dove wings — secondary icon fill"
+      },
+      "400": {
+        "value": "#c9a84c",
+        "type": "color",
+        "description": "Core brand gold — accent color"
+      },
+      "500": {
+        "value": "#daa540",
+        "type": "color",
+        "description": "Flame medium — interactive elements"
+      },
+      "600": {
+        "value": "#c97a20",
+        "type": "color",
+        "description": "Flame deep — gradients, emphasis"
+      },
+      "700": {
+        "value": "#a06218",
+        "type": "color",
+        "description": "Dark gold — pressed states"
+      },
+      "800": {
+        "value": "#8a5a10",
+        "type": "color",
+        "description": "Ember — light theme icon fill"
+      },
+      "900": {
+        "value": "#6b5020",
+        "type": "color",
+        "description": "Deepest gold — light theme body"
+      }
     },
     "cream": {
-      "50":  { "value": "#fdf9f0", "type": "color", "description": "Near white — light theme background" },
-      "100": { "value": "#f4efe4", "type": "color", "description": "Light theme surface" },
-      "200": { "value": "#e8dbb0", "type": "color", "description": "Warm highlight" },
-      "300": { "value": "#d4c5a0", "type": "color", "description": "Muted text on dark" },
-      "400": { "value": "#c4b68a", "type": "color", "description": "Primary text on dark" },
-      "500": { "value": "#a09070", "type": "color", "description": "Secondary text" }
+      "50": {
+        "value": "#fdf9f0",
+        "type": "color",
+        "description": "Near white — light theme background"
+      },
+      "100": {
+        "value": "#f4efe4",
+        "type": "color",
+        "description": "Light theme surface"
+      },
+      "200": {
+        "value": "#e8dbb0",
+        "type": "color",
+        "description": "Warm highlight"
+      },
+      "300": {
+        "value": "#d4c5a0",
+        "type": "color",
+        "description": "Muted text on dark"
+      },
+      "400": {
+        "value": "#c4b68a",
+        "type": "color",
+        "description": "Primary text on dark"
+      },
+      "500": {
+        "value": "#a09070",
+        "type": "color",
+        "description": "Secondary text"
+      }
     },
     "dark": {
-      "50":  { "value": "#1a1810", "type": "color", "description": "Border — subtle dividers" },
-      "100": { "value": "#151210", "type": "color", "description": "Elevated surface" },
-      "200": { "value": "#111118", "type": "color", "description": "Card background" },
-      "300": { "value": "#0f0e0a", "type": "color", "description": "Surface" },
-      "400": { "value": "#0d0b08", "type": "color", "description": "Primary surface" },
-      "500": { "value": "#0a0a12", "type": "color", "description": "Deep background" },
-      "600": { "value": "#08080e", "type": "color", "description": "Deepest — body background" }
+      "50": {
+        "value": "#1a1810",
+        "type": "color",
+        "description": "Border — subtle dividers"
+      },
+      "100": {
+        "value": "#151210",
+        "type": "color",
+        "description": "Elevated surface"
+      },
+      "200": {
+        "value": "#111118",
+        "type": "color",
+        "description": "Card background"
+      },
+      "300": {
+        "value": "#0f0e0a",
+        "type": "color",
+        "description": "Surface"
+      },
+      "400": {
+        "value": "#0d0b08",
+        "type": "color",
+        "description": "Primary surface"
+      },
+      "500": {
+        "value": "#0a0a12",
+        "type": "color",
+        "description": "Deep background"
+      },
+      "600": {
+        "value": "#08080e",
+        "type": "color",
+        "description": "Deepest — body background"
+      }
     },
     "liturgical": {
-      "red-900": { "value": "#2a0808", "type": "color", "description": "Silhouettes on red" },
-      "red-800": { "value": "#3a0e0e", "type": "color", "description": "Deepest liturgical" },
-      "red-700": { "value": "#5a0e0e", "type": "color", "description": "Liturgical gradient end" },
-      "red-600": { "value": "#6a1010", "type": "color", "description": "Border on red" },
-      "red-500": { "value": "#8b1a1a", "type": "color", "description": "Liturgical gradient start" },
-      "red-400": { "value": "#a52020", "type": "color", "description": "Liturgical accent" },
-      "red-300": { "value": "#c53030", "type": "color", "description": "Liturgical bright" }
+      "red-900": {
+        "value": "#2a0808",
+        "type": "color",
+        "description": "Silhouettes on red"
+      },
+      "red-800": {
+        "value": "#3a0e0e",
+        "type": "color",
+        "description": "Deepest liturgical"
+      },
+      "red-700": {
+        "value": "#5a0e0e",
+        "type": "color",
+        "description": "Liturgical gradient end"
+      },
+      "red-600": {
+        "value": "#6a1010",
+        "type": "color",
+        "description": "Border on red"
+      },
+      "red-500": {
+        "value": "#8b1a1a",
+        "type": "color",
+        "description": "Liturgical gradient start"
+      },
+      "red-400": {
+        "value": "#a52020",
+        "type": "color",
+        "description": "Liturgical accent"
+      },
+      "red-300": {
+        "value": "#c53030",
+        "type": "color",
+        "description": "Liturgical bright"
+      }
     },
     "flame": {
-      "light":  { "value": "#f0e0a0", "type": "color", "description": "Flame tip — gradient end" },
-      "medium": { "value": "#daa540", "type": "color", "description": "Flame core" },
-      "deep":   { "value": "#c97a20", "type": "color", "description": "Flame base — gradient start" },
-      "ember":  { "value": "#8a5a10", "type": "color", "description": "Dying ember" }
+      "light": {
+        "value": "#f0e0a0",
+        "type": "color",
+        "description": "Flame tip — gradient end"
+      },
+      "medium": {
+        "value": "#daa540",
+        "type": "color",
+        "description": "Flame core"
+      },
+      "deep": {
+        "value": "#c97a20",
+        "type": "color",
+        "description": "Flame base — gradient start"
+      },
+      "ember": {
+        "value": "#8a5a10",
+        "type": "color",
+        "description": "Dying ember"
+      }
     }
   },
-
   "semantic": {
     "text": {
-      "primary":     { "value": "{brand.cream.400}", "description": "Main body text on dark" },
-      "secondary":   { "value": "{brand.cream.500}", "description": "Supporting text" },
-      "muted":       { "value": "#6b5f3f", "description": "Labels, captions" },
-      "accent":      { "value": "{brand.gold.400}", "description": "Highlighted text, links" },
-      "on-light":    { "value": "#2a2010", "description": "Text on light surfaces" },
-      "on-red":      { "value": "#f4e8c8", "description": "Text on liturgical surfaces" }
+      "primary": {
+        "value": "{brand.cream.400}",
+        "description": "Main body text on dark"
+      },
+      "secondary": {
+        "value": "{brand.cream.500}",
+        "description": "Supporting text"
+      },
+      "muted": {
+        "value": "#6b5f3f",
+        "description": "Labels, captions"
+      },
+      "accent": {
+        "value": "{brand.gold.400}",
+        "description": "Highlighted text, links"
+      },
+      "on-light": {
+        "value": "#2a2010",
+        "description": "Text on light surfaces"
+      },
+      "on-red": {
+        "value": "#f4e8c8",
+        "description": "Text on liturgical surfaces"
+      }
     },
     "surface": {
-      "base":        { "value": "{brand.dark.600}", "description": "Page background" },
-      "primary":     { "value": "{brand.dark.400}", "description": "Card background" },
-      "elevated":    { "value": "{brand.dark.100}", "description": "Raised elements, modals" },
-      "overlay":     { "value": "rgba(8,8,14,0.8)", "description": "Modal backdrop" }
+      "base": {
+        "value": "{brand.dark.600}",
+        "description": "Page background"
+      },
+      "primary": {
+        "value": "rgba(13,11,8,0.7)",
+        "description": "Card/panel background — semi-transparent for glassmorphism"
+      },
+      "elevated": {
+        "value": "rgba(30,25,20,0.55)",
+        "description": "Raised elements — semi-transparent for glassmorphism"
+      },
+      "overlay": {
+        "value": "rgba(8,8,14,0.8)",
+        "description": "Modal backdrop"
+      }
     },
     "border": {
-      "default":     { "value": "{brand.dark.50}", "description": "Default borders" },
-      "subtle":      { "value": "#1a1608", "description": "Card borders" },
-      "accent":      { "value": "{brand.gold.400}", "description": "Active/focused borders" }
+      "default": {
+        "value": "{brand.dark.50}",
+        "description": "Default borders"
+      },
+      "subtle": {
+        "value": "#1a1608",
+        "description": "Card borders"
+      },
+      "accent": {
+        "value": "{brand.gold.400}",
+        "description": "Active/focused borders"
+      }
     },
     "interactive": {
-      "default":     { "value": "{brand.gold.500}", "description": "Buttons, links" },
-      "hover":       { "value": "{brand.gold.400}", "description": "Hover state" },
-      "pressed":     { "value": "{brand.gold.700}", "description": "Active/pressed state" },
-      "disabled":    { "value": "#4a4030", "description": "Disabled elements" }
+      "default": {
+        "value": "{brand.gold.500}",
+        "description": "Buttons, links"
+      },
+      "hover": {
+        "value": "{brand.gold.400}",
+        "description": "Hover state"
+      },
+      "pressed": {
+        "value": "{brand.gold.700}",
+        "description": "Active/pressed state"
+      },
+      "disabled": {
+        "value": "#4a4030",
+        "description": "Disabled elements"
+      }
     },
     "status": {
-      "success":     { "value": "#4a8a3a", "description": "Success states" },
-      "warning":     { "value": "{brand.flame.medium}", "description": "Warning — uses flame" },
-      "error":       { "value": "{brand.liturgical.red-400}", "description": "Error — uses liturgical red" },
-      "info":        { "value": "#5a7a9a", "description": "Informational" }
+      "success": {
+        "value": "#4a8a3a",
+        "description": "Success states"
+      },
+      "warning": {
+        "value": "{brand.flame.medium}",
+        "description": "Warning — uses flame"
+      },
+      "error": {
+        "value": "{brand.liturgical.red-400}",
+        "description": "Error — uses liturgical red"
+      },
+      "info": {
+        "value": "#5a7a9a",
+        "description": "Informational"
+      }
+    },
+    "effect": {
+      "grid": {
+        "value": "rgba(218,165,64,0.035)",
+        "description": "Background data grid lines — subtle gold"
+      },
+      "glow-neon": {
+        "value": "0 0 10px rgba(218,165,64,0.4), 0 0 30px rgba(218,165,64,0.15)",
+        "type": "shadow",
+        "description": "Intensified neon gold glow for hover/focus states"
+      }
     }
   },
-
   "gradient": {
     "flame": {
       "value": "linear-gradient(to top, #c97a20, #daa540 40%, #f0e0a0)",

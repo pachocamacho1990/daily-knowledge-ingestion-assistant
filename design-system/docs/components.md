@@ -101,13 +101,16 @@ Danger:    bg red-500 → hover red-400
 ### Cards
 
 ```
-Background: surface-primary (--koine-dark-400)
+Background: surface-primary (rgba, semi-transparent for glassmorphism)
 Border:     1px solid border-subtle (#1a1608)
 Radius:     koine-xl (16px)
 Padding:    space-6 (24px)
-Shadow:     none by default, koine-md on hover
+Shadow:     none by default, koine-glow-neon on hover
+Backdrop:   backdrop-filter: blur(20px) saturate(1.5)
 Transition: all normal ease-gentle
 
+HUD variant:      ::before/::after pseudo-elements as corner brackets
+                  (top-left + bottom-right, 2px gold, 12px arms)
 Elevated variant: surface-elevated with koine-sm shadow
 Flame variant:    left border 3px gradient-flame (for notifications/alerts)
 ```
@@ -115,14 +118,37 @@ Flame variant:    left border 3px gradient-flame (for notifications/alerts)
 ### Inputs
 
 ```
-Background: surface-primary
-Border:     1px solid border-default → focus: border-accent
+Background: surface-primary (semi-transparent)
+Border:     1px solid border-default → focus: border-accent with glow-neon
 Radius:     koine-md (10px)
 Padding:    space-3 space-4 (12px 16px)
 Font:       DM Sans regular, fs-base
+Placeholder: JetBrains Mono, lowercase, text-muted
 Color:      text-primary
-Placeholder: text-muted
-Focus ring: --koine-focus-ring (2px gap + 2px gold ring)
+Focus ring: glow-neon (0 0 10px gold 40%, 0 0 30px gold 15%)
+Backdrop:   backdrop-filter: blur(20px)
+```
+
+### HUD Elements (Futuristic Pentecost)
+
+```
+System Status:  JetBrains Mono, xs, uppercase, 0.15em tracking
+                Pulsing green dot (6px circle, koine-glow-pulse)
+                Text: text-muted → "SYSTEM ONLINE · LOCAL PROCESSING"
+
+Monospace Text: JetBrains Mono for: status bars, input footers,
+                technical metadata, card overlines, viz descriptions
+                Always lowercase or uppercase — never mixed case
+
+Corner Markers: ::before/::after pseudo-elements on cards
+                2px solid gold-400, 12px arm length
+                Top-left (border-top + border-left)
+                Bottom-right (border-bottom + border-right)
+                Opacity: 0 → 1 on hover
+
+Data Grid:      40px repeating linear-gradient squares
+                Color: --koine-grid-color (gold at 3.5% opacity)
+                Masked with radial-gradient for center-focused fade
 ```
 
 ### Navigation
