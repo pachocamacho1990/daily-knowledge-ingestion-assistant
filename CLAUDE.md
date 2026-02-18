@@ -88,15 +88,18 @@ daily-knowledge-ingestion-assistant/
 - **Phase**: Prototyping — full GraphRAG pipeline validated in notebooks
 - **What exists**: 3 notebooks (extraction, graph+viz, retrieval), docs, 3 UI mockups, GitHub Wiki (Phase 0 + 1)
 - **What doesn't exist yet**: Production code (src/), Dockerfile, pyproject.toml, FastAPI server
-- **Visualization**: Extracted from notebook 02 into standalone scripts:
+- **Visualization**: Complete. Extracted from notebook 02 into standalone scripts:
   - `scripts/generate_viz.py` — Cytoscape.js multi-level drill-down (primary)
   - `scripts/generate_viz_plotly.py` — Plotly fallback (`--view entity` or `--view community`)
   - Run: `python scripts/generate_viz.py` or `python scripts/generate_viz_plotly.py`
-- **Cytoscape.js known issues (fixed)**:
+  - All nodes circular (ellipse shape at every level)
+  - Concentric layouts: Level 0 communities by size, Level 1 entities by PageRank
+  - Expand/collapse: expanded community centers, collapsed nodes form ring outside
+- **Cytoscape.js lessons learned** (all resolved):
   - `#cy` container must use `position: absolute` (not flex) for canvas sizing
   - Entity IDs sanitized: `.#[]():"',\` replaced with `_` (breaks CSS selectors)
-  - Expand layout uses `descendants()` + `grid` (not `children()` + `cose` which crashes on compound nodes)
-- **Viz TODO**: All nodes should be circular (including communities, currently round-rectangle)
+  - Compound node layout: use `descendants()` not `children()`, avoid `cose` on compounds
+  - Manual positioning (`arrangeInCircle`) for top-level relayout — built-in layouts don't account for compound node size
 - **Next step**: Convert notebook prototypes to production Python modules, then Docker packaging
 - **Implementation plan**: 10 steps in `docs/architecture-plan.md`
 
@@ -142,6 +145,7 @@ Phase-1:-GraphRAG-Engine.md
   ├── GraphRAG-Pipeline-Architecture.md
   ├── Multi-Source-Ingestion.md
   ├── Knowledge-Graph-and-Communities.md
+  ├── Standalone-Visualization.md
   ├── Triple-Factor-Retrieval.md
   ├── Key-Learnings-and-Design-Decisions.md
   └── Algorithm-Reference.md

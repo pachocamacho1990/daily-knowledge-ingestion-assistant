@@ -102,3 +102,12 @@
     - `#cy` container: `position: absolute` instead of `flex: 1` (canvas sizing)
     - Entity ID sanitization: special chars (`.#[]():"',\`) break CSS selectors
     - Expand layout: `descendants()` + `grid` instead of `children()` + `cose` (compound node crash)
+- **Feb 17, 2026**: Visualization polish -- circular symmetry and overlap-free expand:
+  - All node shapes changed to `ellipse` (communities, semantic groups, entities) for consistent circular appearance
+  - Level 0 initial layout: `concentric` with larger communities toward center (replaced `grid`)
+  - Level 1 expand: children placed in a circle using manual trigonometric positioning
+  - Expand relayout: expanded community moves to center, collapsed nodes form ring outside with gap
+  - Collapse relayout: all nodes return to concentric arrangement by size
+  - Manual `arrangeInCircle()` + `relayoutTopLevel()` replaces built-in layouts for top-level (built-in layouts don't account for compound node bounding box size)
+  - Plotly fallback script added (`scripts/generate_viz_plotly.py`) with entity and community views
+  - Visualization considered complete for prototyping phase
