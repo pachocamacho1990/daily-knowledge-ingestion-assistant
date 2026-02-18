@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>DKIA Knowledge Graph</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.30.4/cytoscape.min.js"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #0a0a0f;
+    color: #e0e0e0;
+    overflow: hidden;
+  }
+  #cy {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 360px;
+    bottom: 0;
+  }
+  #sidebar {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 360px;
+    height: 100vh;
+    background: #12121a;
+    border-left: 1px solid #2a2a3a;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  #sidebar h2 {
+    padding: 16px 20px 12px;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: #f58231;
+    border-bottom: 1px solid #2a2a3a;
+  }
+  #node-info {
+    padding: 16px 20px;
+    border-bottom: 1px solid #2a2a3a;
+    min-height: 120px;
+    max-height: 380px;
+    overflow-y: auto;
+    font-size: 13px;
+    line-height: 1.6;
+  }
+  #node-info .name {
+    font-size: 16px;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 8px;
+  }
+  #node-info .type-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+  #node-info .metric { color: #888; }
+  #node-info .metric span { color: #e0e0e0; font-weight: 500; }
+  #node-info .desc {
+    margin-top: 10px;
+    color: #aaa;
+    font-style: italic;
+    font-size: 12px;
+  }
+  #node-info .placeholder { color: #555; font-style: italic; }
+  #node-info .chunk-hint {
+    margin-top: 8px;
+    padding: 6px 10px;
+    background: #1a1a2e;
+    border-radius: 4px;
+    font-size: 11px;
+    color: #42d4f4;
+  }
+  .comm-summary-box {
+    margin-top: 12px;
+    padding: 10px 12px;
+    background: #1a1a2e;
+    border-radius: 6px;
+    border-left: 3px solid #f58231;
+  }
+  .comm-summary-box .comm-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: #f58231;
+    margin-bottom: 6px;
+  }
+  .comm-summary-box .comm-text {
+    font-size: 12px;
+    color: #aaa;
+    line-height: 1.5;
+    margin-bottom: 8px;
+  }
+  .comm-summary-box .comm-insights {
+    list-style: none;
+    padding: 0;
+  }
+  .comm-summary-box .comm-insights li {
+    font-size: 11px;
+    color: #888;
+    padding: 2px 0 2px 12px;
+    position: relative;
+    line-height: 1.4;
+  }
+  .comm-summary-box .comm-insights li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 8px;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #f58231;
+  }
+  #chunk-panel {
+    border-bottom: 1px solid #2a2a3a;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+  }
+  #chunk-panel.open {
+    max-height: 400px;
+    overflow-y: auto;
+  }
+  #chunk-panel .chunk-header {
+    padding: 10px 20px 6px;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #42d4f4;
+    position: sticky;
+    top: 0;
+    background: #12121a;
+  }
+  .chunk-card {
+    margin: 4px 12px;
+    padding: 10px 14px;
+    background: #1a1a2e;
+    border-radius: 6px;
+    border-left: 3px solid #42d4f4;
+    cursor: default;
+    transition: background 0.15s;
+  }
+  .chunk-card:hover { background: #222240; }
+  .chunk-card .chunk-source {
+    font-size: 10px;
+    color: #666;
+    margin-bottom: 4px;
+  }
+  .chunk-card .chunk-text {
+    font-size: 12px;
+    color: #bbb;
+    line-height: 1.5;
+    max-height: 44px;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+  }
+  .chunk-card:hover .chunk-text { max-height: 600px; }
+  .chunk-card .expand-hint {
+    font-size: 10px;
+    color: #555;
+    margin-top: 4px;
+  }
+  .chunk-card:hover .expand-hint { display: none; }
+  #chunk-tooltip {
+    display: none;
+    position: fixed;
+    max-width: 450px;
+    padding: 14px 18px;
+    background: #1a1a2e;
+    border: 1px solid #42d4f4;
+    border-radius: 8px;
+    font-size: 12px;
+    color: #ccc;
+    line-height: 1.6;
+    z-index: 9999;
+    pointer-events: none;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+  }
+  #chunk-tooltip .tt-source {
+    font-size: 10px;
+    color: #42d4f4;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  #chunk-tooltip .tt-text {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+  #legend-header {
+    padding: 12px 20px 8px;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #888;
+    border-bottom: 1px solid #2a2a3a;
+  }
+  #legend {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px 20px;
+  }
+  .legend-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 6px 0;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background 0.15s;
+  }
+  .legend-item:hover { background: #1a1a2a; }
+  .legend-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 3px;
+  }
+  .legend-text {
+    font-size: 12px;
+    line-height: 1.4;
+    color: #aaa;
+  }
+  .legend-text .count { color: #666; }
+  .legend-text .title { color: #ccc; font-weight: 500; }
+  .level-indicator {
+    padding: 6px 20px;
+    font-size: 11px;
+    color: #f58231;
+    background: #1a1a0e;
+    border-bottom: 1px solid #2a2a3a;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  #controls {
+    padding: 12px 20px;
+    border-top: 1px solid #2a2a3a;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  #controls button {
+    padding: 6px 12px;
+    background: #1a1a2a;
+    border: 1px solid #2a2a3a;
+    color: #ccc;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: all 0.15s;
+  }
+  #controls button:hover { background: #2a2a3a; color: #fff; }
+  #stats {
+    padding: 8px 20px;
+    font-size: 11px;
+    color: #555;
+    border-top: 1px solid #2a2a3a;
+  }
+</style>
+</head>
+<body>
+<div id="cy"></div>
+<div id="chunk-tooltip"></div>
+<div id="sidebar">
+  <h2>DKIA Knowledge Graph</h2>
+  <div class="level-indicator" id="level-indicator">Loading...</div>
+  <div id="node-info">
+    <div class="placeholder">Click a community node to expand it<br>Click a community in the legend to focus it</div>
+  </div>
+  <div id="chunk-panel"></div>
+  <div id="legend-header">COMMUNITIES (LEGEND_COUNT)</div>
+  <div id="legend">LEGEND_HTML</div>
+  <div id="controls">
+    <button onclick="cy.fit(undefined, 40)">Fit</button>
+    <button onclick="collapseAll()">Collapse All</button>
+    <button onclick="resetView()">Reset</button>
+  </div>
+  <div id="stats">META_NODES meta-nodes &middot; TOTAL_ENTITIES entities &middot; COMM_COUNT communities</div>
+</div>
+
+<script>
+window.onerror = function(msg, src, line, col, err) {
+  document.getElementById('cy').innerHTML = '<div style="color:#ff4444;padding:40px;font-size:16px;font-family:monospace"><b>JS Error:</b><br><pre style="white-space:pre-wrap;margin-top:12px">' + msg + '\nLine: ' + line + ', Col: ' + col + '\n' + (err && err.stack ? err.stack : '') + '</pre></div>';
+};
+
+if (typeof cytoscape === 'undefined') {
+  document.getElementById('cy').innerHTML = '<div style="color:#ff4444;padding:40px;font-size:18px"><b>Cytoscape.js CDN failed to load!</b></div>';
+  throw new Error('CDN not loaded');
+}
+
+var metaElements = COMMUNITY_META_JSON;
+var communityData = COMMUNITY_ENTITIES_JSON;
+var chunkTexts = CHUNK_TEXTS_JSON;
+var chunkRefs = CHUNK_REFS_JSON;
+var commSummaries = COMMUNITY_SUMMARIES_JSON;
+var semanticGroups = SEMANTIC_GROUPS_JSON;
+
+var expandedCommunities = new Set();
+
+var cy;
+try {
+  cy = cytoscape({
+    container: document.getElementById('cy'),
+    elements: metaElements,
+    style: [
+      {
+        selector: 'node[type="COMMUNITY"]',
+        style: {
+          'shape': 'round-rectangle',
+          'background-color': 'data(color)',
+          'background-opacity': 0.35,
+          'border-color': 'data(color)',
+          'border-width': 3,
+          'label': 'data(label)',
+          'font-size': '11px',
+          'text-valign': 'center',
+          'text-halign': 'center',
+          'text-wrap': 'wrap',
+          'text-max-width': '100px',
+          'color': '#fff',
+          'width': 'data(size)',
+          'height': 'data(size)',
+          'text-outline-color': '#0a0a0f',
+          'text-outline-width': 2,
+        }
+      },
+      {
+        selector: ':parent[type="COMMUNITY"]',
+        style: {
+          'background-opacity': 0.08,
+          'border-style': 'solid',
+          'border-width': 2,
+          'padding': '20px',
+          'text-valign': 'top',
+          'font-size': '10px',
+          'shape': 'round-rectangle',
+        }
+      },
+      {
+        selector: 'node[type!="COMMUNITY"][type!="SEMANTIC_GROUP"]',
+        style: {
+          'label': 'data(label)',
+          'background-color': 'data(color)',
+          'width': 'data(size)',
+          'height': 'data(size)',
+          'shape': 'ellipse',
+          'font-size': '9px',
+          'text-valign': 'bottom',
+          'text-halign': 'center',
+          'text-margin-y': 4,
+          'color': '#999',
+          'text-outline-color': '#0a0a0f',
+          'text-outline-width': 2,
+          'border-width': 1.5,
+          'border-color': '#333',
+        }
+      },
+      {
+        selector: 'node[type="SEMANTIC_GROUP"]',
+        style: {
+          'background-color': '#151a12',
+          'background-opacity': 0.5,
+          'border-color': '#bfef45',
+          'border-width': 2,
+          'border-style': 'dashed',
+          'border-opacity': 0.5,
+          'shape': 'round-rectangle',
+          'padding': '15px',
+          'text-valign': 'top',
+          'text-halign': 'center',
+          'font-size': '10px',
+          'color': '#bfef45',
+          'text-opacity': 0.7,
+          'label': 'data(label)',
+          'text-outline-color': '#0a0a0f',
+          'text-outline-width': 2,
+        }
+      },
+      {
+        selector: 'edge',
+        style: {
+          'width': 1.5,
+          'line-color': '#333',
+          'target-arrow-color': '#444',
+          'target-arrow-shape': 'triangle',
+          'curve-style': 'bezier',
+          'opacity': 0.5,
+        }
+      },
+      {
+        selector: 'edge[weight]',
+        style: {
+          'width': 3,
+          'line-color': '#555',
+          'target-arrow-shape': 'none',
+          'line-style': 'dashed',
+          'opacity': 0.4,
+        }
+      },
+      {
+        selector: 'node:selected',
+        style: {
+          'border-width': 4,
+          'border-color': '#f58231',
+          'color': '#fff',
+          'font-size': '12px',
+          'font-weight': 'bold',
+          'text-outline-width': 3,
+          'z-index': 999,
+        }
+      },
+      {
+        selector: '.highlighted',
+        style: {
+          'opacity': 1,
+          'border-width': 3,
+          'border-color': '#f58231',
+          'color': '#fff',
+          'z-index': 999,
+        }
+      },
+      {
+        selector: 'edge.highlighted',
+        style: {
+          'opacity': 1,
+          'width': 2.5,
+          'line-color': '#f58231',
+          'target-arrow-color': '#f58231',
+        }
+      },
+      {
+        selector: '.dimmed',
+        style: { 'opacity': 0.12 }
+      },
+      {
+        selector: '.chunk-node',
+        style: {
+          'background-color': '#42d4f4',
+          'background-opacity': 0.25,
+          'border-color': '#42d4f4',
+          'border-width': 2,
+          'width': 18,
+          'height': 18,
+          'shape': 'ellipse',
+          'label': 'data(label)',
+          'font-size': '8px',
+          'color': '#42d4f4',
+          'text-valign': 'bottom',
+          'text-margin-y': 3,
+          'text-outline-color': '#0a0a0f',
+          'text-outline-width': 2,
+          'z-index': 1000,
+          'opacity': 1,
+        }
+      },
+      {
+        selector: '.chunk-edge',
+        style: {
+          'width': 1,
+          'line-color': '#42d4f4',
+          'line-style': 'dashed',
+          'opacity': 0.4,
+          'target-arrow-shape': 'none',
+          'curve-style': 'bezier',
+          'z-index': 999,
+        }
+      },
+    ],
+    layout: {
+      name: 'grid',
+      animate: false,
+      fit: true,
+      padding: 40,
+    },
+    minZoom: 0.15,
+    maxZoom: 4,
+    wheelSensitivity: 0.3,
+  });
+
+  cy.fit(undefined, 40);
+  document.getElementById('level-indicator').textContent =
+    'Level 0 — ' + cy.nodes().length + ' nodes, ' + cy.edges().length + ' edges loaded';
+} catch(e) {
+  document.getElementById('cy').innerHTML =
+    '<div style="color:#ff4444;padding:40px;font-size:16px;font-family:monospace"><b>Cytoscape Error:</b><br><pre style="white-space:pre-wrap;margin-top:12px">' + e.message + '\n\n' + e.stack + '</pre></div>';
+}
+
+var tooltip = document.getElementById('chunk-tooltip');
+var chunkPanel = document.getElementById('chunk-panel');
+var levelIndicator = document.getElementById('level-indicator');
+
+function updateLevelIndicator() {
+  if (expandedCommunities.size === 0) {
+    levelIndicator.textContent = 'Level 0 — Community Overview';
+  } else {
+    levelIndicator.textContent = 'Level 1 — ' + expandedCommunities.size + ' expanded';
+  }
+}
+
+function clearChunks() {
+  cy.remove(cy.elements('.chunk-node, .chunk-edge'));
+  chunkPanel.classList.remove('open');
+  chunkPanel.innerHTML = '';
+  tooltip.style.display = 'none';
+}
+
+function expandCommunity(commId) {
+  var metaNode = cy.getElementById('comm-' + commId);
+  if (!metaNode.length) return;
+
+  var data = communityData[commId];
+  if (!data) return;
+
+  var toAdd = [].concat(data.entities, data.edges, data.semantic_groups);
+  cy.add(toAdd);
+
+  var descendants = metaNode.descendants();
+  var layoutEles = descendants.union(descendants.edgesWith(descendants));
+  layoutEles.layout({
+    name: 'grid',
+    animate: false,
+    boundingBox: metaNode.boundingBox(),
+    fit: false,
+    condense: true,
+    avoidOverlapPadding: 10,
+  }).run();
+
+  expandedCommunities.add(commId);
+  updateLevelIndicator();
+  cy.animate({ fit: { eles: metaNode.union(descendants), padding: 60 }, duration: 300 });
+}
+
+function collapseCommunity(commId) {
+  var metaNode = cy.getElementById('comm-' + commId);
+  if (!metaNode.length) return;
+
+  var children = metaNode.children();
+  children.forEach(function(child) {
+    cy.remove(cy.elements('.chunk-node[id ^= "chunk-' + child.id() + '"]'));
+    cy.remove(cy.elements('.chunk-edge'));
+  });
+
+  var descendants = metaNode.descendants();
+  cy.remove(descendants.edgesWith(descendants));
+  cy.remove(descendants);
+
+  expandedCommunities.delete(commId);
+  updateLevelIndicator();
+}
+
+function collapseAll() {
+  clearChunks();
+  Array.from(expandedCommunities).forEach(function(commId) {
+    collapseCommunity(commId);
+  });
+  cy.elements().removeClass('dimmed highlighted');
+  resetView();
+}
+
+function resetView() {
+  clearChunks();
+  cy.elements().removeClass('dimmed highlighted');
+  document.getElementById('node-info').innerHTML =
+    '<div class="placeholder">Click a community node to expand it<br>Click a community in the legend to focus it</div>';
+  updateLevelIndicator();
+  cy.fit(undefined, 40);
+}
+
+function buildCommSummaryHtml(commId, color) {
+  var s = commSummaries[commId];
+  if (!s) return '';
+  var html = '<div class="comm-summary-box" style="border-left-color:' + (color || '#f58231') + '">';
+  html += '<div class="comm-title">Community ' + commId + ': ' + s.title + '</div>';
+  html += '<div class="comm-text">' + s.summary + '</div>';
+  if (s.key_insights && s.key_insights.length > 0) {
+    html += '<ul class="comm-insights">';
+    s.key_insights.forEach(function(insight) {
+      html += '<li>' + insight.replace(/</g, '&lt;') + '</li>';
+    });
+    html += '</ul>';
+  }
+  html += '</div>';
+  return html;
+}
+
+function buildSemanticGroupHtml(groupId) {
+  var g = semanticGroups[groupId];
+  if (!g) return '';
+  var html = '<div class="comm-summary-box" style="border-left-color:#bfef45">';
+  html += '<div class="comm-title" style="color:#bfef45">Semantic Group: ' + g.canonical + '</div>';
+  html += '<div class="comm-text">' + g.members.length + ' semantically similar entities</div>';
+  html += '<ul class="comm-insights">';
+  g.members.forEach(function(m) {
+    var sim = g.member_similarities[m];
+    var simStr = sim ? ' (sim=' + sim.toFixed(4) + ')' : ' (canonical)';
+    html += '<li>' + m + simStr + '</li>';
+  });
+  html += '</ul>';
+  html += '</div>';
+  return html;
+}
+
+function showCommunitySummary(commId, color) {
+  var expanded = expandedCommunities.has(commId);
+  var s = commSummaries[commId];
+  if (!s) return;
+  var memberCount = communityData[commId] ? communityData[commId].entities.length : 0;
+  var html = '<div class="name" style="color:' + color + '">Community ' + commId + '</div>';
+  html += '<span class="type-badge" style="background:' + color + '33; color:' + color + '">COMMUNITY</span>';
+  html += '<div class="metric">Members: <span>' + memberCount + ' entities</span></div>';
+  html += '<div class="metric">Status: <span>' + (expanded ? 'Expanded — click border to collapse' : 'Collapsed — click to expand') + '</span></div>';
+  html += buildCommSummaryHtml(commId, color);
+  document.getElementById('node-info').innerHTML = html;
+}
+
+function showChunks(entityId) {
+  clearChunks();
+  var refs = chunkRefs[entityId];
+  if (!refs || refs.length === 0) return;
+  var chunks = refs.map(function(r) {
+    return { index: r.index, source_id: r.source_id, text: chunkTexts[r.text_idx] };
+  });
+
+  var entityNode = cy.getElementById(entityId);
+  var pos = entityNode.position();
+  var radius = 120 + chunks.length * 8;
+
+  var addedElements = [];
+  chunks.forEach(function(chunk, i) {
+    var angle = (2 * Math.PI * i) / chunks.length - Math.PI / 2;
+    var chunkId = 'chunk-' + entityId + '-' + chunk.index;
+    var preview = chunk.source_id.split(':').pop();
+
+    addedElements.push({
+      group: 'nodes',
+      data: {
+        id: chunkId,
+        label: '#' + chunk.index + ' ' + preview,
+        fullText: chunk.text,
+        sourceId: chunk.source_id,
+        chunkIndex: chunk.index,
+      },
+      position: {
+        x: pos.x + radius * Math.cos(angle),
+        y: pos.y + radius * Math.sin(angle),
+      },
+      classes: 'chunk-node',
+    });
+    addedElements.push({
+      group: 'edges',
+      data: {
+        id: 'cedge-' + chunkId,
+        source: entityId,
+        target: chunkId,
+      },
+      classes: 'chunk-edge',
+    });
+  });
+
+  cy.add(addedElements);
+  levelIndicator.textContent = 'Level 2 — Chunk expansion for ' + entityId;
+
+  var panelHtml = '<div class="chunk-header">' + chunks.length + ' source chunks</div>';
+  chunks.forEach(function(chunk) {
+    var fullText = chunk.text.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    panelHtml += '<div class="chunk-card" data-chunk-id="chunk-' + entityId + '-' + chunk.index + '">' +
+      '<div class="chunk-source">#' + chunk.index + ' &middot; ' + chunk.source_id + '</div>' +
+      '<div class="chunk-text">' + fullText + '</div>' +
+      '<div class="expand-hint">hover to expand</div>' +
+      '</div>';
+  });
+  chunkPanel.innerHTML = panelHtml;
+  chunkPanel.classList.add('open');
+
+  chunkPanel.querySelectorAll('.chunk-card').forEach(function(card) {
+    card.addEventListener('mouseenter', function() {
+      var cnode = cy.getElementById(card.dataset.chunkId);
+      if (cnode.length) {
+        cnode.style('background-opacity', 0.7);
+        cnode.style('border-width', 3);
+        cnode.style('width', 24);
+        cnode.style('height', 24);
+      }
+    });
+    card.addEventListener('mouseleave', function() {
+      var cnode = cy.getElementById(card.dataset.chunkId);
+      if (cnode.length) {
+        cnode.style('background-opacity', 0.25);
+        cnode.style('border-width', 2);
+        cnode.style('width', 18);
+        cnode.style('height', 18);
+      }
+    });
+  });
+}
+
+// Hover chunk nodes: tooltip
+cy.on('mouseover', '.chunk-node', function(evt) {
+  var node = evt.target;
+  var d = node.data();
+  var rpos = node.renderedPosition();
+  var container = cy.container().getBoundingClientRect();
+
+  tooltip.innerHTML =
+    '<div class="tt-source">#' + d.chunkIndex + ' &middot; ' + d.sourceId + '</div>' +
+    '<div class="tt-text">' + d.fullText.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</div>';
+
+  var left = container.left + rpos.x + 20;
+  var top = container.top + rpos.y - 20;
+  if (left + 460 > window.innerWidth) left = container.left + rpos.x - 470;
+  if (top + 300 > window.innerHeight) top = window.innerHeight - 310;
+  if (top < 10) top = 10;
+
+  tooltip.style.left = left + 'px';
+  tooltip.style.top = top + 'px';
+  tooltip.style.display = 'block';
+});
+
+cy.on('mouseout', '.chunk-node', function() {
+  tooltip.style.display = 'none';
+});
+
+// Hover inter-community edges: show details
+cy.on('mouseover', 'edge[details]', function(evt) {
+  var edge = evt.target;
+  var d = edge.data();
+  var rpos = edge.renderedMidpoint();
+  var container = cy.container().getBoundingClientRect();
+
+  var html = '<div class="tt-source">' + d.description + '</div>';
+  if (d.details && d.details.length > 0) {
+    html += '<div class="tt-text">' + d.details.join('\n').replace(/</g, '&lt;') + '</div>';
+  }
+  tooltip.innerHTML = html;
+
+  var left = container.left + rpos.x + 20;
+  var top = container.top + rpos.y - 20;
+  if (left + 460 > window.innerWidth) left = container.left + rpos.x - 470;
+  tooltip.style.left = left + 'px';
+  tooltip.style.top = top + 'px';
+  tooltip.style.display = 'block';
+});
+
+cy.on('mouseout', 'edge[details]', function() {
+  tooltip.style.display = 'none';
+});
+
+// Main tap handler
+cy.on('tap', 'node', function(evt) {
+  try {
+  var node = evt.target;
+
+  if (node.hasClass('chunk-node')) return;
+
+  // Semantic group parent
+  if (node.data('type') === 'SEMANTIC_GROUP') {
+    clearChunks();
+    var gid = node.data('group_id');
+    cy.elements().addClass('dimmed').removeClass('highlighted');
+    var children = node.children();
+    children.add(node).add(children.edgesWith(children)).removeClass('dimmed').addClass('highlighted');
+    cy.fit(children.add(node), 60);
+    var infoHtml = '<div class="name" style="color:#bfef45">' + node.data('label') + '</div>';
+    infoHtml += '<span class="type-badge" style="background:#bfef4533; color:#bfef45">SEMANTIC GROUP</span>';
+    infoHtml += '<div class="metric">Members: <span>' + node.data('member_count') + ' entities</span></div>';
+    infoHtml += buildSemanticGroupHtml(gid);
+    document.getElementById('node-info').innerHTML = infoHtml;
+    return;
+  }
+
+  // Community meta-node: expand/collapse
+  if (node.data('type') === 'COMMUNITY') {
+    var commId = node.data('community');
+    if (commId === -1) return;
+    clearChunks();
+    cy.elements().removeClass('dimmed highlighted');
+
+    if (expandedCommunities.has(commId)) {
+      collapseCommunity(commId);
+    } else {
+      expandCommunity(commId);
+    }
+    showCommunitySummary(commId, node.data('color'));
+    return;
+  }
+
+  // Entity node
+  var d = node.data();
+  clearChunks();
+  cy.elements().addClass('dimmed').removeClass('highlighted');
+  var neighborhood = node.neighborhood().add(node);
+  var parentComm = node.parent();
+  if (parentComm.length) {
+    parentComm.add(parentComm.children()).removeClass('dimmed');
+  }
+  neighborhood.removeClass('dimmed').addClass('highlighted');
+
+  var sources = JSON.parse(d.source_refs || '[]');
+  var sourceStr = sources.length > 0 ? sources.join(', ') : 'single source';
+
+  var infoHtml =
+    '<div class="name">' + d.label + '</div>' +
+    '<span class="type-badge" style="background:' + d.color + '33; color:' + d.color + '">' + d.type + '</span>' +
+    ' <span class="type-badge" style="background:#2a2a3a; color:#888">C' + d.community + '</span>' +
+    '<div class="metric">PageRank: <span>' + d.pagerank.toFixed(4) + '</span></div>' +
+    '<div class="metric">Degree: <span>' + d.degree_centrality.toFixed(4) + '</span></div>' +
+    '<div class="metric">Betweenness: <span>' + d.betweenness.toFixed(4) + '</span></div>' +
+    '<div class="metric">Sources: <span>' + d.num_sources + '</span> (' + sourceStr + ')</div>' +
+    (d.description ? '<div class="desc">' + d.description + '</div>' : '');
+
+  if (d.chunk_count > 0) {
+    infoHtml += '<div class="chunk-hint">' + d.chunk_count + ' source chunks — expanding on graph</div>';
+  }
+
+  infoHtml += buildCommSummaryHtml(d.community, d.color);
+
+  var parentNode = node.parent();
+  if (parentNode.length > 0 && parentNode.data('type') === 'SEMANTIC_GROUP') {
+    var sgId = parentNode.data('group_id');
+    infoHtml += '<span class="type-badge" style="background:#bfef4533; color:#bfef45;margin-top:8px;display:inline-block">SG: ' + parentNode.data('label') + '</span>';
+    infoHtml += buildSemanticGroupHtml(sgId);
+  }
+
+  document.getElementById('node-info').innerHTML = infoHtml;
+
+  if (d.chunk_count > 0) {
+    showChunks(d.id);
+  }
+  } catch(err) {
+    document.getElementById('node-info').innerHTML =
+      '<div style="color:#ff4444;font-family:monospace;font-size:12px"><b>Click Error:</b><pre style="white-space:pre-wrap;margin-top:8px">' +
+      err.message + '\n\n' + err.stack + '</pre></div>';
+  }
+});
+
+// Click background: reset
+cy.on('tap', function(evt) {
+  if (evt.target === cy) {
+    clearChunks();
+    cy.elements().removeClass('dimmed highlighted');
+    document.getElementById('node-info').innerHTML =
+      '<div class="placeholder">Click a community node to expand it<br>Click a community in the legend to focus it</div>';
+    updateLevelIndicator();
+  }
+});
+
+// Legend click
+document.querySelectorAll('.legend-item').forEach(function(item) {
+  item.addEventListener('click', function() {
+    clearChunks();
+    var commId = parseInt(item.dataset.community);
+    var color = item.dataset.color;
+
+    if (commId === -1) {
+      cy.elements().addClass('dimmed').removeClass('highlighted');
+      var otherNodes = cy.nodes('[type="COMMUNITY"][community = -1]');
+      otherNodes.removeClass('dimmed').addClass('highlighted');
+      if (otherNodes.length) cy.fit(otherNodes, 60);
+      return;
+    }
+
+    cy.elements().removeClass('dimmed highlighted');
+
+    if (!expandedCommunities.has(commId)) {
+      expandCommunity(commId);
+    } else {
+      var metaNode = cy.getElementById('comm-' + commId);
+      cy.animate({ fit: { eles: metaNode.union(metaNode.descendants()), padding: 60 }, duration: 300 });
+    }
+
+    showCommunitySummary(commId, color);
+  });
+});
+</script>
+</body>
+</html>

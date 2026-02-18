@@ -91,3 +91,14 @@
   - Collapse All button returns to Level 0 overview
   - Inter-community edge hover shows cross-topic relationship details
   - Semantic groups appear as nested compound nodes inside expanded communities
+- **Feb 17, 2026**: Extracted visualization into standalone scripts:
+  - Created `scripts/generate_viz.py` -- Cytoscape.js multi-level drill-down from SQLite
+  - Created `scripts/generate_viz_plotly.py` -- Plotly fallback (entity + community views)
+  - Created `scripts/templates/knowledge_graph.html` -- Cytoscape.js template with placeholders
+  - Added `semantic_groups` and `entity_chunk_map` tables to SQLite schema (notebook 02)
+  - Removed visualization cells (34-35) from notebook 02, replaced with pointer to script
+  - Visualization can now be regenerated in seconds without re-running the pipeline
+  - Fixed Cytoscape.js rendering bugs:
+    - `#cy` container: `position: absolute` instead of `flex: 1` (canvas sizing)
+    - Entity ID sanitization: special chars (`.#[]():"',\`) break CSS selectors
+    - Expand layout: `descendants()` + `grid` instead of `children()` + `cose` (compound node crash)
