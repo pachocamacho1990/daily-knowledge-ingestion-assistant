@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}DKIA — Daily Knowledge Ingestion Assistant{% endblock %}</title>
+    <meta name="description" content="Personal knowledge navigation system — ingest, understand, discover.">
+
+    <!-- Koine Favicons -->
+    <link rel="icon" type="image/x-icon" href="/design-system/assets/favicons/favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="/design-system/assets/favicons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/design-system/assets/favicons/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/design-system/assets/favicons/favicon-180x180.png">
+    <meta name="theme-color" content="#08080e">
+
+    <!-- Application Styles (includes Koine global.css via @import) -->
+    <link rel="stylesheet" href="/static/css/app.css">
+
+    <!-- Cytoscape.js (for visualization) -->
+    <script src="https://unpkg.com/cytoscape/dist/cytoscape.min.js" defer></script>
+</head>
+
+<body>
+    <div class="koine-app-shell">
+        <!-- Left Pane: Navigator (Chat) — ~40% -->
+        <aside class="koine-navigator-pane">
+            {% block navigator %}{% endblock %}
+        </aside>
+
+        <!-- Right Pane: Visualization (Graph) — ~60% -->
+        <main class="koine-visualization-pane">
+            <div class="koine-ambient-glow"></div>
+            {% block visualization %}{% endblock %}
+        </main>
+    </div>
+
+    {% block scripts %}{% endblock %}
+</body>
+
+</html>

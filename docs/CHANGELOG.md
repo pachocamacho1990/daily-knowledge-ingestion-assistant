@@ -111,3 +111,22 @@
   - Manual `arrangeInCircle()` + `relayoutTopLevel()` replaces built-in layouts for top-level (built-in layouts don't account for compound node bounding box size)
   - Plotly fallback script added (`scripts/generate_viz_plotly.py`) with entity and community views
   - Visualization considered complete for prototyping phase
+- **Feb 18, 2026**: Koine Design System integration and frontend scaffold:
+  - Created `feature/design-system-integration` branch
+  - Moved Koine Design System into project at `design-system/` (CSS tokens, SVG logos, favicons, Tailwind 4 preset)
+  - Created `docs/design-system.md` -- integration guide documenting structure, usage, philosophy, and assets
+  - Updated `CLAUDE.md` with design system references and project structure
+  - Created FastAPI application (`src/main.py`) with static file mounts for app assets and design system
+  - Created `src/web/templates/base.html` -- shell template with Koine favicons, theme-color meta, CSS import
+  - Created `src/web/templates/navigator.html` -- Navigator (chat) + Visualization (graph) panes
+    - Inline SVG logos: minimal dove (navbar), reduced dove + 7 flames (welcome hero), full logo with people and knowledge graph edges (visualization pane)
+    - Koine CSS classes: `.koine-wordmark`, `.koine-overline`, `.koine-animate-*`, `.koine-stagger`
+    - Welcome state with suggestion cards (Explore, Synthesize, Discover, Summarize)
+  - Created `src/web/static/css/app.css` -- 270+ lines using native Koine CSS custom properties
+    - Imports `global.css` (tokens, themes, reset, typography, animations)
+    - Split-pane layout, navbar, chat area, input area, visualization empty state
+  - Added `pyproject.toml` (FastAPI, Uvicorn, Jinja2) and `package.json` (tailwindcss, @tailwindcss/cli)
+  - Added `tailwind.config.js` root config using design-system preset
+  - Tailwind CSS v4 build working via `npx @tailwindcss/cli`
+  - Running locally with `uvicorn --reload` (no Docker needed during active development)
+
