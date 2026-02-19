@@ -18,6 +18,18 @@
     </div>
 
     <div class="koine-nav-controls">
+        <button class="koine-icon-btn" id="theme-toggle" title="Toggle Light/Dark Mode">
+            <!-- Sun icon (shown in dark mode) -->
+            <svg id="theme-icon-sun" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                    d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+            <!-- Moon icon (shown in light mode) -->
+            <svg id="theme-icon-moon" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="display:none">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                    d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+            </svg>
+        </button>
         <button class="koine-icon-btn" title="New Chat">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4.5v15m7.5-7.5h-15" />
@@ -149,4 +161,30 @@
 
 {% block scripts %}
 <script src="/static/js/graph.js"></script>
+<script>
+    (function () {
+        // Sync icon state on load
+        var current = document.documentElement.getAttribute('data-theme') || 'dark';
+        document.getElementById('theme-icon-sun').style.display = current === 'dark' ? '' : 'none';
+        document.getElementById('theme-icon-moon').style.display = current === 'light' ? '' : 'none';
+
+        document.getElementById('theme-toggle').addEventListener('click', function () {
+            var cur = document.documentElement.getAttribute('data-theme') || 'dark';
+            var next = cur === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('koine-theme', next);
+
+            // Update icons
+            document.getElementById('theme-icon-sun').style.display = next === 'dark' ? '' : 'none';
+            document.getElementById('theme-icon-moon').style.display = next === 'light' ? '' : 'none';
+
+            // Update meta theme-color
+            var meta = document.getElementById('meta-theme-color');
+            if (meta) meta.content = next === 'dark' ? '#08080e' : '#fdf9f0';
+
+            // Re-apply Cytoscape graph styles for new theme
+            if (window.reinitGraphStyles) window.reinitGraphStyles();
+        });
+    })();
+</script>
 {% endblock %}

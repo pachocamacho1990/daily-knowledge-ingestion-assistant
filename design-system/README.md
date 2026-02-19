@@ -164,7 +164,10 @@ These rules **must** be followed by any developer or AI agent working on feature
 
 ### Visual Identity
 - **Always use `backdrop-filter: blur(20px) saturate(1.5)`** on panels, cards, and elevated surfaces. Surfaces are semi-transparent — this is what creates the frosted-glass look.
-- **Surfaces must use RGBA tokens**, not opaque colors. `--koine-surface-primary` = `rgba(13,11,8,0.7)`, `--koine-surface-elevated` = `rgba(30,25,20,0.55)`.
+- **Dual-Theme Glassmorphism:** In Dark Mode, use base-tinted surfaces (e.g., `rgba(13,11,8,0.7)`). In Light Mode, **never** use cream-on-cream glass as it creates muddy brown colors; instead, use near-opaque white (`rgba(255,255,255,0.88)`) to maintain a clean depth hierarchy.
+- **Light Mode Borders & Depth:** Dark mode relies on structural glows (`rgba(gold, 0.1)`). Light mode must use solid, defined borders (`rgba(0,0,0,0.06)`) and ambient drop-shadows to define hierarchy without looking "washed out".
+- **Surfaces must use RGBA tokens**, not opaque colors.
+- **High-Contrast Text:** Text values must be explicitly extreme (e.g., `#1A1408` on light mode) rather than plain black/white to maintain the parchment warmth while passing WCAG contrast inside glass elements.
 - **Never use raw hex colors.** Always reference design tokens via `var(--koine-*)`.
 - **Never use sharp corners.** Minimum radius is `--koine-radius-sm` (6px). Cards use `--koine-radius-xl` (16px).
 
@@ -176,6 +179,7 @@ These rules **must** be followed by any developer or AI agent working on feature
 
 ### Glow & Interaction
 - **Default hover glow:** `--koine-glow-sm` for subtle elements.
+- **Interactive Illumination:** Sacred motifs (like the Dove) and structural glass elements (like cards) must illuminate on hover. Replicate this with an intensified drop-shadow/box-shadow, slightly higher brightness (`brightness(1.1)`), and a physical lift (`transform: translateY(-1px)`).
 - **Focus / prominent hover:** `--koine-glow-neon` — the intensified neon gold (`0 0 10px + 0 0 30px`).
 - **Borders lighten on hover:** transition `border-color` from `--koine-border-subtle` → `--koine-gold-400`.
 

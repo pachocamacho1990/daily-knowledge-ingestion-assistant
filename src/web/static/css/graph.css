@@ -19,7 +19,7 @@
   right: 0;
   width: 320px;
   height: 100%;
-  background: rgba(10, 10, 14, 0.82);
+  background: var(--koine-graph-sidebar-bg);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
   border-left: 1px solid var(--koine-border-subtle);
@@ -27,7 +27,7 @@
   flex-direction: column;
   z-index: 10;
   overflow: hidden;
-  transition: transform var(--koine-transition-normal) var(--koine-ease-smooth);
+  transition: transform var(--koine-dur-normal) var(--koine-ease-default);
 }
 
 .graph-sidebar.collapsed {
@@ -52,12 +52,12 @@
 .graph-level-indicator {
   font-family: var(--koine-font-mono);
   font-size: 0.7rem;
-  color: var(--koine-text-tertiary);
+  color: var(--koine-text-muted);
   text-transform: uppercase;
   letter-spacing: 0.08em;
   padding: 3px 8px;
-  background: rgba(201, 168, 76, 0.08);
-  border-radius: var(--koine-radius-xs);
+  background: rgba(var(--koine-glow-accent-rgb), 0.08);
+  border-radius: var(--koine-radius-sm);
   display: inline-block;
 }
 
@@ -90,7 +90,7 @@
 }
 
 #node-info .placeholder {
-  color: var(--koine-text-tertiary);
+  color: var(--koine-text-muted);
   font-family: var(--koine-font-body);
   font-size: 0.82rem;
   line-height: 1.6;
@@ -139,9 +139,9 @@
   color: var(--koine-text-secondary);
   margin-top: 10px;
   padding: 10px 12px;
-  background: rgba(201, 168, 76, 0.04);
-  border-left: 2px solid var(--koine-gold-500);
-  border-radius: 0 var(--koine-radius-xs) var(--koine-radius-xs) 0;
+  background: rgba(var(--koine-glow-accent-rgb), 0.04);
+  border-left: 2px solid var(--koine-interactive);
+  border-radius: 0 var(--koine-radius-sm) var(--koine-radius-sm) 0;
   line-height: 1.55;
 }
 
@@ -159,7 +159,7 @@
 .comm-summary-box {
   margin-top: 12px;
   padding: 12px 14px;
-  background: rgba(201, 168, 76, 0.04);
+  background: rgba(var(--koine-glow-accent-rgb), 0.04);
   border-left: 3px solid var(--koine-gold-400);
   border-radius: 0 var(--koine-radius-sm) var(--koine-radius-sm) 0;
 }
@@ -189,7 +189,7 @@
 .comm-summary-box .comm-insights li {
   font-family: var(--koine-font-body);
   font-size: 0.72rem;
-  color: var(--koine-text-tertiary);
+  color: var(--koine-text-muted);
   padding: 3px 0 3px 14px;
   position: relative;
   line-height: 1.45;
@@ -251,7 +251,7 @@
 .graph-legend-header {
   font-family: var(--koine-font-mono);
   font-size: 0.68rem;
-  color: var(--koine-text-tertiary);
+  color: var(--koine-text-muted);
   text-transform: uppercase;
   letter-spacing: 0.1em;
   padding: 12px 20px 6px;
@@ -277,7 +277,7 @@
 }
 
 .legend-item:hover {
-  background: rgba(201, 168, 76, 0.08);
+  background: rgba(var(--koine-glow-accent-rgb), 0.08);
 }
 
 .legend-item .legend-dot {
@@ -301,7 +301,7 @@
 .legend-item .legend-count {
   font-family: var(--koine-font-mono);
   font-size: 0.62rem;
-  color: var(--koine-text-tertiary);
+  color: var(--koine-text-muted);
   flex-shrink: 0;
 }
 
@@ -319,20 +319,20 @@
   padding: 6px 0;
   border: 1px solid var(--koine-border-subtle);
   border-radius: var(--koine-radius-sm);
-  background: rgba(201, 168, 76, 0.06);
+  background: rgba(var(--koine-glow-accent-rgb), 0.06);
   color: var(--koine-text-secondary);
   font-family: var(--koine-font-mono);
   font-size: 0.65rem;
   text-transform: uppercase;
   letter-spacing: 0.06em;
   cursor: pointer;
-  transition: all var(--koine-transition-fast);
+  transition: all var(--koine-dur-fast) var(--koine-ease-default);
 }
 
 .graph-controls button:hover {
-  background: rgba(201, 168, 76, 0.15);
+  background: rgba(var(--koine-glow-accent-rgb), 0.15);
   color: var(--koine-text-accent);
-  border-color: var(--koine-gold-500);
+  border-color: var(--koine-interactive);
 }
 
 /* ── Stats Bar ─────────────────────────────────────────────── */
@@ -341,7 +341,7 @@
   border-top: 1px solid var(--koine-border-subtle);
   font-family: var(--koine-font-mono);
   font-size: 0.6rem;
-  color: var(--koine-text-tertiary);
+  color: var(--koine-text-muted);
   letter-spacing: 0.04em;
   flex-shrink: 0;
 }
@@ -349,7 +349,7 @@
 /* ── Chunk Tooltip ─────────────────────────────────────────── */
 .chunk-tooltip {
   position: absolute;
-  background: rgba(10, 10, 14, 0.92);
+  background: var(--koine-graph-tooltip-bg);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--koine-border-subtle);
@@ -363,7 +363,7 @@
   pointer-events: none;
   z-index: 50;
   display: none;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  box-shadow: var(--koine-shadow-lg);
 }
 
 .chunk-tooltip .tooltip-title {
@@ -383,7 +383,7 @@
   width: 28px;
   height: 28px;
   border-radius: var(--koine-radius-sm);
-  background: rgba(10, 10, 14, 0.7);
+  background: var(--koine-surface-glass-heavy);
   backdrop-filter: blur(12px);
   border: 1px solid var(--koine-border-subtle);
   color: var(--koine-text-secondary);
@@ -392,14 +392,14 @@
   align-items: center;
   justify-content: center;
   z-index: 11;
-  transition: all var(--koine-transition-fast);
+  transition: all var(--koine-dur-fast) var(--koine-ease-default);
   font-size: 0.8rem;
 }
 
 .graph-sidebar-toggle:hover {
-  background: rgba(201, 168, 76, 0.15);
+  background: rgba(var(--koine-glow-accent-rgb), 0.15);
   color: var(--koine-text-accent);
-  border-color: var(--koine-gold-500);
+  border-color: var(--koine-interactive);
 }
 
 .graph-sidebar-toggle.sidebar-hidden {
@@ -416,6 +416,7 @@
   .graph-sidebar {
     width: 280px;
   }
+
   .graph-sidebar-toggle {
     right: 292px;
   }

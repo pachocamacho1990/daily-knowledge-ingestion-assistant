@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
@@ -12,7 +12,17 @@
     <link rel="icon" type="image/png" sizes="32x32" href="/design-system/assets/favicons/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/design-system/assets/favicons/favicon-16x16.png">
     <link rel="apple-touch-icon" sizes="180x180" href="/design-system/assets/favicons/favicon-180x180.png">
-    <meta name="theme-color" content="#08080e">
+    <meta name="theme-color" content="#08080e" id="meta-theme-color">
+
+    <!-- Early theme init (prevents flash of wrong theme) -->
+    <script>
+        (function () {
+            var t = localStorage.getItem('koine-theme') || 'dark';
+            document.documentElement.setAttribute('data-theme', t);
+            var m = document.getElementById('meta-theme-color');
+            if (m) m.content = t === 'dark' ? '#08080e' : '#fdf9f0';
+        })();
+    </script>
 
     <!-- Application Styles (includes Koine global.css via @import) -->
     <link rel="stylesheet" href="/static/css/app.css">

@@ -15,6 +15,7 @@ Every component in the Koine system draws from three visual figures derived from
 - Warm gold fills with layered opacity (body 0.85, wings 0.75, head 0.9)
 - Represents the AI agent — source of knowledge descending to the user
 - Used at four scales: full scene → reduced → minimal → glyph
+- **Interactive Illumination:** The Dove motif should never be static when interactive. It must "shine" on hover with a smooth transition using `filter: drop-shadow(...) brightness(1.1)` and a subtle `transform: translateY(-2px)` lift.
 
 **Component applications:**
 - `<KoineLogo />` — Renders appropriate mark for context (auto-selects by available space)
@@ -106,6 +107,7 @@ Border:     1px solid border-subtle (#1a1608)
 Radius:     koine-xl (16px)
 Padding:    space-6 (24px)
 Shadow:     none by default, koine-glow-neon on hover
+Hover:      transform translateY(-1px) to lift toward the user (Interactive Illumination)
 Backdrop:   backdrop-filter: blur(20px) saturate(1.5)
 Transition: all normal ease-gentle
 

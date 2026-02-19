@@ -34,20 +34,27 @@
   // Semantic group accent (warm sage instead of bright lime)
   var SG_COLOR = '#7a8a5a';
 
-  // Entity shapes by type — "Connected Nodes" sacred motif
-  var ENTITY_SHAPES = {
-    'PERSON': 'diamond',
-    'ORGANIZATION': 'round-rectangle',
-    'CONCEPT': 'ellipse',
-    'EVENT': 'hexagon',
-    'PRODUCT': 'round-pentagon',
-    'LOCATION': 'cut-rectangle',
-    'TECHNOLOGY': 'round-triangle',
-    'DOCUMENT': 'rectangle',
-    'METRIC': 'tag',
-    'CATEGORY': 'barrel',
-  };
-  var DEFAULT_SHAPE = 'ellipse';
+  // Entity shapes — all circular per Koine "Connected Nodes" motif
+  // (components.md: "Circles connected by thin lines")
+
+  // ── Theme-Aware Graph Variables ─────────────────────────────
+  // Read CSS custom properties so Cytoscape styles adapt to dark/light
+  function getGraphVars() {
+    var s = getComputedStyle(document.documentElement);
+    return {
+      textLabel: s.getPropertyValue('--koine-graph-text-label').trim(),
+      textEntity: s.getPropertyValue('--koine-graph-text-entity').trim(),
+      textOutline: s.getPropertyValue('--koine-graph-text-outline').trim(),
+      edgeColor: s.getPropertyValue('--koine-graph-edge-color').trim(),
+      edgeArrow: s.getPropertyValue('--koine-graph-edge-arrow').trim(),
+      selectText: s.getPropertyValue('--koine-graph-select-text').trim(),
+      selectBorder: s.getPropertyValue('--koine-graph-select-border').trim(),
+      chunkColor: s.getPropertyValue('--koine-graph-chunk-color').trim(),
+      sgBg: s.getPropertyValue('--koine-graph-sg-bg').trim(),
+      surfaceBase: s.getPropertyValue('--koine-surface-base').trim(),
+    };
+  }
+  var gv = getGraphVars();
 
   // ── Color Remapping ────────────────────────────────────────
   function remapColors() {
@@ -67,8 +74,8 @@
         comm.entities.forEach(function (ent) {
           if (ent.data) {
             ent.data.color = paletteColor;
-            // Set shape based on entity type
-            ent.data._shape = ENTITY_SHAPES[ent.data.type] || DEFAULT_SHAPE;
+            // All nodes use circular shape
+            ent.data._shape = 'ellipse';
           }
         });
       }
@@ -138,10 +145,10 @@
               'text-halign': 'center',
               'text-wrap': 'wrap',
               'text-max-width': '100px',
-              'color': '#e8d5a3',           // koine-gold-200 — warm readable
+              'color': gv.textLabel,           // theme-aware label
               'width': 'data(size)',
               'height': 'data(size)',
-              'text-outline-color': '#0a0a12', // koine-dark-500
+              'text-outline-color': gv.textOutline,
               'text-outline-width': 2.5,
             }
           },
@@ -173,8 +180,8 @@
               'text-valign': 'bottom',
               'text-halign': 'center',
               'text-margin-y': 5,
-              'color': '#d4c18a',            // koine-gold-300 — readable
-              'text-outline-color': '#0a0a12',
+              'color': gv.textEntity,            // theme-aware entity label
+              'text-outline-color': gv.textOutline,
               'text-outline-width': 2,
               'border-width': 1.5,
               'border-color': 'data(color)',
@@ -185,7 +192,7 @@
           {
             selector: 'node[type="SEMANTIC_GROUP"]',
             style: {
-              'background-color': '#1a1e14',
+              'background-color': gv.sgBg,
               'background-opacity': 0.35,
               'border-color': SG_COLOR,
               'border-width': 1.5,
@@ -200,7 +207,7 @@
               'color': SG_COLOR,
               'text-opacity': 0.6,
               'label': 'data(label)',
-              'text-outline-color': '#0a0a12',
+              'text-outline-color': gv.textOutline,
               'text-outline-width': 2,
             }
           },
@@ -209,8 +216,8 @@
             selector: 'edge',
             style: {
               'width': 1,
-              'line-color': '#2a2418',       // warm dark
-              'target-arrow-color': '#3a3020',
+              'line-color': gv.edgeColor,       // theme-aware
+              'target-arrow-color': gv.edgeArrow,
               'target-arrow-shape': 'triangle',
               'arrow-scale': 0.8,
               'curve-style': 'bezier',
@@ -222,7 +229,7 @@
             selector: 'edge[weight]',
             style: {
               'width': 2,
-              'line-color': '#3a3020',
+              'line-color': gv.edgeArrow,
               'target-arrow-shape': 'none',
               'line-style': 'dashed',
               'opacity': 0.25,
@@ -232,9 +239,10 @@
           {
             selector: 'node:selected',
             style: {
-              'border-width': 4,
-              'border-color': '#c9a84c',     // koine-gold-400
-              'color': '#f0e0c0',
+              'border-width': 5,
+              'border-color': gv.selectBorder,
+              'background-opacity': 0.6,
+              'color': gv.selectText,
               'font-size': '12px',
               'font-weight': 'bold',
               'text-outline-width': 3,
@@ -247,8 +255,9 @@
             style: {
               'opacity': 1,
               'border-width': 3,
-              'border-color': '#c9a84c',     // koine-gold-400
-              'color': '#f0e0c0',
+              'border-color': gv.selectBorder,
+              'background-opacity': 0.55,
+              'color': gv.selectText,
               'z-index': 999,
             }
           },
@@ -257,8 +266,8 @@
             style: {
               'opacity': 1,
               'width': 2.5,
-              'line-color': '#c9a84c',
-              'target-arrow-color': '#c9a84c',
+              'line-color': gv.selectBorder,
+              'target-arrow-color': gv.selectBorder,
             }
           },
           // Dimmed
@@ -270,20 +279,20 @@
           {
             selector: '.chunk-node',
             style: {
-              'background-color': '#6a8090',  // steel blue
+              'background-color': gv.chunkColor,  // theme-aware
               'background-opacity': 0.2,
-              'border-color': '#6a8090',
+              'border-color': gv.chunkColor,
               'border-width': 1.5,
               'width': 16,
               'height': 16,
-              'shape': 'rectangle',
+              'shape': 'ellipse',  // circular per design system
               'label': 'data(label)',
               'font-size': '7px',
               'font-family': 'JetBrains Mono, monospace',
-              'color': '#6a8090',
+              'color': gv.chunkColor,
               'text-valign': 'bottom',
               'text-margin-y': 3,
-              'text-outline-color': '#0a0a12',
+              'text-outline-color': gv.textOutline,
               'text-outline-width': 2,
               'z-index': 1000,
               'opacity': 1,
@@ -294,7 +303,7 @@
             selector: '.chunk-edge',
             style: {
               'width': 0.8,
-              'line-color': '#6a8090',
+              'line-color': gv.chunkColor,
               'line-style': 'dashed',
               'opacity': 0.3,
               'target-arrow-shape': 'none',
@@ -394,7 +403,7 @@
         var infoHtml =
           '<div class="name">' + d.label + '</div>' +
           '<span class="type-badge" style="background:' + d.color + '33;color:' + d.color + '">' + d.type + '</span>' +
-          ' <span class="type-badge" style="background:#1a1a2a;color:#888">C' + d.community + '</span>' +
+          ' <span class="type-badge" style="background:' + gv.textOutline + ';color:' + gv.textEntity + '">C' + d.community + '</span>' +
           '<div class="metric">PageRank: <span>' + d.pagerank.toFixed(4) + '</span></div>' +
           '<div class="metric">Degree: <span>' + d.degree_centrality.toFixed(4) + '</span></div>' +
           '<div class="metric">Betweenness: <span>' + d.betweenness.toFixed(4) + '</span></div>' +
@@ -849,6 +858,68 @@
       toggle.classList.toggle('sidebar-hidden');
       toggle.textContent = sidebar.classList.contains('collapsed') ? '◀' : '▶';
     }
+  };
+
+  // ── Theme Re-init ──────────────────────────────────────────
+  // Called when dark/light theme toggles — re-reads CSS vars and
+  // updates Cytoscape stylesheet so the graph adapts immediately.
+  window.reinitGraphStyles = function () {
+    if (!cy) return;
+    gv = getGraphVars();
+    // Update Cytoscape container background
+    document.getElementById('cy').style.background = gv.surfaceBase;
+    cy.style()
+      .selector('node[type="COMMUNITY"]')
+      .style({
+        'color': gv.textLabel,
+        'text-outline-color': gv.textOutline,
+      })
+      .selector('node[type!="COMMUNITY"][type!="SEMANTIC_GROUP"]')
+      .style({
+        'color': gv.textEntity,
+        'text-outline-color': gv.textOutline,
+      })
+      .selector('node[type="SEMANTIC_GROUP"]')
+      .style({
+        'background-color': gv.sgBg,
+        'text-outline-color': gv.textOutline,
+      })
+      .selector('edge')
+      .style({
+        'line-color': gv.edgeColor,
+        'target-arrow-color': gv.edgeArrow,
+      })
+      .selector('edge[weight]')
+      .style({
+        'line-color': gv.edgeArrow,
+      })
+      .selector('node:selected')
+      .style({
+        'border-color': gv.selectBorder,
+        'color': gv.selectText,
+      })
+      .selector('.highlighted')
+      .style({
+        'border-color': gv.selectBorder,
+        'color': gv.selectText,
+      })
+      .selector('edge.highlighted')
+      .style({
+        'line-color': gv.selectBorder,
+        'target-arrow-color': gv.selectBorder,
+      })
+      .selector('.chunk-node')
+      .style({
+        'background-color': gv.chunkColor,
+        'border-color': gv.chunkColor,
+        'color': gv.chunkColor,
+        'text-outline-color': gv.textOutline,
+      })
+      .selector('.chunk-edge')
+      .style({
+        'line-color': gv.chunkColor,
+      })
+      .update();
   };
 
 })();
