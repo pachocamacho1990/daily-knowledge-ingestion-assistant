@@ -232,9 +232,14 @@
           ? { x: node.x * distRatio, y: node.y * distRatio, z: node.z * distRatio }
           : { x: 0, y: 0, z: distance };
 
+        // Calculate dynamic X offset to visually center the globe despite the 320px right sidebar
+        // The ratio converts 160px (half sidebar width) of screen space into world space at the given distance
+        const screenToWorldRatio = distance / container.clientWidth;
+        const offsetX = -160 * screenToWorldRatio;
+
         Graph.cameraPosition(
           newPos,
-          { x: 0, y: 0, z: 0 }, // Lock lookAt target to the center of the globe
+          { x: offsetX, y: 0, z: 0 }, // Offset lookAt target to the left
           1500  // ms transition duration
         );
 
@@ -246,6 +251,14 @@
         clearChunks();
         nodeInfo.innerHTML = '<div class="placeholder">Click a community node to expand it<br>Click a community in the legend to focus it</div>';
         updateLevelIndicator();
+
+        // Reset camera lookAt to perfect center when sidebar closes
+        const currentPos = Graph.cameraPosition();
+        Graph.cameraPosition(
+          currentPos,
+          { x: 0, y: 0, z: 0 },
+          800
+        );
       });
 
     // Disable panning to ensure the globe remains perfectly centered forever
