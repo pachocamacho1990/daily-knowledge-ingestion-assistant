@@ -95,12 +95,17 @@
   function updateNeighbors() {
     linksByNode = {};
     currentLinks.forEach(link => {
-      const a = link.source.id || link.source;
-      const b = link.target.id || link.target;
-      !linksByNode[a] && (linksByNode[a] = []);
-      !linksByNode[b] && (linksByNode[b] = []);
-      linksByNode[a].push(b);
-      linksByNode[b].push(a);
+      const a = link.source?.id || link.source;
+      const b = link.target?.id || link.target;
+      const linkId = link.id || `${a}-${b}`;
+
+      if (!linksByNode[a]) linksByNode[a] = { neighbors: [], links: [] };
+      if (!linksByNode[b]) linksByNode[b] = { neighbors: [], links: [] };
+
+      linksByNode[a].neighbors.push(b);
+      linksByNode[a].links.push(linkId);
+      linksByNode[b].neighbors.push(a);
+      linksByNode[b].links.push(linkId);
     });
   }
 
@@ -203,19 +208,17 @@
          </div>`;
       })
       .onNodeHover(node => {
-        // Interactive Illumination Update
+        // Interactive Illumination Update via O(1) Pre-Computed Lookups
         highlightNodes.clear();
         highlightLinks.clear();
+
         if (node) {
           highlightNodes.add(node.id);
-          (linksByNode[node.id] || []).forEach(neighbor => highlightNodes.add(neighbor));
-          currentLinks.forEach(link => {
-            var s = link.source.id || link.source;
-            var t = link.target.id || link.target;
-            if (s === node.id || t === node.id) {
-              highlightLinks.add(link.id || `${s}-${t}`);
-            }
-          });
+          const adj = linksByNode[node.id];
+          if (adj) {
+            adj.neighbors.forEach(n => highlightNodes.add(n));
+            adj.links.forEach(l => highlightLinks.add(l));
+          }
         }
 
         hoverNode = node || null;
@@ -405,8 +408,9 @@
       }
     });
 
-    currentNodes = currentNodes.concat(newNodes);
-    currentLinks = currentLinks.concat(newLinks);
+    // Push mutates arrays directly avoiding GC reallocation spikes
+    currentNodes.push(...newNodes);
+    currentLinks.push(...newLinks);
 
     expandedCommunities.add(commId);
 
@@ -496,8 +500,9 @@
       });
     });
 
-    currentNodes = currentNodes.concat(addedNodes);
-    currentLinks = currentLinks.concat(addedLinks);
+    // Push mutates arrays directly avoiding GC reallocation spikes
+    currentNodes.push(...addedNodes);
+    currentLinks.push(...addedLinks);
 
     refreshGraphData();
     levelIndicator.textContent = 'Level 2 — Chunk expansion for ' + entityId;
