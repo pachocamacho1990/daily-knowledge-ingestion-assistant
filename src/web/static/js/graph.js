@@ -232,34 +232,15 @@
           ? { x: node.x * distRatio, y: node.y * distRatio, z: node.z * distRatio }
           : { x: 0, y: 0, z: distance };
 
-        // 2. Apply lateral screen-space translation to world-space vectors
-        // To precisely center the globe in the remaining space alongside a 320px panel:
-        // shift left by 160 CSS pixels converted to world space coordinates
-        const fov = 45 * Math.PI / 180; // default 3d-force-graph fov
-        const visibleWidthAtDistance = 2 * Math.tan(fov / 2) * distance * (container.clientWidth / container.clientHeight);
-        const worldUnitsPerPixel = visibleWidthAtDistance / container.clientWidth;
+        Graph.cameraPosition(basePos, { x: 0, y: 0, z: 0 }, 1500);
 
-        // We want to shift the visual center 160px LEFT, so we pull camera to the RIGHT relative to its forward vector
-        const shiftWorldUnits = 160 * worldUnitsPerPixel;
-
-        // Calculate the camera's local "Right" vector: Cross(Forward, Up)
-        const forward = new THREE.Vector3(-basePos.x, -basePos.y, -basePos.z).normalize();
-        const up = new THREE.Vector3(0, 1, 0);
-        const right = new THREE.Vector3().crossVectors(forward, up).normalize();
-
-        // Translate BOTH camera position AND look-at target by the exact same vector
-        const finalPos = {
-          x: basePos.x + right.x * shiftWorldUnits,
-          y: basePos.y + right.y * shiftWorldUnits,
-          z: basePos.z + right.z * shiftWorldUnits
-        };
-        const finalLookAt = {
-          x: right.x * shiftWorldUnits,
-          y: right.y * shiftWorldUnits,
-          z: right.z * shiftWorldUnits
-        };
-
-        Graph.cameraPosition(finalPos, finalLookAt, 1500);
+        // 2. Apply CSS Pan
+        // Instead of tilting the 3D camera (which breaks the rotational pivot wobble),
+        // we physically slide the entire WebGL canvas div to the left via 2D CSS.
+        // This perfectly centers the globe in the remaining visible UI space.
+        const sidebarWidth = window.innerWidth <= 1200 ? 280 : 320;
+        container.style.transition = 'transform 1.5s cubic-bezier(0.25, 1, 0.5, 1)';
+        container.style.transform = `translateX(-${sidebarWidth / 2}px)`;
 
         // 3. Logic (Expand/Info)
         processNodeClick(node);
@@ -270,19 +251,10 @@
         nodeInfo.innerHTML = '<div class="placeholder">Click a community node to expand it<br>Click a community in the legend to focus it</div>';
         updateLevelIndicator();
 
-        // Reset camera entirely to 0,0,0 target
-        const currentPos = Graph.cameraPosition();
-
-        // Remove lateral offset by snapping position back to original ray from origin
-        const dist = Math.hypot(currentPos.x, currentPos.y, currentPos.z);
-        const ratio = dist > 0 ? 1 / dist : 1;
-        const normalizedPos = {
-          x: currentPos.x * dist * ratio,
-          y: currentPos.y * dist * ratio,
-          z: currentPos.z * dist * ratio
-        };
-
-        Graph.cameraPosition(normalizedPos, { x: 0, y: 0, z: 0 }, 800);
+        // No need to reset 3D camera target because it is already locked to 0,0,0
+        // We just clear the visual CSS canvas offset smoothly
+        container.style.transition = 'transform 0.8s cubic-bezier(0.25, 1, 0.5, 1)';
+        container.style.transform = 'translateX(0px)';
       });
 
     // Disable panning to ensure the globe remains perfectly centered forever
