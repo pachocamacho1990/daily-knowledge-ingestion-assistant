@@ -65,12 +65,16 @@
   }
 
   function remapColors() {
+    // 1. Uniform default state for all root communities
     graphData.metaElements.forEach(function (el) {
       if (el.data && el.data.type === 'COMMUNITY' && el.data.community !== undefined) {
-        el.data.color = KOINE_PALETTE[el.data.community % KOINE_PALETTE.length];
+        el.data.color = gv.chunkColor; // Calm uniform base color
+        el.data._defaultColor = gv.chunkColor;
       }
     });
 
+    // 2. Pre-assign colors based on community, but only for internal entities/SGs
+    // Root communities will adopt this color dynamically upon expansion.
     Object.keys(graphData.communityData).forEach(function (commId) {
       var comm = graphData.communityData[commId];
       var paletteColor = KOINE_PALETTE[parseInt(commId) % KOINE_PALETTE.length];
@@ -270,7 +274,7 @@
     const edgesMaterial = new THREE.LineBasicMaterial({
       color: gv.globeWireframe,
       transparent: true,
-      opacity: 0.25
+      opacity: 0.05
     });
     const sphereEdges = new THREE.LineSegments(edgesGeometry, edgesMaterial);
 
@@ -393,7 +397,15 @@
     currentLinks = currentLinks.concat(newLinks);
 
     expandedCommunities.add(commId);
+
+    // Dynamically assign striking identity color to root node
+    var rootNode = currentNodes.find(n => n.id === 'comm-' + commId);
+    if (rootNode) {
+      rootNode.color = KOINE_PALETTE[parseInt(commId) % KOINE_PALETTE.length];
+    }
+
     refreshGraphData();
+    updateHighlight(); // Force color property re-evaluation on globe
     updateLevelIndicator();
   }
 
@@ -407,7 +419,15 @@
     currentLinks = currentLinks.filter(l => l.parentComm !== commId);
 
     expandedCommunities.delete(commId);
+
+    // Revert root node back to uniform default color
+    var rootNode = currentNodes.find(n => n.id === 'comm-' + commId);
+    if (rootNode) {
+      rootNode.color = rootNode._defaultColor || gv.chunkColor;
+    }
+
     refreshGraphData();
+    updateHighlight(); // Force color property re-evaluation on globe
     updateLevelIndicator();
   }
 
