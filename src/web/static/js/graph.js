@@ -18,11 +18,14 @@
   var highlightLinks = new Set();
   var hoverNode = null;
 
-  // ── Koine Graph Palette ────────────────────────────────────
+  // ── Curated High-Contrast Koine Palette ────────────────────────
   var KOINE_PALETTE = [
-    '#c9a84c', '#daa540', '#a06218', '#c97a20', '#8b6b3a',
-    '#7a8a5a', '#5a7a9a', '#8a5a6a', '#6a5a8a', '#5a8a7a',
-    '#9a7a5a', '#7a6a4a', '#a08060', '#6a8090', '#8a7060',
+    '#daa540', // Flame Medium
+    '#c53030', // Liturgical Red
+    '#c97a20', // Flame Deep
+    '#f0e0a0', // Flame Light
+    '#a52020', // Liturgical Deep
+    '#c9a84c'  // Primary Gold
   ];
   var SG_COLOR = '#7a8a5a';
 
@@ -178,12 +181,27 @@
         return Math.max(2, Math.min(size / 8, 15));
       })
       .nodeColor(node => {
+        // Ghosting state: if a community is expanded, non-expanded nodes fade out drastically
+        if (expandedCommunities.size > 0 && node.parentComm === undefined && node.id.indexOf('comm-') !== 0) {
+          return `rgba(${gv.glowAccent}, 0.25)`; // Ghost node
+        }
+
         if (highlightNodes.size === 0) return node.color || gv.textEntity;
         if (highlightNodes.has(node.id)) return node.color || gv.textEntity;
-        return `rgba(${gv.glowAccent}, 0.15)`; // Dimmed
+        return `rgba(${gv.glowAccent}, 0.15)`; // Hover Dimmed
       })
-      .nodeOpacity(0.9)
-      .linkOpacity(0.3)
+      .nodeOpacity(node => {
+        if (expandedCommunities.size > 0 && node.parentComm === undefined && node.id.indexOf('comm-') !== 0) {
+          return 0.15; // Ghost node heavily transparent
+        }
+        return 0.95; // Active/normal nodes burn bright
+      })
+      .linkOpacity(link => {
+        if (expandedCommunities.size > 0 && link.parentComm === undefined) {
+          return 0.05; // Ghost links
+        }
+        return 0.4;
+      })
       .linkColor(link => {
         if (highlightNodes.size === 0) return gv.edgeColor;
         if (highlightLinks.has(link.id || `${link.source.id}-${link.target.id}`)) return gv.nodeHighlight; // High contrast interactive
