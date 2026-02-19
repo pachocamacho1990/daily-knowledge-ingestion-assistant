@@ -19,12 +19,26 @@
   var hoverNode = null;
 
   // ── Koine Graph Palette ────────────────────────────────────
-  var KOINE_PALETTE = [
+  var DARK_PALETTE = [
     '#c9a84c', '#daa540', '#a06218', '#c97a20', '#8b6b3a',
     '#7a8a5a', '#5a7a9a', '#8a5a6a', '#6a5a8a', '#5a8a7a',
     '#9a7a5a', '#7a6a4a', '#a08060', '#6a8090', '#8a7060',
   ];
-  var SG_COLOR = '#7a8a5a';
+  var LIGHT_PALETTE = [
+    '#7a5a10', '#8a6015', '#6a3a08', '#5a2a00', '#4a3a20',
+    '#3a5a3a', '#2a4a6a', '#4a2a3a', '#3a2a5a', '#2a5a4a',
+    '#5a4a2a', '#4a3a2a', '#6a4030', '#3a5060', '#5a4030'
+  ];
+  var SG_DARK = '#7a8a5a';
+  var SG_LIGHT = '#3a5a3a';
+
+  function getActivePalette() {
+    return document.documentElement.getAttribute('data-theme') === 'light' ? LIGHT_PALETTE : DARK_PALETTE;
+  }
+
+  function getActiveSgColor() {
+    return document.documentElement.getAttribute('data-theme') === 'light' ? SG_LIGHT : SG_DARK;
+  }
 
   // ── Theme-Aware Graph Variables ─────────────────────────────
   function getGraphVars() {
@@ -75,9 +89,18 @@
 
     // 2. Pre-assign colors based on community, but only for internal entities/SGs
     // Root communities will adopt this color dynamically upon expansion.
+    var palette = getActivePalette();
+    var sgColor = getActiveSgColor();
+
     Object.keys(graphData.communityData).forEach(function (commId) {
       var comm = graphData.communityData[commId];
-      var paletteColor = KOINE_PALETTE[parseInt(commId) % KOINE_PALETTE.length];
+      var paletteColor = palette[parseInt(commId) % palette.length];
+
+      // If root node is currently expanded, immediately update its color too
+      if (expandedCommunities.has(parseInt(commId))) {
+        var rootNode = currentNodes.find(n => n.id === 'comm-' + commId);
+        if (rootNode) rootNode.color = paletteColor;
+      }
 
       if (comm.entities) {
         comm.entities.forEach(function (ent) {
@@ -86,7 +109,7 @@
       }
       if (comm.semantic_groups) {
         comm.semantic_groups.forEach(function (sg) {
-          if (sg.data) sg.data._sgColor = SG_COLOR;
+          if (sg.data) sg.data._sgColor = sgColor;
         });
       }
     });
@@ -338,8 +361,9 @@
 
     if (d.type === 'SEMANTIC_GROUP') {
       clearChunks();
-      var html = '<div class="name" style="color:' + SG_COLOR + '">' + d.label + '</div>';
-      html += '<span class="type-badge" style="background:' + SG_COLOR + '33;color:' + SG_COLOR + '">SEMANTIC GROUP</span>';
+      var sgColor = getActiveSgColor();
+      var html = '<div class="name" style="color:' + sgColor + '">' + d.label + '</div>';
+      html += '<span class="type-badge" style="background:' + sgColor + '33;color:' + sgColor + '">SEMANTIC GROUP</span>';
       html += '<div class="metric">Members: <span>' + d.member_count + ' entities</span></div>';
       html += buildSemanticGroupHtml(d.group_id);
       nodeInfo.innerHTML = html;
@@ -417,7 +441,8 @@
     // Dynamically assign striking identity color to root node
     var rootNode = currentNodes.find(n => n.id === 'comm-' + commId);
     if (rootNode) {
-      rootNode.color = KOINE_PALETTE[parseInt(commId) % KOINE_PALETTE.length];
+      var palette = getActivePalette();
+      rootNode.color = palette[parseInt(commId) % palette.length];
     }
 
     refreshGraphData();
@@ -564,8 +589,9 @@
   function buildSemanticGroupHtml(groupId) {
     var g = graphData.semanticGroups[groupId];
     if (!g) return '';
-    var html = '<div class="comm-summary-box" style="border-left-color:' + SG_COLOR + '">';
-    html += '<div class="comm-title" style="color:' + SG_COLOR + '">Semantic Group: ' + g.canonical + '</div>';
+    var sgColor = getActiveSgColor();
+    var html = '<div class="comm-summary-box" style="border-left-color:' + sgColor + '">';
+    html += '<div class="comm-title" style="color:' + sgColor + '">Semantic Group: ' + g.canonical + '</div>';
     html += '<div class="comm-text">' + g.members.length + ' semantically similar entities</div>';
     html += '<ul class="comm-insights">';
     g.members.forEach(function (m) {
@@ -678,6 +704,10 @@
     if (!Graph) return;
     gv = getGraphVars();
     Graph.backgroundColor(gv.surfaceBase);
+
+    // Switch palette if needed and force graph update
+    remapColors();
+    refreshGraphData();
     updateHighlight(); // Triggers material refresh
   };
 
