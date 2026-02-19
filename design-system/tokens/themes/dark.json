@@ -10,9 +10,9 @@
     "overlay": "rgba(8,8,14,0.85)"
   },
   "text": {
-    "primary": "#c4b68a",
-    "secondary": "#a09070",
-    "muted": "#6b5f3f",
+    "primary": "#ddd0a8",
+    "secondary": "#bfad88",
+    "muted": "#8a7d5c",
     "accent": "#c9a84c",
     "inverse": "#2a2010"
   },

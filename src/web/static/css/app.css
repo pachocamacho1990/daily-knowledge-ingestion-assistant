@@ -48,7 +48,7 @@ body {
     background: var(--koine-surface-primary);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    border-right: 1px solid rgba(218, 165, 64, 0.08);
+    border-right: 1px solid var(--koine-border-glow);
     position: relative;
     z-index: var(--koine-z-elevated);
 }
@@ -70,7 +70,7 @@ body {
 
 .koine-nav-header {
     height: 64px;
-    border-bottom: 1px solid rgba(218, 165, 64, 0.08);
+    border-bottom: 1px solid var(--koine-border-glow);
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -78,7 +78,7 @@ body {
     flex-shrink: 0;
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
-    background: rgba(8, 8, 14, 0.6);
+    background: var(--koine-surface-glass);
 }
 
 .koine-nav-brand {
@@ -90,7 +90,14 @@ body {
 .koine-nav-brand svg {
     width: 36px;
     height: auto;
-    filter: drop-shadow(0 0 6px rgba(218, 165, 64, 0.3));
+    filter: drop-shadow(0 0 6px rgba(var(--koine-glow-accent-rgb), 0.3));
+    transition: all var(--koine-dur-fast) var(--koine-ease-default);
+    cursor: pointer;
+}
+
+.koine-nav-brand svg:hover {
+    filter: drop-shadow(0 0 12px rgba(var(--koine-glow-accent-rgb), 0.6)) brightness(1.1);
+    transform: translateY(-1px);
 }
 
 .koine-nav-brand .koine-wordmark {
@@ -124,9 +131,9 @@ body {
 
 .koine-icon-btn:hover {
     color: var(--koine-text-accent);
-    background: rgba(218, 165, 64, 0.08);
-    border-color: rgba(218, 165, 64, 0.15);
-    box-shadow: 0 0 8px rgba(218, 165, 64, 0.1);
+    background: rgba(var(--koine-glow-accent-rgb), 0.08);
+    border-color: var(--koine-border-glow-med);
+    box-shadow: 0 0 8px rgba(var(--koine-glow-accent-rgb), 0.1);
 }
 
 .koine-icon-btn svg {
@@ -156,7 +163,7 @@ body {
 }
 
 .koine-chat-area::-webkit-scrollbar-thumb {
-    background: rgba(218, 165, 64, 0.15);
+    background: rgba(var(--koine-glow-accent-rgb), 0.15);
     border-radius: var(--koine-radius-full);
 }
 
@@ -175,8 +182,15 @@ body {
     width: 140px;
     height: auto;
     opacity: 0;
-    filter: drop-shadow(0 0 20px rgba(218, 165, 64, 0.25));
+    filter: drop-shadow(0 0 20px rgba(var(--koine-glow-accent-rgb), 0.25));
     animation: koine-fade-in var(--koine-dur-gentle) var(--koine-ease-gentle) both;
+    transition: all var(--koine-dur-fast) var(--koine-ease-default);
+    cursor: pointer;
+}
+
+.koine-welcome-logo:hover {
+    filter: drop-shadow(0 0 30px rgba(var(--koine-glow-accent-rgb), 0.6)) brightness(1.1);
+    transform: translateY(-2px);
 }
 
 .koine-welcome-text {
@@ -193,7 +207,7 @@ body {
     letter-spacing: var(--koine-ls-display);
     color: var(--koine-text-accent);
     margin-bottom: var(--koine-space-2);
-    text-shadow: 0 0 30px rgba(218, 165, 64, 0.15);
+    text-shadow: 0 0 30px rgba(var(--koine-glow-accent-rgb), 0.15);
 }
 
 .koine-welcome-text p {
@@ -243,8 +257,8 @@ body {
 .koine-suggestion-card {
     padding: var(--koine-space-4);
     border-radius: var(--koine-radius-md);
-    border: 1px solid rgba(218, 165, 64, 0.1);
-    background: rgba(18, 16, 12, 0.5);
+    border: 1px solid rgba(var(--koine-glow-accent-rgb), 0.1);
+    background: var(--koine-surface-card);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     cursor: pointer;
@@ -261,7 +275,7 @@ body {
     position: absolute;
     width: 10px;
     height: 10px;
-    border-color: rgba(218, 165, 64, 0.25);
+    border-color: var(--koine-border-glow-hover);
     border-style: solid;
     transition: border-color var(--koine-dur-fast) var(--koine-ease-default);
 }
@@ -279,15 +293,15 @@ body {
 }
 
 .koine-suggestion-card:hover {
-    background: rgba(30, 25, 20, 0.6);
-    border-color: rgba(218, 165, 64, 0.25);
+    background: var(--koine-surface-card-hover);
+    border-color: var(--koine-border-glow-hover);
     box-shadow: var(--koine-glow-neon);
     transform: translateY(-1px);
 }
 
 .koine-suggestion-card:hover::before,
 .koine-suggestion-card:hover::after {
-    border-color: rgba(218, 165, 64, 0.5);
+    border-color: rgba(var(--koine-glow-accent-rgb), 0.5);
 }
 
 .koine-suggestion-card .koine-overline {
@@ -319,8 +333,8 @@ body {
 
 .koine-input-area {
     padding: var(--koine-space-4);
-    border-top: 1px solid rgba(218, 165, 64, 0.08);
-    background: rgba(8, 8, 14, 0.7);
+    border-top: 1px solid var(--koine-border-glow);
+    background: var(--koine-surface-glass-heavy);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
 }
@@ -333,10 +347,10 @@ body {
 
 .koine-chat-input {
     width: 100%;
-    background: rgba(13, 11, 8, 0.6);
+    background: var(--koine-surface-glass);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(218, 165, 64, 0.1);
+    border: 1px solid rgba(var(--koine-glow-accent-rgb), 0.1);
     border-radius: var(--koine-radius-md);
     padding: var(--koine-space-3) var(--koine-space-12) var(--koine-space-3) var(--koine-space-4);
     font-family: var(--koine-font-body);
@@ -354,9 +368,9 @@ body {
 }
 
 .koine-chat-input:focus {
-    border-color: rgba(218, 165, 64, 0.3);
-    box-shadow: 0 0 0 1px rgba(218, 165, 64, 0.15), var(--koine-glow-neon);
-    background: rgba(13, 11, 8, 0.8);
+    border-color: var(--koine-border-glow-strong);
+    box-shadow: 0 0 0 1px rgba(var(--koine-glow-accent-rgb), 0.15), var(--koine-glow-neon);
+    background: var(--koine-surface-glass-heavy);
 }
 
 .koine-send-btn {
@@ -378,9 +392,9 @@ body {
 
 .koine-send-btn:hover {
     color: var(--koine-interactive-hover);
-    background: rgba(218, 165, 64, 0.1);
-    border-color: rgba(218, 165, 64, 0.2);
-    box-shadow: 0 0 8px rgba(218, 165, 64, 0.2);
+    background: rgba(var(--koine-glow-accent-rgb), 0.1);
+    border-color: rgba(var(--koine-glow-accent-rgb), 0.2);
+    box-shadow: 0 0 8px rgba(var(--koine-glow-accent-rgb), 0.2);
 }
 
 .koine-send-btn svg {
@@ -425,7 +439,7 @@ body {
     width: 80px;
     height: auto;
     margin: 0 auto var(--koine-space-6);
-    filter: drop-shadow(0 0 20px rgba(218, 165, 64, 0.2));
+    filter: drop-shadow(0 0 20px rgba(var(--koine-glow-accent-rgb), 0.2));
 }
 
 .koine-viz-empty-content h3 {
@@ -435,7 +449,7 @@ body {
     letter-spacing: var(--koine-ls-heading);
     color: var(--koine-text-accent);
     margin-bottom: var(--koine-space-2);
-    text-shadow: 0 0 30px rgba(218, 165, 64, 0.15);
+    text-shadow: 0 0 30px rgba(var(--koine-glow-accent-rgb), 0.15);
 }
 
 .koine-viz-empty-content p {
@@ -465,15 +479,15 @@ body {
 .koine-viz-controls .koine-icon-btn {
     width: 40px;
     height: 40px;
-    background: rgba(8, 8, 14, 0.7);
-    border: 1px solid rgba(218, 165, 64, 0.1);
+    background: var(--koine-surface-glass-heavy);
+    border: 1px solid rgba(var(--koine-glow-accent-rgb), 0.1);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     box-shadow: var(--koine-shadow-md);
 }
 
 .koine-viz-controls .koine-icon-btn:hover {
-    border-color: rgba(218, 165, 64, 0.3);
+    border-color: var(--koine-border-glow-strong);
     box-shadow: var(--koine-glow-neon);
 }
 
@@ -489,7 +503,7 @@ body {
     transform: translateX(-50%);
     width: 60%;
     height: 40%;
-    background: radial-gradient(ellipse at center, rgba(218, 165, 64, 0.06) 0%, transparent 70%);
+    background: radial-gradient(ellipse at center, rgba(var(--koine-glow-accent-rgb), 0.06) 0%, transparent 70%);
     pointer-events: none;
     z-index: 0;
     animation: koine-glow-pulse 4s var(--koine-ease-gentle) infinite;

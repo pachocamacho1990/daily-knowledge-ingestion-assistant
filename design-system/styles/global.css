@@ -201,9 +201,10 @@
   --koine-surface-elevated: rgba(30, 25, 20, 0.55);
   --koine-surface-overlay: rgba(8, 8, 14, 0.85);
 
-  --koine-text-primary: var(--koine-cream-400);
-  --koine-text-secondary: var(--koine-cream-500);
-  --koine-text-muted: #6b5f3f;
+  /* Brightened text for better readability (WCAG AA verified) */
+  --koine-text-primary: #ddd0a8;
+  --koine-text-secondary: #bfad88;
+  --koine-text-muted: #8a7d5c;
   --koine-text-accent: var(--koine-gold-400);
 
   --koine-border-default: var(--koine-dark-50);
@@ -216,6 +217,32 @@
   --koine-interactive-disabled: #4a4030;
   --koine-focus-ring: 0 0 0 2px var(--koine-dark-600), 0 0 0 4px rgba(201, 168, 76, 0.5);
 
+  /* Theme-aware glassmorphism surfaces */
+  --koine-surface-glass: rgba(13, 11, 8, 0.6);
+  --koine-surface-glass-heavy: rgba(8, 8, 14, 0.7);
+  --koine-surface-card: rgba(18, 16, 12, 0.5);
+  --koine-surface-card-hover: rgba(30, 25, 20, 0.6);
+
+  /* Theme-aware border glows */
+  --koine-border-glow: rgba(218, 165, 64, 0.08);
+  --koine-border-glow-med: rgba(218, 165, 64, 0.15);
+  --koine-border-glow-hover: rgba(218, 165, 64, 0.25);
+  --koine-border-glow-strong: rgba(218, 165, 64, 0.3);
+  --koine-glow-accent-rgb: 218, 165, 64;
+
+  /* Theme-aware graph colors */
+  --koine-graph-text-label: #e8d5a3;
+  --koine-graph-text-entity: #d4c18a;
+  --koine-graph-text-outline: #0a0a12;
+  --koine-graph-edge-color: #2a2418;
+  --koine-graph-edge-arrow: #3a3020;
+  --koine-graph-sidebar-bg: rgba(10, 10, 14, 0.82);
+  --koine-graph-tooltip-bg: rgba(10, 10, 14, 0.92);
+  --koine-graph-select-text: #f0e0c0;
+  --koine-graph-select-border: #c9a84c;
+  --koine-graph-chunk-color: #6a8090;
+  --koine-graph-sg-bg: #1a1e14;
+
   color-scheme: dark;
 }
 
@@ -224,25 +251,68 @@
    LIGHT THEME
    ═══════════════════════════════════════════ */
 [data-theme="light"] {
-  --koine-surface-base: var(--koine-cream-50);
-  --koine-surface-primary: var(--koine-cream-100);
+  /* ── Surfaces (white-based, not cream-on-cream) ── */
+  --koine-surface-base: #faf6ee;
+  --koine-surface-primary: rgba(255, 255, 255, 0.88);
   --koine-surface-elevated: #ffffff;
-  --koine-surface-overlay: rgba(253, 249, 240, 0.85);
+  --koine-surface-overlay: rgba(250, 246, 238, 0.9);
 
-  --koine-text-primary: #2a2010;
+  /* ── Text (high-contrast warm) ── */
+  --koine-text-primary: #1a1408;
   --koine-text-secondary: #5a4a30;
-  --koine-text-muted: #8a7a5a;
-  --koine-text-accent: var(--koine-gold-800);
+  --koine-text-muted: #9a8a6a;
+  --koine-text-accent: #7a4a08;
 
-  --koine-border-default: #e0d4b8;
-  --koine-border-subtle: var(--koine-cream-200);
-  --koine-border-accent: var(--koine-gold-800);
+  /* ── Borders (definition, not glow) ── */
+  --koine-border-default: #d4c4a0;
+  --koine-border-subtle: #e8dcc4;
+  --koine-border-accent: #7a4a08;
 
-  --koine-interactive: var(--koine-gold-800);
-  --koine-interactive-hover: var(--koine-gold-700);
-  --koine-interactive-pressed: var(--koine-gold-900);
-  --koine-interactive-disabled: var(--koine-cream-400);
-  --koine-focus-ring: 0 0 0 2px var(--koine-cream-50), 0 0 0 4px rgba(138, 90, 16, 0.4);
+  /* ── Interactive ── */
+  --koine-interactive: #7a4a08;
+  --koine-interactive-hover: #6a3a00;
+  --koine-interactive-pressed: #5a2a00;
+  --koine-interactive-disabled: #c4b898;
+  --koine-focus-ring: 0 0 0 2px #faf6ee, 0 0 0 4px rgba(122, 74, 8, 0.4);
+
+  /* ── Glass surfaces (near-opaque white for light) ── */
+  --koine-surface-glass: rgba(255, 255, 255, 0.82);
+  --koine-surface-glass-heavy: rgba(255, 255, 255, 0.92);
+  --koine-surface-card: rgba(255, 255, 255, 0.7);
+  --koine-surface-card-hover: rgba(255, 255, 255, 0.85);
+
+  /* ── Border glows → solid borders in light ── */
+  --koine-border-glow: rgba(0, 0, 0, 0.06);
+  --koine-border-glow-med: rgba(0, 0, 0, 0.1);
+  --koine-border-glow-hover: rgba(122, 74, 8, 0.2);
+  --koine-border-glow-strong: rgba(122, 74, 8, 0.35);
+  --koine-glow-accent-rgb: 122, 74, 8;
+
+  /* ── Graph (dark-on-light, readable) ── */
+  --koine-graph-text-label: #2a1808;
+  --koine-graph-text-entity: #4a3a20;
+  --koine-graph-text-outline: rgba(250, 246, 238, 0.6);
+  --koine-graph-edge-color: #c4b090;
+  --koine-graph-edge-arrow: #a09070;
+  --koine-graph-sidebar-bg: rgba(255, 255, 255, 0.94);
+  --koine-graph-tooltip-bg: rgba(255, 255, 255, 0.96);
+  --koine-graph-select-text: #1a1408;
+  --koine-graph-select-border: #7a4a08;
+  --koine-graph-chunk-color: #4a7090;
+  --koine-graph-sg-bg: rgba(240, 245, 235, 0.5);
+
+  /* ── Gradient + grid ── */
+  --koine-gradient-surface: linear-gradient(180deg, #faf6ee 0%, #f5efe2 100%);
+  --koine-grid-color: rgba(122, 74, 8, 0.03);
+
+  /* ── Shadows (warm brown, visible depth) ── */
+  --koine-shadow-sm: 0 1px 3px rgba(60, 40, 20, 0.08), 0 1px 2px rgba(60, 40, 20, 0.05);
+  --koine-shadow-md: 0 4px 12px rgba(60, 40, 20, 0.1);
+  --koine-shadow-lg: 0 8px 24px rgba(60, 40, 20, 0.12);
+  --koine-glow-sm: 0 0 8px rgba(122, 74, 8, 0.06);
+  --koine-glow-md: 0 0 16px rgba(122, 74, 8, 0.08);
+  --koine-glow-lg: 0 0 32px rgba(122, 74, 8, 0.05);
+  --koine-glow-neon: 0 2px 8px rgba(122, 74, 8, 0.15), 0 0 20px rgba(122, 74, 8, 0.06);
 
   color-scheme: light;
 }
