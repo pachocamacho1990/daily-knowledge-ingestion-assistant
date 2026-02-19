@@ -100,7 +100,7 @@ Danger:    bg red-500 → hover red-400
            Text: cream-50
 ```
 
-### Cards
+### Cards & Glassmorphism
 
 ```
 Background: surface-primary (rgba, semi-transparent for glassmorphism)
@@ -111,6 +111,10 @@ Shadow:     none by default, koine-glow-neon on hover
 Hover:      transform translateY(-1px) to lift toward the user (Interactive Illumination)
 Backdrop:   backdrop-filter: blur(20px) saturate(1.5)
 Transition: all normal ease-gentle
+
+Glass Pattern:    Dark mode uses semi-transparent brand colors (e.g., gold/cream tints).
+                  Light mode MUST use near-opaque white (e.g., rgba(255, 255, 255, 0.82)) 
+                  for glass surfaces. Cream-on-cream creates muddy, low-contrast UI.
 
 HUD variant:      ::before/::after pseudo-elements as corner brackets
                   (top-left + bottom-right, 2px gold, 12px arms)
@@ -215,3 +219,15 @@ All components automatically inherit the correct semantic colors. No component-l
 - `prefers-reduced-motion` disables all animations
 - Screen reader text via `.sr-only` class
 - No color-only indicators — always pair with icon or text
+
+---
+
+## Technical UI Patterns (Lessons Learned)
+
+### 1. Data Visualization Palettes
+Static pastel palettes (like `DARK_PALETTE`) fail accessibility checks on light backgrounds (`#faf6ee`), causing text and nodes to blur into the canvas. 
+**Rule:** When rendering data viz in Light Mode, always dynamically swap to high-contrast **Jewel Tones** (deep amber, forest green, rich plum, dark brown) to ensure legibility.
+
+### 2. 3D Viewport Offsetting
+When locking a 3D WebGL camera to perfectly orbit a geometric center (e.g., a globe at `0,0,0`), mathematical offset vectors cause "wobble" and break the pivot illusion if UI panels open on top of the canvas.
+**Rule:** Never adjust the 3D camera vector to make room for 2D UI like sidebars. Instead, use a CSS 2D Transform (`transform: translateX(-160px)`) on the WebGL container `<div>` itself to asymmetrically slide the viewport. This perfectly re-centers the subject in the remaining screen space while preserving pure orbital pivot mechanics.
