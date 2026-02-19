@@ -68,7 +68,8 @@ Awe           → Discovery     → flame + spark icon
 - Represents knowledge flowing between domains and people
 
 **Component applications:**
-- **Knowledge graph visualization:** Primary data display component
+- **3D Knowledge Graph Visualization:** Primary data display component (`3d-force-graph` WebGL). Nodes are constrained to a transparent `SphereGeometry` to form an interactive globe.
+- **Dynamic Theming:** The graph is fully synced with `data-theme`. Light mode uses deep jewel tones (`LIGHT_PALETTE`) for high contrast against `--koine-surface-base`, while dark mode uses pastel gold/cream (`DARK_PALETTE`).
 - **Tag/category chips:** Small circles with connecting lines between related items
 - **Breadcrumbs:** Nodes connected by thin gold lines
 - **Multi-select:** Selected items appear as connected nodes

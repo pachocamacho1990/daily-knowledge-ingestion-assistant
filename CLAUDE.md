@@ -102,21 +102,18 @@ daily-knowledge-ingestion-assistant/
 
 ## Current State
 
-- **Phase**: Knowledge graph integration complete — frontend fully functional
+- **Phase**: Frontend Theme & Visualization Enhancements complete
 - **What exists**:
   - 3 GraphRAG notebooks (extraction, graph+viz, retrieval) — pipeline validated
   - Koine Design System integrated (`design-system/`) with full CSS tokens, SVG logos, favicons
   - Frontend: FastAPI + Jinja2 serving Navigator (chat) and Visualization (knowledge graph) panes
-  - Knowledge graph: 40 communities, 158 entities, 96 chunks rendered in Cytoscape.js
-  - 15-color Koine palette, entity shapes by type (diamond, hexagon, rounded-rect, etc.)
-  - Glassmorphism sidebar with legend, node info, chunk expansion, controls
+  - Knowledge graph: 40 communities, 158 entities, 96 chunks rendered via 3D WebGL spherical layout (`3d-force-graph` + `Three.js`)
+  - Dynamic dual-theme styling (Dark/Light mode) with interactive illumination, high-contrast typography, and glassmorphism elements
   - GitHub Wiki (Phase 0 + 1 + 2), comprehensive docs, 3 UI mockups
 - **Frontend status**: Running locally via `python3 -m venv .venv && source .venv/bin/activate && uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload`
   - Split-pane layout: Navigator (~40%) + Visualization (~60%)
-  - Koine dark theme with gold/cream candlelight palette
-  - Interactive knowledge graph with community expand/collapse, entity details, chunk tooltips
+  - True 3D Interactive World Map Graph rotating dynamically around origin
   - Typography: Cormorant Garamond (display), DM Sans (body), JetBrains Mono (graph labels)
-  - Animations: fade-in, fade-in-up, glow-pulse, staggered entrance
 - **Next step**: Connect Navigator chat to Ollama backend, refactor notebooks into `src/` modules
 - **Implementation plan**: 10 steps in `docs/architecture-plan.md`
 
