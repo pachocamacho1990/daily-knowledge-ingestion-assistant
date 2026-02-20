@@ -18,44 +18,11 @@
   var highlightLinks = new Set();
   var hoverNode = null;
 
-  // ── Koine Graph Palette ────────────────────────────────────
-  var DARK_PALETTE = [
-    '#c9a84c', '#daa540', '#a06218', '#c97a20', '#8b6b3a',
-    '#7a8a5a', '#5a7a9a', '#8a5a6a', '#6a5a8a', '#5a8a7a',
-    '#9a7a5a', '#7a6a4a', '#a08060', '#6a8090', '#8a7060',
-  ];
-  var LIGHT_PALETTE = [
-    '#7a5a10', '#8a6015', '#6a3a08', '#5a2a00', '#4a3a20',
-    '#3a5a3a', '#2a4a6a', '#4a2a3a', '#3a2a5a', '#2a5a4a',
-    '#5a4a2a', '#4a3a2a', '#6a4030', '#3a5060', '#5a4030'
-  ];
-  var SG_DARK = '#7a8a5a';
-  var SG_LIGHT = '#3a5a3a';
-
-  function getActivePalette() {
-    return document.documentElement.getAttribute('data-theme') === 'light' ? LIGHT_PALETTE : DARK_PALETTE;
-  }
-
-  function getActiveSgColor() {
-    return document.documentElement.getAttribute('data-theme') === 'light' ? SG_LIGHT : SG_DARK;
-  }
-
-  function resolveColor(s, varName, fallback) {
-    var val = s.getPropertyValue(varName).trim();
-    var maxDepth = 5;
-    while (val.startsWith('var(') && maxDepth > 0) {
-      var match = val.match(/var\((--[^)]+)\)/);
-      if (match) {
-        val = s.getPropertyValue(match[1]).trim();
-      } else {
-        break;
-      }
-      maxDepth--;
-    }
-    return val || fallback;
-  }
-
-  // ── Theme-Aware Graph Variables ─────────────────────────────
+  // ── Traffic Light Colors ─────────────────────────────────────
+  // Rule: Active (expanded) = Green, Inactive = Red, Text Chunk = Blue
+  const COLOR_ACTIVE = 'rgba(60, 180, 75, 0.9)';   // Green
+  const COLOR_INACTIVE = 'rgba(230, 25, 75, 0.9)'; // Red
+  const COLOR_CHUNK = 'rgba(67, 99, 216, 0.7)';    // Blue (semi-transparent)
   function getGraphVars() {
     var s = getComputedStyle(document.documentElement);
     return {
@@ -74,12 +41,7 @@
       // Premium 3D Tokens
       globeColor: s.getPropertyValue('--koine-border-glow-strong').trim() || 'rgba(122, 74, 8, 0.35)',
       globeWireframe: s.getPropertyValue('--koine-border-glow-med').trim() || 'rgba(122, 74, 8, 0.15)',
-      nodeHighlight: s.getPropertyValue('--koine-interactive').trim() || '#7a4a08',
-
-      // Semantic Node Light Rules
-      colorInactive: resolveColor(s, '--koine-error', '#c53030'),
-      colorActive: resolveColor(s, '--koine-success', '#4a8a3a'),
-      colorChunk: resolveColor(s, '--koine-info', '#5a7a9a')
+      nodeHighlight: s.getPropertyValue('--koine-interactive').trim() || '#7a4a08'
     };
   }
   var gv = getGraphVars();
@@ -99,34 +61,29 @@
   }
 
   function remapColors() {
-    var palette = getActivePalette();
-    var sgColor = getActiveSgColor();
-
-    // 1. Assign semantic palette colors to all root communities
+    // Traffic Light Rule: All root communities are INACTIVE (Red) by default, 
+    // unless their expanded state says otherwise.
     graphData.metaElements.forEach(function (el) {
       if (el.data && el.data.type === 'COMMUNITY' && el.data.community !== undefined) {
-        var paletteColor = palette[parseInt(el.data.community) % palette.length] || gv.colorInactive;
-        el.data.color = paletteColor;
-        el.data._defaultColor = paletteColor;
+        if (expandedCommunities.has(parseInt(el.data.community))) {
+          el.data.color = COLOR_ACTIVE;
+        } else {
+          el.data.color = COLOR_INACTIVE;
+        }
       }
     });
 
-    // 2. Pre-assign colors based on community for entities
     Object.keys(graphData.communityData).forEach(function (commId) {
       var comm = graphData.communityData[commId];
-      var paletteColor = palette[parseInt(commId) % palette.length] || gv.colorInactive;
-
-      var rootNode = currentNodes.find(n => n.id === 'comm-' + commId);
-      if (rootNode) rootNode.color = paletteColor;
-
+      // When a community is expanded, its internal entities are part of the "active" group
       if (comm.entities) {
         comm.entities.forEach(function (ent) {
-          if (ent.data) ent.data.color = paletteColor;
+          if (ent.data) ent.data.color = COLOR_ACTIVE;
         });
       }
       if (comm.semantic_groups) {
         comm.semantic_groups.forEach(function (sg) {
-          if (sg.data) sg.data._sgColor = sgColor;
+          if (sg.data) sg.data._sgColor = COLOR_ACTIVE;
         });
       }
     });
@@ -244,7 +201,7 @@
         if (highlightNodes.has(node.id)) return node.color || gv.textEntity;
         return `rgba(${gv.glowAccent}, 0.15)`; // Dimmed
       })
-      .nodeOpacity(node => node.isChunk ? 0.98 : 0.9)
+      .nodeOpacity(0.9)
       .linkOpacity(0.3)
       .linkColor(link => {
         if (highlightNodes.size === 0) return gv.edgeColor;
@@ -258,19 +215,8 @@
       .linkDirectionalParticles(link => highlightLinks.has(link.id || `${link.source.id}-${link.target.id}`) ? 4 : 0)
       .linkDirectionalParticleWidth(2)
       .nodeLabel(node => {
-        // Red/Green status logic for communities
-        let statusBadge = "";
-        if (node.type === 'COMMUNITY') {
-          const isActive = expandedCommunities.has(node.community);
-          const statusColor = isActive ? gv.colorActive : gv.colorInactive;
-          const statusText = isActive ? "ACTIVE (EXPANDED)" : "INACTIVE";
-          statusBadge = `<div style="display:inline-block; font-family:var(--koine-font-mono); font-size:9px; font-weight:bold; color:${statusColor}; margin-bottom:6px; padding:2px 6px; border-radius:4px; border:1px solid ${statusColor}44; background:${statusColor}11;">
-             <span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:${statusColor};margin-right:4px;"></span>${statusText}
-           </div><br>`;
-        }
-
+        // Use the built-in HTML tooltip
         return `<div class="chunk-tooltip" style="display:block; position:static; background:var(--koine-graph-sidebar-bg); backdrop-filter:blur(16px); padding:10px; border-radius:6px; font-family:var(--koine-font-body); font-size:12px; border:1px solid var(--koine-border-subtle); box-shadow:0 4px 12px rgba(0,0,0,0.1);">
-           ${statusBadge}
            <div style="font-family:var(--koine-font-mono); font-size:10px; color:${node.color || gv.textEntity}; margin-bottom:4px; text-transform:uppercase;">${node.type || 'Node'}</div>
            <strong style="color:var(--koine-text-primary)">${node.label || node.id}</strong>
          </div>`;
@@ -413,7 +359,7 @@
 
     if (d.type === 'SEMANTIC_GROUP') {
       clearChunks();
-      var sgColor = getActiveSgColor();
+      var sgColor = COLOR_ACTIVE;
       var html = '<div class="name" style="color:' + sgColor + '">' + d.label + '</div>';
       html += '<span class="type-badge" style="background:' + sgColor + '33;color:' + sgColor + '">SEMANTIC GROUP</span>';
       html += '<div class="metric">Members: <span>' + d.member_count + ' entities</span></div>';
@@ -429,11 +375,10 @@
 
       if (expandedCommunities.has(commId)) {
         collapseCommunity(commId);
-        showCommunitySummary(commId, gv.colorInactive);
       } else {
         expandCommunity(commId);
-        showCommunitySummary(commId, gv.colorActive);
       }
+      showCommunitySummary(commId, d.color);
       return;
     }
 
@@ -491,21 +436,15 @@
 
     expandedCommunities.add(commId);
 
-    // Keep active palette color for new children and root
-    var palette = getActivePalette();
-    var paletteColor = palette[parseInt(commId) % palette.length] || gv.colorInactive;
-
+    // Traffic Light: Active community becomes GREEN
     var rootNode = currentNodes.find(n => n.id === 'comm-' + commId);
-    if (rootNode) rootNode.color = paletteColor;
-
-    newNodes.forEach(n => {
-      if (n.type !== 'SEMANTIC_GROUP') n.color = paletteColor;
-    });
+    if (rootNode) {
+      rootNode.color = COLOR_ACTIVE;
+    }
 
     refreshGraphData();
     updateHighlight(); // Force color property re-evaluation on globe
     updateLevelIndicator();
-    updateLegendDots();
   }
 
   function collapseCommunity(commId) {
@@ -519,30 +458,15 @@
 
     expandedCommunities.delete(commId);
 
-    // Revert root node back to its palette color
+    // Traffic Light: Collapsed community becomes RED
     var rootNode = currentNodes.find(n => n.id === 'comm-' + commId);
     if (rootNode) {
-      var palette = getActivePalette();
-      rootNode.color = palette[parseInt(commId) % palette.length] || gv.colorInactive;
+      rootNode.color = COLOR_INACTIVE;
     }
 
     refreshGraphData();
     updateHighlight(); // Force color property re-evaluation on globe
     updateLevelIndicator();
-    updateLegendDots();
-  }
-
-  function updateLegendDots() {
-    if (!legendEl) return;
-    legendEl.querySelectorAll('.legend-item').forEach(function (item) {
-      var commId = parseInt(item.dataset.community);
-      var statDot = item.querySelector('.status-dot');
-      if (statDot) {
-        var statusColor = expandedCommunities.has(commId) ? gv.colorActive : gv.colorInactive;
-        statDot.style.background = statusColor;
-        statDot.style.boxShadow = '0 0 4px ' + statusColor + '88';
-      }
-    });
   }
 
   // ── Utility Functions ──────────────────────────────────────
@@ -586,7 +510,7 @@
         chunkIndex: chunk.index,
         isChunk: true,
         type: 'CHUNK',
-        color: gv.colorChunk,
+        color: COLOR_CHUNK,
         size: 5 // small chunk size
       });
 
@@ -645,7 +569,7 @@
   function buildCommSummaryHtml(commId, color) {
     var s = graphData.commSummaries[commId];
     if (!s) return '';
-    var html = '<div class="comm-summary-box" style="border-left-color:' + (color || '#c9a84c') + '">';
+    var html = '<div class="comm-summary-box" style="border-left-color:' + (color || COLOR_INACTIVE) + '">';
     html += '<div class="comm-title">Community ' + commId + ': ' + s.title + '</div>';
     html += '<div class="comm-text">' + s.summary + '</div>';
     if (s.key_insights && s.key_insights.length > 0) {
@@ -662,7 +586,7 @@
   function buildSemanticGroupHtml(groupId) {
     var g = graphData.semanticGroups[groupId];
     if (!g) return '';
-    var sgColor = getActiveSgColor();
+    var sgColor = COLOR_ACTIVE;
     var html = '<div class="comm-summary-box" style="border-left-color:' + sgColor + '">';
     html += '<div class="comm-title" style="color:' + sgColor + '">Semantic Group: ' + g.canonical + '</div>';
     html += '<div class="comm-text">' + g.members.length + ' semantically similar entities</div>';
@@ -700,14 +624,8 @@
     var html = '';
     communities.forEach(function (comm) {
       var d = comm.data;
-      var isActive = expandedCommunities.has(d.community);
-      var statusColor = isActive ? gv.colorActive : gv.colorInactive;
-      var paletteColor = d.color || gv.textEntity;
-
-      html += '<div class="legend-item" data-community="' + d.community + '">' +
-        // Add a primary status light dot (Green/Red) alongside the tiny palette dot
-        '<div class="status-dot" style="width:6px;height:6px;border-radius:50%;flex-shrink:0;background:' + statusColor + ';box-shadow:0 0 4px ' + statusColor + '88;"></div>' +
-        '<div class="legend-dot" style="background:' + paletteColor + ';width:10px;height:10px;border-radius:50%;flex-shrink:0;border:1px solid rgba(255,255,255,0.1);"></div>' +
+      html += '<div class="legend-item" data-community="' + d.community + '" data-color="' + d.color + '">' +
+        '<div class="legend-dot" style="background:' + d.color + '"></div>' +
         '<div class="legend-label" title="' + d.label + '">' + d.label + '</div>' +
         '<div class="legend-count">' + d.member_count + '</div>' +
         '</div>';
@@ -722,6 +640,7 @@
     legendEl.querySelectorAll('.legend-item').forEach(function (item) {
       item.addEventListener('click', function () {
         var commId = parseInt(item.dataset.community);
+        var color = item.dataset.color;
 
         if (commId === -1) { return; } // Unused/Unclassified
 
@@ -740,8 +659,7 @@
         if (!expandedCommunities.has(commId)) {
           expandCommunity(commId);
         }
-
-        showCommunitySummary(commId, paletteColor);
+        showCommunitySummary(commId, color);
       });
     });
   }
