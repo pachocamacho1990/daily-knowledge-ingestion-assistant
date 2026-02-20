@@ -1,6 +1,6 @@
 # CLAUDE.md - DKIA Project Instructions
 
-> Last updated: February 18, 2026
+> Last updated: February 19, 2026
 > Version: Pre-release (knowledge graph integration)
 
 ## What Is This Project
@@ -9,7 +9,7 @@
 
 1. **The Navigator** — Conversational-first chat interface (left pane, ~40%). The user drives discovery each morning through questions. The AI has processed everything overnight and guides on where to look, why it matters, and how to approach it.
 
-2. **The Visualization Platform** — Interactive knowledge graph powered by Cytoscape.js (right pane, ~60%). Shows entities, relationships, topic clusters as a living map. Nodes sized by centrality, colored by category, clustered by community detection.
+2. **The Visualization Platform** — Interactive 3D WebGL knowledge graph powered by `3d-force-graph` + `Three.js` (right pane, ~60%). Shows entities, relationships, topic clusters as a spherical world map. Nodes sized by centrality, colored by category, clustered by community detection.
 
 **Core belief**: This is about the future of education — optimizing how humans learn from large volumes of data.
 
@@ -30,7 +30,7 @@
 |---|---|
 | Language | Python 3.12+ (dev uses 3.14) |
 | Web framework | FastAPI + Uvicorn |
-| Frontend | Jinja2 + Koine Design System + Cytoscape.js |
+| Frontend | Jinja2 + Koine Design System + 3d-force-graph (Three.js WebGL) |
 | Design System | Koine (custom): CSS tokens, SVG logos, Tailwind 4 preset |
 | Database | SQLite + sqlite-vec |
 | Graph | NetworkX + igraph + leidenalg |
@@ -48,9 +48,13 @@
 daily-knowledge-ingestion-assistant/
 ├── CLAUDE.md
 ├── design-system/                 # Koine Design System (Tokens, CSS, Assets)
+│   ├── README.md                  # Design system overview and usage guide
+│   ├── manifest.json              # Design system manifest
 │   ├── assets/logos/              # SVG logos: full, reduced, minimal, glyph (dark/light)
 │   ├── assets/favicons/           # Favicon set (ico, png 16-512, apple-touch)
 │   ├── styles/global.css          # CSS custom properties, themes, animations, typography
+│   ├── tokens/                    # Design tokens (colors, motion, spacing, typography)
+│   │   └── themes/                # Theme overrides (dark.json, light.json, liturgical.json)
 │   ├── docs/components.md         # Component guidelines (buttons, cards, inputs, nav)
 │   └── tailwind.config.js         # Tailwind 4 preset with Koine tokens
 ├── docs/
@@ -67,7 +71,7 @@ daily-knowledge-ingestion-assistant/
 │       ├── static/
 │       │   ├── css/app.css        # Application styles (imports global.css)
 │       │   ├── css/graph.css      # Knowledge graph styles (sidebar, legend, tooltips)
-│       │   ├── js/graph.js        # Cytoscape logic + Koine palette + entity shapes
+│       │   ├── js/graph.js        # 3d-force-graph WebGL logic + Koine palette + sidebar
 │       │   └── data/graph_data.json # Extracted graph data (207KB, 40 communities)
 │       └── templates/
 │           ├── base.html          # Shell: favicon, CSS, split-pane, extra_css block
@@ -95,7 +99,7 @@ daily-knowledge-ingestion-assistant/
 ```
 7 Sources (arXiv PDFs + Web) -> Chunks -> Entities/Relations/Claims [configurable mode]
   -> Cross-Doc Merge -> Semantic Grouping -> Graph -> Communities -> Summaries
-  -> SQLite -> Cytoscape.js Viz -> Embeddings -> Triple-Factor Retrieval
+  -> SQLite -> 3D WebGL Viz (3d-force-graph) -> Embeddings -> Triple-Factor Retrieval
 ```
 
 **Generated artifacts (gitignored):** `notebooks/extraction_results.json`, `notebooks/graphrag.db`, `notebooks/knowledge_graph.html`
@@ -122,7 +126,7 @@ daily-knowledge-ingestion-assistant/
 - 3 source connectors: RSS, Hacker News, arXiv (full PDF content)
 - Full processing pipeline: dedup -> extract -> summarize -> embed -> cluster -> landscape summaries
 - Navigator with triple-factor retrieval + SSE streaming
-- Visualization Platform with Cytoscape.js
+- Visualization Platform with 3d-force-graph (3D WebGL spherical layout)
 - APScheduler for overnight automation
 - Sources management page
 
