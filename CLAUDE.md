@@ -111,7 +111,9 @@ daily-knowledge-ingestion-assistant/
   - Koine Design System integrated (`design-system/`) with full CSS tokens, SVG logos, favicons
   - Frontend: FastAPI + Jinja2 serving Navigator (chat) and Visualization (knowledge graph) panes
   - Knowledge graph: 40 communities, 158 entities, 96 chunks rendered via 3D WebGL spherical layout (`3d-force-graph` + `Three.js`). Data is served **dynamically** from `graphrag.db` via FastAPI endpoint `/api/graph/data`.
-  - Dynamic dual-theme styling (Dark/Light mode) with interactive illumination, high-contrast typography, and glassmorphism elements
+  - Dynamic dual-theme styling (Dark/Light mode) with interactive illumination, high-contrast typography, and glassmorphism elements.
+  - Interactive Filter Toggles (Orphans / Tiny Comms) to dynamically re-query the graph.
+  - Interactive Semantic Coloring ("Traffic Light" paradigm): Pure Green for Active/Expanded nodes, Pure Red for Inactive nodes, and Blue for discrete text chunks.
   - GitHub Wiki (Phase 0 + 1 + 2), comprehensive docs, 3 UI mockups
 - **Frontend status**: Running locally via `python3 -m venv .venv && source .venv/bin/activate && uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload`
   - Split-pane layout: Navigator (~40%) + Visualization (~60%)
