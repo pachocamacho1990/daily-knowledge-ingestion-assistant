@@ -25,6 +25,21 @@
     return document.documentElement.getAttribute('data-theme') === 'light' ? SG_LIGHT : SG_DARK;
   }
 
+  function resolveColor(s, varName, fallback) {
+    var val = s.getPropertyValue(varName).trim();
+    var maxDepth = 5;
+    while (val.startsWith('var(') && maxDepth > 0) {
+      var match = val.match(/var\((--[^)]+)\)/);
+      if (match) {
+        val = s.getPropertyValue(match[1]).trim();
+      } else {
+        break;
+      }
+      maxDepth--;
+    }
+    return val || fallback;
+  }
+
   // ── Theme-Aware Graph Variables ─────────────────────────────
   function getGraphVars() {
     var s = getComputedStyle(document.documentElement);
@@ -47,9 +62,9 @@
       nodeHighlight: s.getPropertyValue('--koine-interactive').trim() || '#7a4a08',
 
       // Semantic Node Light Rules
-      colorInactive: s.getPropertyValue('--koine-error').trim() || '#c53030',
-      colorActive: s.getPropertyValue('--koine-success').trim() || '#4a8a3a',
-      colorChunk: s.getPropertyValue('--koine-info').trim() || '#5a7a9a'
+      colorInactive: resolveColor(s, '--koine-error', '#c53030'),
+      colorActive: resolveColor(s, '--koine-success', '#4a8a3a'),
+      colorChunk: resolveColor(s, '--koine-info', '#5a7a9a')
     };
   }
   var gv = getGraphVars();
