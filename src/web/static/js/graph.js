@@ -20,9 +20,9 @@
 
   // ── Traffic Light Colors ─────────────────────────────────────
   // Rule: Active (expanded) = Green, Inactive = Red, Text Chunk = Blue
-  const COLOR_ACTIVE = 'rgba(60, 180, 75, 0.9)';   // Green
-  const COLOR_INACTIVE = 'rgba(230, 25, 75, 0.9)'; // Red
-  const COLOR_CHUNK = 'rgba(67, 99, 216, 0.7)';    // Blue (semi-transparent)
+  const COLOR_ACTIVE = '#00ff00';   // Pure Green light
+  const COLOR_INACTIVE = '#ff0000'; // Pure Red light
+  const COLOR_CHUNK = 'rgba(0, 100, 255, 0.9)';    // Blue (less transparent)
   function getGraphVars() {
     var s = getComputedStyle(document.documentElement);
     return {
@@ -445,6 +445,7 @@
     refreshGraphData();
     updateHighlight(); // Force color property re-evaluation on globe
     updateLevelIndicator();
+    buildLegend();
   }
 
   function collapseCommunity(commId) {
@@ -467,6 +468,7 @@
     refreshGraphData();
     updateHighlight(); // Force color property re-evaluation on globe
     updateLevelIndicator();
+    buildLegend();
   }
 
   // ── Utility Functions ──────────────────────────────────────
@@ -600,8 +602,9 @@
     return html;
   }
 
-  function showCommunitySummary(commId, color) {
+  function showCommunitySummary(commId) {
     var expanded = expandedCommunities.has(commId);
+    var color = expanded ? COLOR_ACTIVE : COLOR_INACTIVE;
     var s = graphData.commSummaries[commId];
     if (!s) return;
     var memberCount = graphData.communityData[commId]
@@ -624,8 +627,11 @@
     var html = '';
     communities.forEach(function (comm) {
       var d = comm.data;
-      html += '<div class="legend-item" data-community="' + d.community + '" data-color="' + d.color + '">' +
-        '<div class="legend-dot" style="background:' + d.color + '"></div>' +
+      var isActive = expandedCommunities.has(parseInt(d.community));
+      var nodeColor = isActive ? COLOR_ACTIVE : COLOR_INACTIVE;
+
+      html += '<div class="legend-item" data-community="' + d.community + '">' +
+        '<div class="legend-dot" style="background:' + nodeColor + '"></div>' +
         '<div class="legend-label" title="' + d.label + '">' + d.label + '</div>' +
         '<div class="legend-count">' + d.member_count + '</div>' +
         '</div>';
@@ -658,8 +664,9 @@
 
         if (!expandedCommunities.has(commId)) {
           expandCommunity(commId);
+        } else {
+          showCommunitySummary(commId);
         }
-        showCommunitySummary(commId, color);
       });
     });
   }
