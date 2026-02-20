@@ -141,8 +141,16 @@
         <div id="legend"></div>
     </div>
 
+    <!-- Filters -->
+    <div class="graph-controls" style="padding-bottom: 4px;">
+        <button id="btn-toggle-orphans" onclick="toggleFilter('btn-toggle-orphans')"
+            title="Show nodes with 0 connections">Orphans: OFF</button>
+        <button id="btn-toggle-tiny" onclick="toggleFilter('btn-toggle-tiny')"
+            title="Show communities with 1 member">Tiny Comms: OFF</button>
+    </div>
+
     <!-- Controls -->
-    <div class="graph-controls">
+    <div class="graph-controls" style="border-top: none; padding-top: 4px;">
         <button onclick="graphFit()">Fit</button>
         <button onclick="graphCollapseAll()">Collapse All</button>
         <button onclick="graphReset()">Reset</button>
