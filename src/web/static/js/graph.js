@@ -18,23 +18,8 @@
   var highlightLinks = new Set();
   var hoverNode = null;
 
-  // ── Koine Graph Palette ────────────────────────────────────
-  var DARK_PALETTE = [
-    '#c9a84c', '#daa540', '#a06218', '#c97a20', '#8b6b3a',
-    '#7a8a5a', '#5a7a9a', '#8a5a6a', '#6a5a8a', '#5a8a7a',
-    '#9a7a5a', '#7a6a4a', '#a08060', '#6a8090', '#8a7060',
-  ];
-  var LIGHT_PALETTE = [
-    '#7a5a10', '#8a6015', '#6a3a08', '#5a2a00', '#4a3a20',
-    '#3a5a3a', '#2a4a6a', '#4a2a3a', '#3a2a5a', '#2a5a4a',
-    '#5a4a2a', '#4a3a2a', '#6a4030', '#3a5060', '#5a4030'
-  ];
   var SG_DARK = '#7a8a5a';
   var SG_LIGHT = '#3a5a3a';
-
-  function getActivePalette() {
-    return document.documentElement.getAttribute('data-theme') === 'light' ? LIGHT_PALETTE : DARK_PALETTE;
-  }
 
   function getActiveSgColor() {
     return document.documentElement.getAttribute('data-theme') === 'light' ? SG_LIGHT : SG_DARK;
@@ -59,7 +44,12 @@
       // Premium 3D Tokens
       globeColor: s.getPropertyValue('--koine-border-glow-strong').trim() || 'rgba(122, 74, 8, 0.35)',
       globeWireframe: s.getPropertyValue('--koine-border-glow-med').trim() || 'rgba(122, 74, 8, 0.15)',
-      nodeHighlight: s.getPropertyValue('--koine-interactive').trim() || '#7a4a08'
+      nodeHighlight: s.getPropertyValue('--koine-interactive').trim() || '#7a4a08',
+
+      // Semantic Node Light Rules
+      colorInactive: s.getPropertyValue('--koine-error').trim() || '#c53030',
+      colorActive: s.getPropertyValue('--koine-success').trim() || '#4a8a3a',
+      colorChunk: s.getPropertyValue('--koine-info').trim() || '#5a7a9a'
     };
   }
   var gv = getGraphVars();
@@ -79,32 +69,32 @@
   }
 
   function remapColors() {
-    // 1. Uniform default state for all root communities
+    // 1. Uniform semantic state for all root communities
     graphData.metaElements.forEach(function (el) {
       if (el.data && el.data.type === 'COMMUNITY' && el.data.community !== undefined) {
-        el.data.color = gv.chunkColor; // Calm uniform base color
-        el.data._defaultColor = gv.chunkColor;
+        var isExpanded = expandedCommunities.has(el.data.community);
+        el.data.color = isExpanded ? gv.colorActive : gv.colorInactive;
+        el.data._defaultColor = gv.colorInactive;
       }
     });
 
-    // 2. Pre-assign colors based on community, but only for internal entities/SGs
-    // Root communities will adopt this color dynamically upon expansion.
-    var palette = getActivePalette();
+    // 2. Assign semantic colors to entities dynamically based on community expansion
     var sgColor = getActiveSgColor();
 
     Object.keys(graphData.communityData).forEach(function (commId) {
       var comm = graphData.communityData[commId];
-      var paletteColor = palette[parseInt(commId) % palette.length];
+      var isExpanded = expandedCommunities.has(parseInt(commId));
+      var nodeColor = isExpanded ? gv.colorActive : gv.colorInactive;
 
       // If root node is currently expanded, immediately update its color too
-      if (expandedCommunities.has(parseInt(commId))) {
+      if (isExpanded) {
         var rootNode = currentNodes.find(n => n.id === 'comm-' + commId);
-        if (rootNode) rootNode.color = paletteColor;
+        if (rootNode) rootNode.color = gv.colorActive;
       }
 
       if (comm.entities) {
         comm.entities.forEach(function (ent) {
-          if (ent.data) ent.data.color = paletteColor;
+          if (ent.data) ent.data.color = nodeColor;
         });
       }
       if (comm.semantic_groups) {
@@ -227,7 +217,7 @@
         if (highlightNodes.has(node.id)) return node.color || gv.textEntity;
         return `rgba(${gv.glowAccent}, 0.15)`; // Dimmed
       })
-      .nodeOpacity(0.9)
+      .nodeOpacity(node => node.isChunk ? 0.98 : 0.9)
       .linkOpacity(0.3)
       .linkColor(link => {
         if (highlightNodes.size === 0) return gv.edgeColor;
@@ -401,10 +391,11 @@
 
       if (expandedCommunities.has(commId)) {
         collapseCommunity(commId);
+        showCommunitySummary(commId, gv.colorInactive);
       } else {
         expandCommunity(commId);
+        showCommunitySummary(commId, gv.colorActive);
       }
-      showCommunitySummary(commId, d.color);
       return;
     }
 
@@ -462,16 +453,21 @@
 
     expandedCommunities.add(commId);
 
-    // Dynamically assign striking identity color to root node
+    // Dynamically assign active color to root node
     var rootNode = currentNodes.find(n => n.id === 'comm-' + commId);
     if (rootNode) {
-      var palette = getActivePalette();
-      rootNode.color = palette[parseInt(commId) % palette.length];
+      rootNode.color = gv.colorActive;
     }
+
+    // Assign active color to all new children
+    newNodes.forEach(n => {
+      if (n.type !== 'SEMANTIC_GROUP') n.color = gv.colorActive;
+    });
 
     refreshGraphData();
     updateHighlight(); // Force color property re-evaluation on globe
     updateLevelIndicator();
+    updateLegendDots();
   }
 
   function collapseCommunity(commId) {
@@ -494,6 +490,18 @@
     refreshGraphData();
     updateHighlight(); // Force color property re-evaluation on globe
     updateLevelIndicator();
+    updateLegendDots();
+  }
+
+  function updateLegendDots() {
+    if (!legendEl) return;
+    legendEl.querySelectorAll('.legend-item').forEach(function (item) {
+      var commId = parseInt(item.dataset.community);
+      var dot = item.querySelector('.legend-dot');
+      if (dot) {
+        dot.style.background = expandedCommunities.has(commId) ? gv.colorActive : gv.colorInactive;
+      }
+    });
   }
 
   // ── Utility Functions ──────────────────────────────────────
@@ -537,7 +545,7 @@
         chunkIndex: chunk.index,
         isChunk: true,
         type: 'CHUNK',
-        color: gv.chunkColor,
+        color: gv.colorChunk,
         size: 5 // small chunk size
       });
 
@@ -651,8 +659,11 @@
     var html = '';
     communities.forEach(function (comm) {
       var d = comm.data;
-      html += '<div class="legend-item" data-community="' + d.community + '" data-color="' + d.color + '">' +
-        '<div class="legend-dot" style="background:' + d.color + '"></div>' +
+      var isActive = expandedCommunities.has(d.community);
+      var dotColor = isActive ? gv.colorActive : gv.colorInactive;
+
+      html += '<div class="legend-item" data-community="' + d.community + '">' +
+        '<div class="legend-dot" style="background:' + dotColor + '"></div>' +
         '<div class="legend-label" title="' + d.label + '">' + d.label + '</div>' +
         '<div class="legend-count">' + d.member_count + '</div>' +
         '</div>';
@@ -667,7 +678,6 @@
     legendEl.querySelectorAll('.legend-item').forEach(function (item) {
       item.addEventListener('click', function () {
         var commId = parseInt(item.dataset.community);
-        var color = item.dataset.color;
 
         if (commId === -1) { return; } // Unused/Unclassified
 
@@ -686,7 +696,9 @@
         if (!expandedCommunities.has(commId)) {
           expandCommunity(commId);
         }
-        showCommunitySummary(commId, color);
+
+        var summaryColor = expandedCommunities.has(commId) ? gv.colorActive : gv.colorInactive;
+        showCommunitySummary(commId, summaryColor);
       });
     });
   }
