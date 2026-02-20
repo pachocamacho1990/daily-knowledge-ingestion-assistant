@@ -69,7 +69,10 @@ Awe           → Discovery     → flame + spark icon
 
 **Component applications:**
 - **3D Knowledge Graph Visualization:** Primary data display component (`3d-force-graph` WebGL). Nodes are constrained to a transparent `SphereGeometry` to form an interactive globe.
-- **Dynamic Theming:** The graph is fully synced with `data-theme`. Light mode uses deep jewel tones (`LIGHT_PALETTE`) for high contrast against `--koine-surface-base`, while dark mode uses pastel gold/cream (`DARK_PALETTE`).
+- **Semantic Node Coloring (Traffic Light System):** Rather than using thematic design palettes for node colors, the 3D graph prioritizes raw legibility of interface state:
+  - **Red (`#ff0000`):** Inactive / Collapsed communities.
+  - **Green (`#00ff00`):** Active / Expanded communities and their internal entities.
+  - **Blue (`rgba(0, 100, 255, 0.9)`):** Source text chunks.
 - **Tag/category chips:** Small circles with connecting lines between related items
 - **Breadcrumbs:** Nodes connected by thin gold lines
 - **Multi-select:** Selected items appear as connected nodes
@@ -225,8 +228,8 @@ All components automatically inherit the correct semantic colors. No component-l
 ## Technical UI Patterns (Lessons Learned)
 
 ### 1. Data Visualization Palettes
-Static pastel palettes (like `DARK_PALETTE`) fail accessibility checks on light backgrounds (`#faf6ee`), causing text and nodes to blur into the canvas. 
-**Rule:** When rendering data viz in Light Mode, always dynamically swap to high-contrast **Jewel Tones** (deep amber, forest green, rich plum, dark brown) to ensure legibility.
+While the broader application leverages adaptive thematic palettes (e.g., gold/cream for dark mode, jewel tones for light mode), applying these to dense, interactive 3D WebGL visualizations proved problematic. Nuanced thematic colors reduced immediate visual comprehension of node states (expanded vs. collapsed) in complex interactive globes.
+**Rule:** When rendering complex interactive data viz like the 3D Knowledge Graph, abandon subtle thematic palettes. Prioritize an **explicit Semantic Traffic-Light System**: Pure Red for inactive nodes, Pure Green for active/expanded nodes, and high-contrast Blue for discrete data chunks. The side panels and legends must perfectly sync to this explicit state coloring.
 
 ### 2. 3D Viewport Offsetting
 When locking a 3D WebGL camera to perfectly orbit a geometric center (e.g., a globe at `0,0,0`), mathematical offset vectors cause "wobble" and break the pivot illusion if UI panels open on top of the canvas.
