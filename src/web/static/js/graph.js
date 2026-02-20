@@ -281,7 +281,8 @@
         // Instead of tilting the 3D camera (which breaks the rotational pivot wobble),
         // we physically slide the entire WebGL canvas div to the left via 2D CSS.
         // This perfectly centers the globe in the remaining visible UI space.
-        const sidebarWidth = window.innerWidth <= 1200 ? 280 : 320;
+        const sidebarElement = document.querySelector('.graph-sidebar');
+        const sidebarWidth = sidebarElement ? sidebarElement.clientWidth : (window.innerWidth <= 1200 ? 280 : 320);
         container.style.transition = 'transform 1.5s cubic-bezier(0.25, 1, 0.5, 1)';
         container.style.transform = `translateX(-${sidebarWidth / 2}px)`;
 
@@ -353,12 +354,18 @@
     // Make sure camera fits the whole sphere robustly
     setTimeout(() => {
       Graph.zoomToFit(500, 50);
+      container.style.transition = 'none';
+      container.style.transform = 'translateX(0px)';
     }, 500);
 
     // Dynamic resize handler
     window.addEventListener('resize', () => {
       Graph.width(container.clientWidth);
       Graph.height(container.clientHeight);
+      if (!expandedCommunities.size && !hoverNode) {
+        container.style.transition = 'none';
+        container.style.transform = 'translateX(0px)';
+      }
     });
   }
 
