@@ -158,8 +158,25 @@
     loadData();
   });
 
+  window.toggleFilter = function (btnId) {
+    const btn = document.getElementById(btnId);
+    if (!btn) return;
+
+    btn.classList.toggle('active');
+
+    if (btnId === 'btn-toggle-orphans') {
+      btn.textContent = btn.classList.contains('active') ? 'Orphans: ON' : 'Orphans: OFF';
+    } else if (btnId === 'btn-toggle-tiny') {
+      btn.textContent = btn.classList.contains('active') ? 'Tiny Comms: ON' : 'Tiny Comms: OFF';
+    }
+
+    loadData();
+  };
+
   function loadData() {
-    fetch('/api/graph/data')
+    const incOrphans = document.getElementById('btn-toggle-orphans')?.classList.contains('active') ? 'true' : 'false';
+    const minSize = document.getElementById('btn-toggle-tiny')?.classList.contains('active') ? '1' : '2';
+    fetch(`/api/graph/data?include_orphans=${incOrphans}&min_community_size=${minSize}`)
       .then(function (r) { return r.json(); })
       .then(function (data) {
         graphData = data;

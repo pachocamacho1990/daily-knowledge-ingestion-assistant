@@ -92,13 +92,16 @@ def load_entity_chunk_map(cursor) -> Dict[str, list]:
     except sqlite3.OperationalError:
         return {}
 
-def prepare_viz_data(entities, edges, community_summaries, chunk_lookup, semantic_groups, entity_chunk_map) -> Dict[str, Any]:
+def prepare_viz_data(entities, edges, community_summaries, chunk_lookup, semantic_groups, entity_chunk_map, include_orphans=False, min_community_size=MIN_COMMUNITY_SIZE_FOR_VIZ) -> Dict[str, Any]:
     node_degree: Dict[str, int] = {}
     for src, tgt, _ in edges:
         node_degree[src] = node_degree.get(src, 0) + 1
         node_degree[tgt] = node_degree.get(tgt, 0) + 1
 
-    viz_nodes = {n for n in entities if node_degree.get(n, 0) > 0 and n.strip()}
+    if include_orphans:
+        viz_nodes = {n for n in entities if n.strip()}
+    else:
+        viz_nodes = {n for n in entities if node_degree.get(n, 0) > 0 and n.strip()}
     entity_node_ids = set(viz_nodes)
 
     viz_community_counts: Dict[int, int] = {}
@@ -112,7 +115,7 @@ def prepare_viz_data(entities, edges, community_summaries, chunk_lookup, semanti
 
     for comm_id, summary_data in community_summaries.items():
         member_count = viz_community_counts.get(comm_id, 0)
-        if member_count >= MIN_COMMUNITY_SIZE_FOR_VIZ:
+        if member_count >= min_community_size:
             cyto_community_summaries[comm_id] = summary_data
         elif member_count > 0:
             other_community_count += 1
@@ -160,7 +163,7 @@ def prepare_viz_data(entities, edges, community_summaries, chunk_lookup, semanti
         }
 
     all_pr = [entities[n].get("pagerank", 0) for n in viz_nodes]
-    all_comm_counts = [viz_community_counts[c] for c in viz_community_counts if viz_community_counts[c] >= MIN_COMMUNITY_SIZE_FOR_VIZ]
+    all_comm_counts = [viz_community_counts[c] for c in viz_community_counts if viz_community_counts[c] >= min_community_size]
 
     community_meta_elements = []
 
@@ -330,7 +333,7 @@ def prepare_viz_data(entities, edges, community_summaries, chunk_lookup, semanti
         "semanticGroups": cyto_semantic_groups,
     }
 
-def get_graph_data(db_path: str, top_communities: int = 0) -> Dict[str, Any]:
+def get_graph_data(db_path: str, top_communities: int = 0, include_orphans: bool = False, min_community_size: int = MIN_COMMUNITY_SIZE_FOR_VIZ) -> Dict[str, Any]:
     if not os.path.exists(db_path):
         return {
             "metaElements": [],
@@ -373,4 +376,4 @@ def get_graph_data(db_path: str, top_communities: int = 0) -> Dict[str, Any]:
         entity_chunk_map = {k: v for k, v in entity_chunk_map.items() if k in entities}
         semantic_groups = [g for g in semantic_groups if any(m in entities for m in g["members"])]
 
-    return prepare_viz_data(entities, edges, community_summaries, chunk_lookup, semantic_groups, entity_chunk_map)
+    return prepare_viz_data(entities, edges, community_summaries, chunk_lookup, semantic_groups, entity_chunk_map, include_orphans, min_community_size)

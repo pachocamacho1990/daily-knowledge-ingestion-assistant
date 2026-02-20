@@ -335,6 +335,13 @@
   border-color: var(--koine-interactive);
 }
 
+.graph-controls button.active {
+  background: rgba(var(--koine-glow-accent-rgb), 0.25);
+  color: var(--koine-text-primary);
+  border-color: var(--koine-interactive);
+  box-shadow: inset 0 0 8px rgba(var(--koine-glow-accent-rgb), 0.15);
+}
+
 /* ── Stats Bar ─────────────────────────────────────────────── */
 .graph-stats {
   padding: 8px 20px;
