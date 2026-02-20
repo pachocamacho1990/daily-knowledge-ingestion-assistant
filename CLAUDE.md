@@ -71,8 +71,7 @@ daily-knowledge-ingestion-assistant/
 │       ├── static/
 │       │   ├── css/app.css        # Application styles (imports global.css)
 │       │   ├── css/graph.css      # Knowledge graph styles (sidebar, legend, tooltips)
-│       │   ├── js/graph.js        # 3d-force-graph WebGL logic + Koine palette + sidebar
-│       │   └── data/graph_data.json # Extracted graph data (207KB, 40 communities)
+│       │   └── js/graph.js        # 3d-force-graph WebGL logic + Koine palette + sidebar
 │       └── templates/
 │           ├── base.html          # Shell: favicon, CSS, split-pane, extra_css block
 │           └── navigator.html     # Navigator + Graph canvas + floating sidebar
@@ -111,14 +110,14 @@ daily-knowledge-ingestion-assistant/
   - 3 GraphRAG notebooks (extraction, graph+viz, retrieval) — pipeline validated
   - Koine Design System integrated (`design-system/`) with full CSS tokens, SVG logos, favicons
   - Frontend: FastAPI + Jinja2 serving Navigator (chat) and Visualization (knowledge graph) panes
-  - Knowledge graph: 40 communities, 158 entities, 96 chunks rendered via 3D WebGL spherical layout (`3d-force-graph` + `Three.js`)
+  - Knowledge graph: 40 communities, 158 entities, 96 chunks rendered via 3D WebGL spherical layout (`3d-force-graph` + `Three.js`). Data is served **dynamically** from `graphrag.db` via FastAPI endpoint `/api/graph/data`.
   - Dynamic dual-theme styling (Dark/Light mode) with interactive illumination, high-contrast typography, and glassmorphism elements
   - GitHub Wiki (Phase 0 + 1 + 2), comprehensive docs, 3 UI mockups
 - **Frontend status**: Running locally via `python3 -m venv .venv && source .venv/bin/activate && uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload`
   - Split-pane layout: Navigator (~40%) + Visualization (~60%)
   - True 3D Interactive World Map Graph rotating dynamically around origin
   - Typography: Cormorant Garamond (display), DM Sans (body), JetBrains Mono (graph labels)
-- **Next step**: Connect Navigator chat to Ollama backend, refactor notebooks into `src/` modules
+- **Next step**: Connect Navigator chat to Ollama backend, refactor remaining notebooks into `src/` modules
 - **Implementation plan**: 10 steps in `docs/architecture-plan.md`
 
 ## MVP Scope (Phase 1)
