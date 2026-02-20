@@ -159,7 +159,7 @@
   });
 
   function loadData() {
-    fetch('/static/data/graph_data.json')
+    fetch('/api/graph/data')
       .then(function (r) { return r.json(); })
       .then(function (data) {
         graphData = data;
