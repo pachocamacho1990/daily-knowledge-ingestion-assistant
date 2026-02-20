@@ -3,7 +3,11 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse
 
+from src.api.graph import router as graph_router
+
 app = FastAPI(title="DKIA - Daily Knowledge Ingestion Assistant")
+
+app.include_router(graph_router, prefix="/api/graph", tags=["graph"])
 
 # Mount static files
 app.mount("/static", StaticFiles(directory="src/web/static"), name="static")
