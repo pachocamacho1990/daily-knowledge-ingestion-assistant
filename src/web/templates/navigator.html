@@ -113,7 +113,7 @@
 
 
 {% block visualization %}
-<!-- Cytoscape Canvas -->
+<!-- 3D WebGL Canvas -->
 <div id="cy"></div>
 
 <!-- Sidebar Toggle -->
@@ -160,8 +160,7 @@
 
 
 {% block scripts %}
-<script src="/static/js/sidebar.js"></script>
-<script src="/static/js/graph.js?v=15"></script>
+<script src="/static/js/graph.js?v=16"></script>
 <script>
     (function () {
         // Sync icon state on load
@@ -183,7 +182,7 @@
             var meta = document.getElementById('meta-theme-color');
             if (meta) meta.content = next === 'dark' ? '#08080e' : '#fdf9f0';
 
-            // Re-apply Cytoscape graph styles for new theme
+            // Re-apply graph styles for new theme
             if (window.reinitGraphStyles) window.reinitGraphStyles();
         });
     })();

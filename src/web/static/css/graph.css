@@ -2,7 +2,7 @@
    graph.css — Koine Design System · Knowledge Graph Styles
    ═══════════════════════════════════════════════════════════════ */
 
-/* ── Cytoscape Canvas ──────────────────────────────────────── */
+/* ── 3D WebGL Canvas ──────────────────────────────────────── */
 #cy {
   width: 100%;
   height: 100%;
